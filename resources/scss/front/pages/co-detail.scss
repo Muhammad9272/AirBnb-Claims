@@ -1,0 +1,68 @@
+@import '../variable';
+img {
+  object-fit: cover;
+}
+.ts-co-detail-qa {
+  padding-block: 68px;
+  padding-inline: 10px;
+  text-align: center;
+  max-height: 290px;
+}
+.ts-nav-tabs {
+  background: #edf5fe;
+  border: 1px solid #405189;
+  width: fit-content;
+  border-radius: 6px;
+  overflow: hidden;
+  .nav {
+    &-item {
+      .active {
+        background-color: #405189;
+        color: #fff;
+        border-color: #405189 !important;
+        border-radius: 0%;
+      }
+      &:not(:last-child) {
+        border-right: 1px solid #405189;
+      }
+    }
+    &-link {
+      font-family: $ts-font-poppins;
+      font-weight: 500;
+      font-size: 14px;
+      color: #000;
+      border-radius: 0;
+    }
+  }
+}
+.ts-category-btn {
+  border: 1px solid #b4b2b24e;
+  padding: 1px 40px 6px 4px;
+
+  .btn-close {
+    padding: 0px;
+    font-size: 12px;
+    top: 30%;
+    right: 7%;
+    bottom: 50%;
+    background-image: url('../../assets/icon/close.svg');
+  }
+}
+.ts-form-select-01 {
+  background-image: url('../../assets/icon/arrow-up.svg');
+  background-size: 8px;
+}
+.ts-form-select-01 {
+  :focus {
+    border: 5px solid red !important;
+    box-shadow: 10px 10px 10px 10px red;
+  }
+}
+.ts-input-1 {
+  border: 1px solid #e7eaee;
+  border-radius: 4px;
+}
+.ts-co-testing-card {
+  padding: 8px;
+  margin-bottom: 6px;
+}

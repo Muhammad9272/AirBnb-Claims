@@ -1,0 +1,2 @@
+<label class="form-label" for="meta-description-input">Suggested Answer</label>
+<textarea class="mlk-text-editor form-control" name="suggested_answer">{{ isset($data->suggested_answer) ? $data->suggested_answer : '' }}</textarea>

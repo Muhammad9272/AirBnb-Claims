@@ -1,0 +1,73 @@
+/********************************[ VARIABLE ]*************************************/
+@import 'variable';
+/********************************[ FONTS CLASS 'Poppins', sans-serif ]*************************************/
+.ts-font-poppins {
+  font-family: $ts-font-poppins;
+}
+/********************************[ FONTS CLASS 'Inter', sans-serif ]*************************************/
+.ts-font-inter {
+  font-family: $ts-font-inter;
+}
+/********************************[ FONTS CLASS 'Manrope', sans-serif ]*************************************/
+.ts-font-manrope {
+  font-family: $ts-font-manrope;
+}
+/********************************[ FONTS CLASS 'DM Sans', sans-serif ]*************************************/
+.ts-font-dm-sans {
+  font-family: $ts-font-dm-sans;
+}
+/********************************[ FONT WEIGHT ]*************************************/
+.ts {
+  &-fw {
+    &-medium {
+      font-weight: $fw-medium;
+    }
+  }
+}
+/********************************[ FONTS ]*************************************/
+
+.ts {
+  &-heading {
+    &-01 {
+      font-size: $heading-01;
+    }
+    &-02 {
+      font-size: $heading-02;
+    }
+    &-03 {
+      font-size: $heading-03;
+    }
+    &-04 {
+      font-size: $heading-04;
+    }
+    &-05 {
+      font-size: $heading-05;
+    }
+    &-06 {
+      font-size: $heading-06;
+    }
+  }
+  &-desc {
+    &-01 {
+      font-size: $desc-01;
+    }
+    &-02 {
+      font-size: $desc-02;
+    }
+    &-03 {
+      font-size: $desc-03;
+    }
+    &-04 {
+      font-size: $desc-04;
+    }
+    &-05 {
+      font-size: $desc-05;
+    }
+    &-06 {
+      font-size: $desc-06;
+    }
+    &-07 {
+      font-size: $desc-07;
+    }
+  }
+}

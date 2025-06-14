@@ -1,0 +1,58 @@
+@import 'variable';
+/********************************[ MIN-WIDTH ]*************************************/
+// Small devices
+@mixin sm-up {
+  @media (min-width: #{$break-sm-up}) {
+    @content;
+  }
+} // Medium devices
+@mixin md-up {
+  @media (min-width: #{$break-md-up}) {
+    @content;
+  }
+} // Large devices
+@mixin lg-up {
+  @media (min-width: #{$break-lg-up}) {
+    @content;
+  }
+} // Extra large devices
+@mixin xl-up {
+  @media (min-width: #{$break-xl-up}) {
+    @content;
+  }
+} // Extra large desktops
+@mixin xxl-up {
+  @media (min-width: #{$break-xxl-up}) {
+    @content;
+  }
+}
+/********************************[ MAX-WIDTH ]*************************************/
+@mixin sm-down {
+  @media (max-width: #{$break-sm-down}) {
+    @content;
+  }
+}
+
+@mixin md-down {
+  @media (max-width: #{$break-md-down}) {
+    @content;
+  }
+}
+
+@mixin lg-down {
+  @media (max-width: #{$break-lg-down}) {
+    @content;
+  }
+}
+
+@mixin xl-down {
+  @media (max-width: #{$break-xl-down}) {
+    @content;
+  }
+}
+
+@mixin xxl-down {
+  @media (max-width: #{$break-xxl-down}) {
+    @content;
+  }
+}

@@ -1,0 +1,394 @@
+/********************************[ VARIABLE FILLE LINK ]*************************************/
+@import "variable";
+@import "breakpoint";
+@import "color";
+@import "spacing";
+@import "typography";
+/********************************[  ]*************************************/
+* {
+    margin: 0px;
+    padding: 0px;
+}
+a {
+    color: $ts-primary-light;
+}
+
+body {
+    background: white !important;
+}
+/********************************[ NAVIGATION BAR STYLE ]*************************************/
+.ts {
+    &-navbar {
+        padding-block: 0.75rem;
+        .navbar-brand {
+            width: 168px;
+            height: 42px;
+        }
+        &-nav {
+            gap: 0.875rem;
+            .nav {
+                &-link {
+                    padding-block: 0px;
+                    padding-inline: 0px;
+                }
+            }
+        }
+    }
+}
+/********************************[ FOOTER SECTION STYLE  ]*************************************/
+.ts {
+    &-footer {
+        position: relative;
+        &-wave {
+            position: relative;
+            padding: 60px;
+        }
+        a {
+            &:hover {
+                color: #fff;
+                opacity: 0.7;
+            }
+        }
+    }
+    &-waveWrapper {
+        overflow: hidden;
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        top: 0;
+        margin: auto;
+        transform: rotate(180deg);
+    }
+    &-waveWrapperInner {
+        position: absolute;
+        width: 100%;
+        overflow: hidden;
+        height: 100%;
+        bottom: 0px;
+        background: $ts-primary-light;
+        z-index: -1;
+    }
+}
+.ts-bgTop {
+    z-index: 15;
+    opacity: 0.5;
+}
+.ts-bgMiddle {
+    z-index: 10;
+    opacity: 0.75;
+}
+.ts-bgBottom {
+    z-index: 5;
+}
+.ts-wave {
+    position: absolute;
+    left: 0;
+    width: 200%;
+    height: 100%;
+    background-repeat: repeat no-repeat;
+    background-position: 0 bottom;
+    transform-origin: center bottom;
+}
+.ts-waveTop {
+    background-size: 50% 100px;
+}
+.ts-waveAnimation .ts-waveTop {
+    animation: move-wave 3s;
+    -webkit-animation: move-wave 3s;
+    -webkit-animation-delay: 1s;
+    animation-delay: 1s;
+}
+.ts-waveMiddle {
+    background-size: 50% 120px;
+}
+.ts-waveAnimation .ts-waveMiddle {
+    animation: move_wave 10s linear infinite;
+}
+.ts-waveBottom {
+    background-size: 50% 100px;
+}
+.ts-waveAnimation .ts-waveBottom {
+    animation: move_wave 15s linear infinite;
+}
+@keyframes move_wave {
+    0% {
+        transform: translateX(0) translateZ(0) scaleY(1);
+    }
+    50% {
+        transform: translateX(-25%) translateZ(0) scaleY(0.55);
+    }
+    100% {
+        transform: translateX(-50%) translateZ(0) scaleY(1);
+    }
+}
+@media (max-width: 576px) {
+    .ts-footer-header {
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        row-gap: 2rem;
+    }
+}
+.ts-footer-social-icons-nav {
+    .nav-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 19px;
+        background: #ffffff2d;
+        border-radius: 15px;
+        .bi {
+            color: #fff;
+            align-items: center;
+            display: flex;
+            font-size: 32px;
+        }
+    }
+}
+/********************************[ COMPONENTS ]*************************************/
+// BUTTON
+%btn {
+    display: flex;
+    font-weight: 500;
+    padding-block: 15px;
+    border-radius: 8px;
+    font-size: 14px;
+    text-decoration: none;
+    text-align: center;
+    font-family: $ts-font-poppins;
+    white-space: nowrap;
+    transition: all 0.3s ease-in-out;
+    &:hover {
+        color: #fff;
+        transform: scale(0.97);
+        box-shadow: none;
+    }
+}
+.ts {
+    &-btn {
+        &-01 {
+            @extend %btn;
+            background-color: $ts-primary-light;
+            color: #fff;
+            padding-inline: 13px;
+            box-shadow: 0px 24px 30px rgba(0, 131, 255, 0.18);
+
+            &:hover {
+                color: #fff;
+            }
+        }
+        &-02 {
+            @extend %btn;
+            color: $ts-142d4b;
+            padding-inline: 34px;
+            border: 1.5px solid #ebeefa;
+            filter: drop-shadow(0px 24px 30px rgba(0, 131, 255, 0.14));
+            &:hover {
+                color: $ts-142d4b;
+            }
+        }
+        &-03 {
+            @extend %btn;
+            display: inline-block;
+            color: $ts-fff;
+            padding-inline: 44px;
+            padding-block: 21px;
+            background-color: $ts-primary-light;
+            &:hover {
+                color: $ts-fff;
+            }
+        }
+        &-04 {
+            @extend %btn;
+            display: block;
+            color: $ts-fff;
+            padding-block: 13px;
+            background-color: $ts-primary-light;
+            &:hover {
+                color: $ts-fff;
+            }
+        }
+        &-05 {
+            @extend %btn;
+            color: $ts-fff;
+            padding-block: 12px;
+            padding-inline: 34px;
+            background-color: $ts-primary-light;
+            border-radius: 50px;
+            &:hover {
+                color: $ts-fff;
+            }
+        }
+        &-06 {
+            @extend %btn;
+            color: $ts-fff;
+            padding-block: 12px;
+            padding-inline: 60px;
+            background-color: $ts-primary-light;
+            border-radius: 50px;
+            box-shadow: 0px 24px 30px rgba(0, 131, 255, 0.18);
+            &:hover {
+                color: $ts-fff;
+            }
+        }
+    }
+}
+// SECTION PADDING
+.ts {
+    &-sec {
+        &-pt {
+            &-md {
+                padding-top: 63px;
+            }
+        }
+        &-py {
+            &-md {
+                // padding-top: clamp(90px, 9vw, 123px);
+                padding-bottom: clamp(130px, 11vw, 160px);
+            }
+        }
+        &-mb {
+            &-sm {
+                margin-bottom: clamp(90px, 9vw, 112px);
+            }
+            &-md {
+                margin-bottom: 133px;
+            }
+            &-lg {
+                margin-bottom: clamp(90px, 12vw, 150px);
+            }
+        }
+    }
+}
+/********************************[ HELPER CSS STYLE CLASS ]*************************************/
+/***********************/
+%focus {
+    outline: 0;
+    box-shadow: none;
+}
+/***********************/
+span {
+    color: $ts-primary-light;
+}
+.ts {
+    &-max-width {
+        max-width: 1920px;
+        margin: 0 auto;
+    }
+    /****************/
+    &-border {
+        &-gray {
+            border: 1px solid #e7eaee;
+            border-radius: 4px;
+        }
+    }
+    /****************/
+    &-focus-0 {
+        &:focus {
+            border-color: transparent;
+            @extend %focus;
+            border: 0;
+        }
+    }
+    &-focus-1 {
+        &:focus {
+            @extend %focus;
+        }
+    }
+    /****************/
+    &-flex {
+        &-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    }
+    /****************/
+    &-gap {
+        &-10 {
+            gap: 10px;
+        }
+        &-12 {
+            gap: 12px;
+        }
+        &-row {
+            &-3rem {
+                row-gap: 3rem;
+            }
+        }
+    }
+    /****************/
+    &-letter {
+        &-2 {
+            letter-spacing: -2px;
+        }
+    }
+    /****************/
+    &-b {
+        &-border {
+            border-bottom: 1px solid #fff;
+        }
+    }
+    &-link {
+        text-decoration: none;
+        &:hover {
+            text-decoration: underline;
+        }
+        &-underline {
+            &:hover {
+                text-decoration: none;
+            }
+        }
+    }
+}
+/***********************/
+.mx {
+    &-w {
+        &-662 {
+            max-width: 662px;
+        }
+    }
+}
+/********************************[ LOGIN IN OR SIGN UP TOGGLE BUTTON ]*************************************/
+.ts-form-toggle-button {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 100px;
+    position: absolute;
+    z-index: 2;
+    top: 10px;
+    // transform: translate(0%);
+    // overflow: hidden;
+    .nav {
+        border: 5px solid $ts-primary-light;
+        background-color: $ts-primary-light;
+        border-radius: 50rem;
+        overflow: hidden;
+        padding: 0.3125rem;
+        &-item {
+            .nav-link {
+                border-radius: 50rem;
+                border: none;
+                outline: none;
+                font-size: 18px;
+                color: #fff;
+                padding: 10px 20px;
+                font-family: $ts-font-dm-sans;
+                background-color: $ts-primary-light;
+            }
+
+            #login-tab {
+                padding: 10px 26px;
+            }
+            .active {
+                background-color: #fff;
+                color: $ts-primary-light;
+                transform: scale(0.97);
+                font-weight: 500;
+            }
+        }
+    }
+}

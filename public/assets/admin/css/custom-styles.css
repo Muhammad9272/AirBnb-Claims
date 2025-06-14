@@ -1,0 +1,232 @@
+/* Custom Dashboard Styles */
+
+/* Timeline styles */
+.left-timeline {
+    position: relative;
+    padding-left: 0;
+}
+
+.left-timeline .timeline-item {
+    position: relative;
+    padding-left: 30px;
+    margin-bottom: 1.5rem;
+}
+
+.left-timeline .timeline-icon {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.left-timeline .timeline-icon i {
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+}
+
+/* Stat cards enhancement */
+.card-animate:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.card-animate {
+    transition: all 0.3s ease;
+}
+
+/* Dashboard Card Styles */
+.dashboard-card {
+   
+    border: none;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-card .card-body {
+    position: relative;
+    overflow: hidden;
+    padding: 1.5rem;
+}
+
+/* Icon Effect */
+.icon-effect {
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s ease;
+    margin-bottom: 1rem;
+}
+
+.icon-effect.primary .avatar-title {
+    background-color: rgba(79, 70, 229, 0.1);
+    color: #4f46e5;
+}
+
+.icon-effect.info .avatar-title {
+    background-color: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+.icon-effect.success .avatar-title {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.icon-effect.warning .avatar-title {
+    background-color: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+}
+
+/* Progress bar customization */
+.custom-progress {
+    height: 6px;
+    border-radius: 30px;
+    margin: 8px 0;
+    overflow: hidden;
+}
+
+.custom-progress .progress-bar {
+    border-radius: 30px;
+    animation: progressAnimation 1s ease-in-out;
+}
+
+@keyframes progressAnimation {
+    0% {
+        width: 0;
+    }
+}
+
+/* Card header styles */
+.card-header {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    background-color: transparent;
+}
+
+/* Table styles for dashboard */
+.table-card tbody tr {
+    transition: all 0.2s ease;
+}
+
+.table-card tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.table-card th {
+    font-weight: 600;
+    border-bottom-width: 1px;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+}
+
+/* Activity Feed Scrollbar Customization */
+[data-simplebar] {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+    max-height: 400px;
+}
+
+[data-simplebar]::-webkit-scrollbar {
+    width: 6px;
+}
+
+[data-simplebar]::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+[data-simplebar]::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 20px;
+}
+
+/* Inventory alert item hover effect */
+.card-height-100 .border.border-dashed {
+    transition: all 0.2s ease;
+}
+
+.card-height-100 .border.border-dashed:hover {
+    transform: translateX(3px);
+    border-color: rgba(var(--vz-danger-rgb), 0.7) !important;
+    background-color: rgba(var(--vz-danger-rgb), 0.04);
+}
+
+/* Enhanced badges for inventory alerts */
+.badge {
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    padding: 0.35em 0.65em;
+}
+
+.badge.bg-success-subtle {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.badge.bg-warning-subtle {
+    background-color: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+}
+
+.badge.bg-danger-subtle {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.badge.bg-info-subtle {
+    background-color: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+/* Product card hover effect in Top selling products */
+.table-nowrap tr:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+    transition: all 0.2s ease;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 767.98px) {
+    .card-title {
+        font-size: 1rem;
+    }
+    
+    .fs-22 {
+        font-size: 1.25rem !important;
+    }
+    
+    .timeline-item {
+        padding-left: 25px;
+    }
+    
+    .timeline-icon {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .avatar-sm {
+        width: 2rem;
+        height: 2rem;
+    }
+    
+    .card-header {
+        padding: 1rem;
+    }
+    
+    .table-responsive {
+        margin-bottom: 0;
+    }
+}

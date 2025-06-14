@@ -1,0 +1,114 @@
+/**************************************************/
+@import 'variable';
+/**************************************************/
+// COLOR VAR IN VARIABLE.SCSS
+// TEXT-COLOR-CLASS
+.ts {
+  &-text {
+    &-primary {
+      color: $ts-primary;
+      &-light {
+        color: $ts-primary-light;
+      }
+    }
+    &-151e3a {
+      color: $ts-151e3a;
+    }
+    &-081131 {
+      color: $ts-081131;
+    }
+    &-090914 {
+      color: $ts-090914;
+    }
+    &-142d4b {
+      color: $ts-142d4b;
+    }
+    &-191D23 {
+      color: $ts-191D23;
+    }
+    &-fff {
+      color: $ts-fff;
+    }
+    &-edf5fe {
+      color: $ts-edf5fe;
+    }
+    &-e8edfb {
+      color: $ts-e8edfb;
+    }
+    &-f7f8f9 {
+      color: $ts-f7f8f9;
+    }
+    &-e7eaee {
+      color: $ts-e7eaee;
+    }
+    &-d0d5dd {
+      color: $ts-d0d5dd;
+    }
+    &-a0abbb {
+      color: $ts-a0abbb;
+    }
+    &-Rhythm {
+      color: $ts-Rhythm;
+    }
+    &-64748b {
+      color: $ts-64748b;
+    }
+    &-4b5768 {
+      color: $ts-4b5768;
+    }
+  }
+  &-bg {
+    &-primary {
+      background-color: $ts-primary;
+
+      &-light {
+        background-color: $ts-primary-light;
+      }
+    }
+    &-151e3a {
+      background-color: $ts-151e3a;
+    }
+    &-081131 {
+      background-color: $ts-081131;
+    }
+    &-090914 {
+      background-color: $ts-090914;
+    }
+    &-142d4b {
+      background-color: $ts-142d4b;
+    }
+    &-191D23 {
+      background-color: $ts-191D23;
+    }
+    &-fff {
+      background-color: $ts-fff;
+    }
+    &-edf5fe {
+      background-color: $ts-edf5fe;
+    }
+    &-e8edfb {
+      background-color: $ts-e8edfb;
+    }
+    &-f7f8f9 {
+      background-color: $ts-f7f8f9;
+    }
+    &-e7eaee {
+      background-color: $ts-e7eaee;
+    }
+    &-d0d5dd {
+      background-color: $ts-d0d5dd;
+    }
+    &-a0abbb {
+      background-color: $ts-a0abbb;
+    }
+    &-Rhythm {
+      background-color: $ts-Rhythm;
+    }
+    &-64748b {
+      background-color: $ts-64748b;
+    }
+    &-4b5768 {
+      background-color: $ts-4b5768;
+    }
+  }
+}

@@ -1,0 +1,155 @@
+@import "../variable";
+.ts-find {
+    &-card {
+        &-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-gap: 30px;
+
+            .ts-jobs-card,
+            .ts-Application-card,
+            .ts-quiz-card,
+            .ts-Communication-card {
+                padding: 16px;
+                box-shadow: 0px 0px 12px rgba(29, 78, 216, 0.4);
+                border-radius: 8px;
+                background-position: center center !important;
+                background-size: cover !important;
+                overflow: hidden !important;
+                // p {
+                //   opacity: 0.8;
+                // }
+            }
+            .ts-jobs-card {
+                background: linear-gradient(#6a95df35, #6a95df75),
+                    url("../../../images/front/img/job.jpg");
+            }
+            .ts-Application-card {
+                background: linear-gradient(#6a95df35, #6a95df75),
+                    url("../../../images/front/img/application.jpg");
+            }
+            .ts-quiz-card {
+                background: linear-gradient(#6a95df35, #6a95df75),
+                    url("../../../images/front/img/job1.jpg");
+            }
+            .ts-Communication-card {
+                background: linear-gradient(#6a95df35, #6a95df75),
+                    url("../../../images/front/img/communication.jpg");
+            }
+        }
+    }
+}
+@media (max-width: 991px) {
+    .ts-find {
+        &-card {
+            &-group {
+                grid-template-columns: repeat(1, 1fr);
+            }
+        }
+    }
+}
+// ********************************[ MODAL ]*************************************
+
+.ts-modal {
+    &-btn-close {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        z-index: 100000;
+    }
+    &-dialog {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: auto;
+        pointer-events: unset;
+
+        @media (min-width: 1401px) {
+            max-width: 1312px;
+            padding-right: 16px;
+        }
+    }
+    width: 100%;
+    overflow: hidden;
+    border-radius: 16px;
+
+    @media (min-width: 1401px) {
+        max-width: 1296px;
+    }
+    &-title {
+        color: #151e3a;
+    }
+    &-number {
+        border-radius: 100%;
+        display: inline-block;
+        width: 59px;
+        height: 59px;
+        padding: 11px;
+        text-align: center;
+        background: #151e3a;
+        color: #fff;
+    }
+    &-content {
+        padding-top: clamp(20px, 3vw, 48px);
+        padding-left: clamp(25px, 4vw, 60px);
+        padding-bottom: clamp(25px, 4vw, 63px);
+    }
+    &-video {
+        iframe {
+            // max-width: 504px;
+            // max-height: 302px;
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+        }
+        padding-top: clamp(20px, 3vw, 48px);
+        padding-right: clamp(10px, 4vw, 60px);
+        padding-bottom: clamp(25px, 4vw, 63px);
+        position: relative;
+        isolation: isolate;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        &::before {
+            content: "";
+            -webkit-clip-path: polygon(47% 0, 100% 0, 100% 100%, 0 100%);
+            clip-path: polygon(47% 0, 100% 0, 100% 100%, 0 100%);
+            background-color: $ts-primary-light;
+            position: absolute;
+            top: -2px;
+            right: -1px;
+            bottom: 0;
+            width: 100%;
+            height: calc(100% + 4px);
+            z-index: -1;
+        }
+    }
+}
+@media (max-width: 768px) {
+    .ts-modal {
+        &-content,
+        &-video {
+            padding-inline: 20px;
+        }
+    }
+}
+
+.ts-btn-modal-controller {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1000000;
+
+    // color: $ts-primary;
+    // background-color: $ts-e7eaee;
+    &__left {
+        left: 8px;
+        // transform: translate(-50%, -50%);
+    }
+    &__right {
+        right: 8px;
+        // transform: translate(-50%, -50%);
+    }
+}

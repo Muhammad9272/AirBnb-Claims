@@ -1,0 +1,214 @@
+/********************************[  <a href="./login-signup.html" class="ts-btn-06">Login</a> ]*************************************/
+@import "../variable";
+@import "../breakpoint";
+/********************************[ SEARCH SECTION ]*************************************/
+.ts {
+    &-form-select {
+        background-image: url("../../assets/icon/down-arroa.svg");
+        background-size: 8px 6px;
+        padding: 8px 80px 8px 12px;
+        border: none;
+        min-width: 150px;
+        @media (max-width: 768px) {
+            padding: 8px 30px 8px 12px;
+        }
+    }
+    &-companies-category-button {
+        padding: 6px 30px 6px 4px;
+        &-close-icon {
+            background-image: url("../../assets/icon/close.svg");
+            background-size: 7.22px 7.22px;
+            padding: 0px 4px 0px 0px !important;
+            height: 100%;
+        }
+    }
+}
+/********************************[ CARD SECTION ]*************************************/
+.ts-grid-4col {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-gap: 30px;
+
+    .companies-card {
+        position: relative;
+        padding-block: 4rem;
+        background: #ffffff;
+        border-radius: 12px;
+        filter: drop-shadow(0px 0px 5px rgba(29, 78, 216, 0.4));
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        &__image-group {
+            border-radius: 50%;
+            background: #edf5fe;
+            padding: 2.5rem;
+        }
+        img {
+            width: 50px;
+            height: auto;
+            backdrop-filter: blur(7.5px);
+        }
+    }
+}
+@media (max-width: 1200px) {
+    .ts-grid-4col {
+        grid-template-columns: repeat(3, 1fr);
+        grid-gap: 1rem;
+        .companies-card {
+            padding-block: 2rem;
+            &__image-group {
+                padding: 2rem;
+            }
+        }
+    }
+}
+@media (max-width: 768px) {
+    .ts-grid-4col {
+        grid-template-columns: repeat(2, 1fr);
+        .companies-card {
+            padding-block: 2rem;
+            &__image-group {
+                img {
+                    width: 40px;
+                }
+            }
+        }
+    }
+}
+// @media (max-width: 576px) {
+//   .ts-grid-4col {
+//     grid-template-columns: repeat(1, 1fr);
+//   }
+// }
+// .form-check-input:checked ~ .ts-check-card {
+//   border: 10px solid red;
+// }
+
+.ts-check-card {
+    position: relative;
+    padding-block: 4rem;
+    background: #ffffff;
+    border-radius: 12px;
+    filter: drop-shadow(0px 0px 5px rgba(29, 78, 216, 0.4));
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    &-input {
+        &-label {
+            border-radius: 12px;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            cursor: pointer;
+        }
+        &-group {
+            // padding: 10px;
+            position: absolute;
+            // top: 5px;
+            // left: 5px;
+            width: 100%;
+            height: 100%;
+            .form-check-input {
+                box-shadow: none;
+                border: none;
+                width: 100%;
+                height: 100%;
+                position: relative;
+                border-radius: 12px;
+                z-index: -1;
+
+                &:checked[type="checkbox"] {
+                    background-image: none;
+                }
+                &:focus {
+                    outline: none;
+                    border: none;
+                }
+                &::after {
+                    content: "\2713";
+                    color: #6a95df;
+                    background-color: #fff;
+                    position: absolute;
+                    top: 10px;
+                    left: 10px;
+                    padding: 10px;
+                    width: 25px;
+                    height: 25px;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    border-radius: 7px;
+                    visibility: hidden;
+                    border-radius: 50%;
+                }
+                &::before {
+                    content: "";
+                    color: #6a95df;
+                    background-color: transparent;
+                    border: 1px solid #63636330;
+                    position: absolute;
+                    top: 10px;
+                    left: 10px;
+                    padding: 10px;
+                    width: 25px;
+                    height: 25px;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    border-radius: 50%;
+                }
+
+                &:checked {
+                    &::after {
+                        background-color: #6a95df;
+                        color: #fff;
+                    }
+                }
+            }
+            .form-check-input {
+                border-radius: 0.75rem !important;
+                &:checked {
+                    border-radius: 0.75rem !important;
+                    background-color: #edf5fe;
+                    background-image: none;
+                    border: 1px solid #6a95df;
+                    &::after {
+                        visibility: visible;
+                    }
+                    &::before {
+                        visibility: hidden;
+                    }
+                }
+            }
+        }
+    }
+
+    &__image-group {
+        border-radius: 50%;
+        background: #edf5fe;
+        padding: 2.5rem;
+        img {
+            width: 50px;
+            height: auto;
+            backdrop-filter: blur(7.5px);
+        }
+    }
+}
+@media (max-width: 1200px) {
+    .ts-check-card {
+        padding-block: 2rem;
+        &__image-group {
+            padding: 2rem;
+        }
+    }
+}
+@media (max-width: 768px) {
+    .ts-check-card {
+        padding-block: 2rem;
+        &__image-group {
+            img {
+                width: 40px;
+            }
+        }
+    }
+}

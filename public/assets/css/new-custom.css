@@ -1,0 +1,222 @@
+[data-layout-mode=dark] {
+    --apt-body-bg: #1a1d21;
+    --apt-body-bg2: #1a1d21;
+    --box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+  
+}
+
+
+[data-layout-mode=light] {
+    --apt-body-bg: #f2f2f2;
+    --apt-body-bg2:white;
+    --box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+
+
+}
+
+.apt-btn-outline-light {
+    --vz-btn-color: black;
+    --vz-btn-bg: var(--vz-light);
+    --vz-btn-border-color: var(--vz-light);
+    --vz-btn-hover-bg: var(--vz-warning);
+    --vz-btn-hover-color: white;
+    --vz-btn-hover-border-color: var(--vz-warning);
+    --vz-btn-focus-shadow-rgb: var(--vz-warning-rgb);
+    --vz-btn-active-bg: var(--vz-warning-text-emphasis);
+    --vz-btn-active-border-color: var(--vz-warning-text-emphasis);
+}
+
+.appintments{
+    margin-top: 40px;
+}
+.apt-box-shadow1{
+    box-shadow: 0px 4px 10px -4px rgb(22 65 109 / 50%);
+
+/*  box-shadow: 0px 0px 10px rgb(22 65 109 / 50%); ;*/
+}
+.empty_card_body{
+    min-height: 490px;
+}
+
+.ts-tab .nav-item:first-child .nav-link,.ts-tab .nav-item:last-child .nav-link{
+    border-radius: unset !important;
+}
+
+.ml-auto{
+    margin-left: auto;
+}
+.mr-auto{
+    margin-right: auto;
+}
+.apt-box-shadow {
+    /* box-shadow: 0px 0px 10px rgb(22 65 109 / 50%); */
+    box-shadow: var(--box-shadow);
+}
+.ts-bg-gray-01 {
+    background-color: var(--apt-body-bg);
+}
+.avatar-sm,.avatar-md,.avatar-lg,.avatar-xl{
+    object-fit: cover;
+}
+.card-body1{
+    background-color: var(--apt-body-bg2);
+}
+
+
+
+.role__permission{padding: 20px 100px; } 
+.role__permission .col-lg-6 {margin-bottom:5px }
+/* PRELOADER CSS */
+.preloader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #fff;
+  z-index: 9;
+ }
+ .featured_sub_plan{
+    background: #4477EA;
+ }
+ .featured_sub_plan h1, .featured_sub_plan h2, .featured_sub_plan p, .featured_sub_plan .feat{
+    color: white;
+ }
+ #geniustable_processing {
+    box-shadow: 0 0 10px rgba(0, 0, 255, 0.5); /* Box shadow with blue color and opacity */
+    /* Add other styling properties as needed */
+}
+#QuizPractice #geniustable_filter, #JobListings #geniustable_filter{
+    display: none;
+}
+.userdashboard_layout_outer .page-title-box {
+    margin-top: 0px !important;
+}
+.featured__thumb_image{
+    right: 7px;
+    top: -25px;
+}
+ .summernote__data img{
+    max-width:100% !important;
+}
+.ts-company-list__example-question{
+    height: 200px;
+}
+.video-element {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.userd__ashboard{
+	width: 97%;
+/*	max-height: 500px;*/
+
+}
+.fs-30{
+    font-size: 30px;
+}
+.top_b_image{
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+}
+.appont_bg_banner{
+    height: 350px;
+    width: 100%;
+    background-repeat: no-repeat;
+    /* background-attachment: fixed; */
+    background-position-x: right;
+    background-position-y: center;
+    border-radius: 1.25rem;
+}
+.apt_search_bar {
+    height: 45px;
+    border: none;
+}
+.mpm_title{
+    display: flex;
+    flex-direction: column;
+    /* align-items: center; */
+    /* justify-content: space-evenly; */
+    /* height: 100%; */
+        padding-top: 25px;
+    padding-left: 25px;
+
+}
+.fx-bg{
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position-x: right;
+    background-position-y: center;
+}
+.btn.h-md {
+    height: 45px;
+}
+.mpm_title_h{
+    color: black;
+    font-weight: 700;
+    font-size: 35px;
+}
+.mpm_title p{
+    line-height: 22px;
+    letter-spacing: 1px;
+    font-size: 14px;
+}
+.team__cards{
+    box-shadow: var(--box-shadow);
+    margin: 24px 10px;
+}
+
+.team__cards .card-img-top {
+    border-radius: 10px;
+    height: 300px;
+}
+.mp_team__cards .card-img-top {
+    height: 200px;
+}
+#myFavCollection .nav-tabs-custom.card-header-tabs .nav-link, #my__Learning .nav-tabs-custom.card-header-tabs .nav-link{
+    padding: 5px;
+}
+#my__Learning .nav-tabs-custom.card-header-tabs{
+ margin-top: unset;
+}
+.nav-tabs-custom.card-header-tabs .nav-link{
+ color: grey;
+}
+.ap_messenger__card .messenger{
+ font-family: poppins;
+}
+/*.ap_messenger__card .messenger-listView{
+ overflow-y: hidden;
+}*/
+
+.messenger-messagingView {
+    -webkit-transition: all .4s;
+    transition: all .4s;
+    position: relative;
+    background-color: var(--apt-body-bg) !important;
+}
+
+.ap_messenger__card .message-card .message{
+    padding: 12px 20px;
+    background-color: var(--vz-light);
+    position: relative;
+    border-radius: 3px;
+    -webkit-box-shadow: 0 5px 10px rgba(30,32,37,.12);
+    box-shadow: 0 5px 10px rgba(30,32,37,.12);
+}
+.ap_messenger__card .message-card.mc-sender .message{
+/*    background: rgba(33, 128, 243, 0.5) !important;*/
+
+      background-color: rgba(var(--vz-success-rgb),.15) !important;
+    color: var(--vz-success) !important;
+}
+.ap_messenger__card .message-card.mc-sender .message .message-time{
+  color: var(--vz-success) !important;
+}
+
+@media (max-width: 576px) {
+    #my__Learning .nav-tabs-custom.card-header-tabs .nav-link{
+       font-size: 10px;
+    }
+}

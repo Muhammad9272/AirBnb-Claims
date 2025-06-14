@@ -1,0 +1,451 @@
+:root {
+    /* Primary color and variations */
+    --color-primary: #8B5CF6;
+    --color-primary-dark: #7C3AED;
+    --color-primary-darker: #6D28D9;
+    
+    /* Opacity variations for primary color */
+    --color-primary-01: rgba(139, 92, 246, 0.01);
+    --color-primary-03: rgba(139, 92, 246, 0.03);
+    --color-primary-05: rgba(139, 92, 246, 0.05);
+    --color-primary-1: rgba(139, 92, 246, 0.1);
+    --color-primary-2: rgba(139, 92, 246, 0.2);
+    --color-primary-3: rgba(139, 92, 246, 0.3);
+    --color-primary-4: rgba(139, 92, 246, 0.4);
+    --color-primary-5: rgba(139, 92, 246, 0.5);
+    
+    /* Secondary color (if needed) */
+    --color-secondary: #6366F1;
+    --color-secondary-1: rgba(99, 102, 241, 0.05);
+    
+    /* Background colors */
+    --color-bg-dark: rgba(0, 0, 0, 0.3);
+    --color-bg-darker: rgba(14, 12, 31, 0.95);
+    
+    /* Animation durations */
+    --animation-slow: 6s;
+    --animation-medium: 4s;
+    --animation-fast: 1.5s;
+    --animation-faster: 0.75s;
+    --animation-fastest: 0.5s;
+    --animation-instant: 0.3s;
+    
+    /* Shadow properties */
+    --shadow-sm: 0 0 20px;
+    --shadow-md: 0 0 30px;
+    --shadow-lg: 0 0 40px;
+    --shadow-xl: 0 15px 30px;
+    
+    /* Blur amounts */
+    --blur-sm: 4px;
+    --blur-md: 10px;
+    --blur-lg: 20px;
+    --blur-xl: 40px;
+    
+    /* Transitions */
+    --transition-default: all 0.3s ease;
+    --transition-slow: all 0.4s ease;
+  }
+  
+  @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+      20%, 40%, 60%, 80% { transform: translateX(2px); }
+  }
+  
+  @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+  }
+  
+  @keyframes pulse {
+      0% { opacity: 0.9; }
+      100% { opacity: 1; }
+  }
+  
+  @keyframes shine {
+      100% { left: 150%; }
+  }
+  
+  @keyframes particle-float {
+       0% {
+          transform: translate(0, 0) rotate(0deg);
+          opacity: 0;
+      }
+      20% {
+          opacity: 1;
+      }
+      80% {
+          opacity: 1;
+      }
+      100% {
+          transform: translate(var(--x), var(--y)) rotate(360deg);
+          opacity: 0;
+      }
+  }
+  
+  .shake-animation:hover {
+      animation: shake var(--animation-fastest) cubic-bezier(.36,.07,.19,.97) both;
+      transform: translate3d(0, 0, 0);
+      backface-visibility: hidden;
+      perspective: 1000px;
+  }
+  
+  .float-animation {
+      animation: float var(--animation-slow) ease-in-out infinite;
+  }
+  
+  .glow-effect {
+      box-shadow: var(--shadow-md) var(--color-primary-3);
+      transition: var(--transition-default);
+  }
+  
+  .glow-effect:hover {
+      box-shadow: var(--shadow-lg) var(--color-primary-5);
+  }
+  
+  .hero-glow {
+      position: absolute;
+      width: 100%;
+      height: 140%;
+      top: -20%;
+      left: 0;
+      background: radial-gradient(
+          circle at 50% 50%,
+          var(--color-primary-2),
+          var(--color-primary-1) 40%,
+          transparent 60%
+      );
+      pointer-events: none;
+      z-index: 0;
+      filter: blur(var(--blur-xl));
+      animation: pulse var(--animation-medium) infinite alternate;
+  }
+  
+  .hero-content {
+      position: relative;
+      z-index: 1;
+  }
+  
+  .card-glow {
+      background: var(--color-primary-03);
+      border: 1px solid var(--color-primary-1);
+      box-shadow: var(--shadow-sm) var(--color-primary-1);
+      transition: var(--transition-default);
+  }
+  
+  .card-glow:hover {
+      box-shadow: var(--shadow-md) var(--color-primary-2);
+      transform: translateY(-5px);
+      border: 1px solid var(--color-primary-2);
+  }
+  
+  .section-heading-glow {
+      text-shadow: var(--shadow-sm) var(--color-primary-3);
+  }
+  
+  .discord-section-glow {
+      background: linear-gradient(45deg, var(--color-primary-05), var(--color-secondary-1));
+      border: 1px solid var(--color-primary-1);
+  }
+  
+  .discord-icon-glow {
+      filter: drop-shadow(0 0 10px var(--color-primary-5));
+  }
+  
+  .product-card {
+      background: linear-gradient(145deg, var(--color-primary-05), var(--color-bg-dark));
+      border: 1px solid var(--color-primary-1);
+      backdrop-filter: blur(var(--blur-md));
+      transition: var(--transition-slow);
+  }
+  
+  .product-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-xl) var(--color-primary-2);
+      border: 1px solid var(--color-primary-3);
+  }
+  
+  .product-image-wrapper {
+      position: relative;
+      overflow: hidden;
+  }
+  
+  .product-image-wrapper::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(
+          to right,
+          transparent,
+          var(--color-primary-3),
+          transparent
+      );
+      transform: skewX(-25deg);
+      transition: var(--transition-default);
+  }
+  
+  .product-card:hover .product-image-wrapper::after {
+      animation: shine var(--animation-fast) infinite;
+  }
+  
+  .product-price-tag {
+      background: linear-gradient(90deg, var(--color-primary-2), var(--color-primary-1));
+      border: 1px solid var(--color-primary-2);
+      backdrop-filter: blur(var(--blur-sm));
+  }
+  
+  .particle-star {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 50%;
+      animation: particle-float var(--animation-medium) infinite;
+      box-shadow: 0 0 4px rgba(255, 255, 255, 0.4);
+  }
+  
+  .particle-dot {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: 50%;
+  }
+  
+  .product-particles {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+  }
+  
+  .discord-section {
+      background: linear-gradient(145deg, var(--color-primary-05), var(--color-bg-dark));
+      border: 1px solid var(--color-primary-1);
+      backdrop-filter: blur(var(--blur-md));
+      transition: var(--transition-slow);
+  }
+  
+  .discord-section:hover {
+      box-shadow: var(--shadow-xl) var(--color-primary-2);
+      border: 1px solid var(--color-primary-3);
+  }
+  
+  .discord-glow {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(
+          circle at 50% 50%,
+          var(--color-primary-1),
+          var(--color-primary-05) 40%,
+          transparent 60%
+      );
+      filter: blur(var(--blur-lg));
+      pointer-events: none;
+  }
+  
+  .discord-button {
+      background: linear-gradient(to right, var(--color-primary), var(--color-primary-dark));
+      transition: var(--transition-default);
+  }
+  
+  .discord-button:hover {
+      background: linear-gradient(to right, var(--color-primary-dark), var(--color-primary-darker));
+      box-shadow: var(--shadow-sm) var(--color-primary-4);
+      transform: translateY(-2px);
+  }
+  
+  .navbar-border {
+      position: relative;
+  }
+  
+  .navbar-border::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 4rem);
+      height: 1px;
+      background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(172, 171, 173, 0.3),
+          rgba(230, 228, 235, 0.5),
+          rgba(202, 200, 207, 0.3),
+          transparent
+      );
+  }
+  
+  .dropdown-menu {
+      position: absolute;
+      top: 100%;
+      left: -1rem;
+      margin-top: 0.5rem;
+      background: var(--color-bg-darker);
+      backdrop-filter: blur(var(--blur-md));
+      border: 1px solid var(--color-primary-2);
+      border-radius: 1rem;
+      padding: 0.5rem;
+      min-width: 280px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: var(--transition-default);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      z-index: 1;
+  }
+  
+  .dropdown:hover .dropdown-menu {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+  }
+  
+  .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      transition: all 0.2s;
+  }
+  
+  .dropdown-item:hover {
+      background: var(--color-primary-1);
+  }
+
+/* Standard Button Styles */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: none;
+    outline: none;
+}
+
+/* Primary Button (Gradient with rounded corners) */
+.btn-primary {
+    background: linear-gradient(to right, var(--color-primary), var(--color-primary-dark));
+    color: white;
+    border-radius: 9999px; /* Full rounded */
+    padding: 0.75rem 2rem;
+    font-weight: 500;
+    transform-origin: center;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(to right, var(--color-primary-dark), var(--color-primary-darker));
+    transform: scale(1.05);
+}
+
+.btn-primary:active {
+    transform: scale(1);
+}
+
+/* Discord-style Button (Outlined with icon) */
+.btn-discord {
+    background: transparent;
+    color: white;
+    border: 1px solid rgba(107, 114, 128, 0.7); /* gray-700 with transparency */
+    border-radius: 9999px; /* Full rounded */
+    padding: 0.75rem 2rem;
+    font-weight: 500;
+    backdrop-filter: blur(4px);
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+}
+
+.btn-discord:hover {
+    border-color: var(--color-primary);
+    transform: scale(1.05);
+}
+
+.btn-discord:active {
+    transform: scale(1);
+}
+
+.btn-discord svg {
+    margin-left: 0.5rem;
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+/* Secondary Button (Outlined) */
+.btn-secondary {
+    background: transparent;
+    color: white;
+    border: 1px solid var(--color-primary-3);
+    border-radius: 9999px; /* Full rounded */
+    backdrop-filter: blur(4px);
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    border-color: var(--color-primary);
+    transform: scale(1.05);
+}
+
+.btn-secondary:active {
+    transform: scale(1);
+}
+
+/* Ghost Button */
+.btn-ghost {
+    background: transparent;
+    color: white;
+    border-radius: 9999px; /* Full rounded */
+}
+
+.btn-ghost:hover {
+    background: var(--color-primary-05);
+    transform: scale(1.05);
+}
+
+.btn-ghost:active {
+    transform: scale(1);
+}
+
+/* Button Sizes */
+.btn-sm {
+    padding: 0.5rem 1.5rem;
+    font-size: 0.875rem;
+}
+
+.btn-lg {
+    padding: 1rem 2.5rem;
+    font-size: 1.125rem;
+}
+
+/* Button with icon only */
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 9999px; /* Full rounded */
+    padding: 0;
+}
+
+/* Disabled Button State */
+.btn[disabled],
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+  
