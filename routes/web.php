@@ -1,40 +1,19 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminController;
-use App\Http\Controllers\Admin\BannerController;
-use App\Http\Controllers\Admin\CareerEventController;
-use App\Http\Controllers\Admin\CareerEventRegistrationController;
-use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\CompanyController;
+
 use App\Http\Controllers\Admin\CouponController;
-use App\Http\Controllers\Admin\CourseGalleryController;
-use App\Http\Controllers\Admin\CourseModulesController;
 
-use App\Http\Controllers\Admin\Product\ProductCategoryController;
-use App\Http\Controllers\Admin\Product\ProductOptionTypesController;
-use App\Http\Controllers\Admin\Product\ProductController;
-use App\Http\Controllers\Admin\Nostalgia\NostalgiaCategoryController;
-use App\Http\Controllers\Admin\Nostalgia\NostalgiaItemController;
-use App\Http\Controllers\Admin\Services\ServiceCategoryController;
-use App\Http\Controllers\Admin\Services\ServiceItemController;
 
-use App\Http\Controllers\Admin\CoursesController;
-use App\Http\Controllers\Admin\JobApplicationController;
-use App\Http\Controllers\Admin\JobListingController;
+
 use App\Http\Controllers\Admin\LoginController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\TicketController as AdminTicketController;
 
 
-use App\Http\Controllers\Admin\QuizBankController;
-use App\Http\Controllers\Admin\QuizGroupController;
-use App\Http\Controllers\Admin\QuizManagementController;
 use App\Http\Controllers\Admin\SubFeaturesController;
 use App\Http\Controllers\Admin\SubPlanController;
-use App\Http\Controllers\Admin\TutorAppointmentController;
-use App\Http\Controllers\Admin\TutorController;
-use App\Http\Controllers\Admin\TutorScheduleController;
 
 use App\Http\Controllers\Admin\Blog\BlogCategoryController;
 use App\Http\Controllers\Admin\Blog\BlogController;
@@ -47,13 +26,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 
-use App\Http\Controllers\User\SubscriptionCheckoutController;
 
-// BitLog Controllers
-use App\Http\Controllers\Admin\BitScheme\BitTaskController;
-use App\Http\Controllers\Admin\BitScheme\BitSubmissionController;
-use App\Http\Controllers\User\BitTaskController as UserBitTaskController;
-use App\Http\Controllers\User\BitWalletController;
 
 /*
 |--------------------------------------------------------------------------
@@ -98,17 +71,6 @@ Route::prefix('management0712')->group(function() {
 
 
 
-  //Admin banner section Routes
-  Route::group(['middleware'=>'permissions:media'],function(){
-    Route::get('/banner/datatables',[BannerController::class, 'datatables'])->name('admin.banner.datatables');
-    Route::get('/banner/index/{file_type?}',[BannerController::class, 'index'])->name('admin.banner.index');
-    Route::get('/banner/create', [BannerController::class, 'create'])->name('admin.banner.create');
-    Route::post('/banner/create',[BannerController::class, 'store'])->name('admin.banner.store');
-    Route::get('/banner/edit/{id}',[BannerController::class, 'edit'])->name('admin.banner.edit');
-    Route::post('/banner/edit/{id}', [BannerController::class, 'update'])->name('admin.banner.update');
-    Route::get('/banner/delete/{id}',[BannerController::class, 'destroy'])->name('admin.banner.delete');
-    Route::get('/banner/status/{id1}/{id2}',[BannerController::class, 'status'])->name('admin.banner.status');
-  });
 
 
  Route::group(['prefix' => 'custompage', 'as' => 'admin.custompage.', 'middleware'=>'permissions:custom_page'], function () {
@@ -122,45 +84,6 @@ Route::prefix('management0712')->group(function() {
       Route::get('/status/{id1}/{id2}',[PageController::class, 'status'])->name('status');
   });
 
-
-
-
-  Route::group(['middleware' => 'permissions:products'], function () {
-    // Product Routes
-    Route::get('/product-categories/datatables', [ProductCategoryController::class, 'datatables'])->name('admin.product-categories.datatables');
-    Route::get('/product-categories', [ProductCategoryController::class, 'index'])->name('admin.product-categories.index');
-    Route::get('/product-categories/create', [ProductCategoryController::class, 'create'])->name('admin.product-categories.create');
-    Route::post('/product-categories/create', [ProductCategoryController::class, 'store'])->name('admin.product-categories.store');
-    Route::get('/product-categories/edit/{id}', [ProductCategoryController::class, 'edit'])->name('admin.product-categories.edit');
-    Route::post('//product//edit/{id}', [ProductCategoryController::class, 'update'])->name('admin.product-categories.update');
-    Route::get('/product-categories/delete/{id}', [ProductCategoryController::class, 'destroy'])->name('admin.product-categories.delete');
-    Route::get('/product-categories/status/{id1}/{id2}', [ProductCategoryController::class, 'status'])->name('admin.product-categories.status');
-
-
-      // Option Type Routes
-      Route::get('/option-types/datatables', [ProductOptionTypesController::class, 'datatables'])->name('admin.option-types.datatables');
-      Route::get('/option-types', [ProductOptionTypesController::class, 'index'])->name('admin.option-types.index');
-      Route::get('/option-types/create', [ProductOptionTypesController::class, 'create'])->name('admin.option-types.create');
-      Route::post('/option-types', [ProductOptionTypesController::class, 'store'])->name('admin.option-types.store');
-      Route::get('/option-types/edit/{id}', [ProductOptionTypesController::class, 'edit'])->name('admin.option-types.edit');
-      Route::post('/option-types/edit/{id}', [ProductOptionTypesController::class, 'update'])->name('admin.option-types.update');
-      Route::get('/option-types/delete/{id}', [ProductOptionTypesController::class, 'destroy'])->name('admin.option-types.delete');
-      
-      // Option Type Status Route
-      Route::get('/option-types/status/{id1}/{id2}', [ProductOptionTypesController::class, 'updateStatus'])->name('admin.option-types.status');
-
- 
-    // Product Routes
-    Route::get('/products/datatables', [ProductController::class, 'datatables'])->name('admin.product.datatables');
-    Route::get('/products', [ProductController::class, 'index'])->name('admin.product.index');
-    Route::get('/product/create', [ProductController::class, 'create'])->name('admin.product.create');
-    Route::post('/product/create', [ProductController::class, 'store'])->name('admin.product.store');
-    Route::get('/product/edit/{id}', [ProductController::class, 'edit'])->name('admin.product.edit');
-    Route::post('/product/edit/{id}', [ProductController::class, 'update'])->name('admin.product.update');
-    Route::get('/product/delete/{id}', [ProductController::class, 'destroy'])->name('admin.product.delete');
-    Route::get('/product/status/{id1}/{id2}', [ProductController::class, 'status'])->name('admin.product.status');
-    
-  });
 
 
 
@@ -361,39 +284,6 @@ Route::prefix('management0712')->group(function() {
 
 
 
-  // Add the Bit Management System Routes
-  Route::group(['middleware'=>'permissions:bit_management'],function(){
-
-
-      // Bit Tasks Admin Routes
-      Route::get('/bit-tasks/datatables',[BitTaskController::class, 'datatables'])->name('admin.bit-tasks.datatables');
-      Route::get('/bit-tasks',[BitTaskController::class, 'index'])->name('admin.bit-tasks.index');
-      Route::get('/bit-tasks/create',[BitTaskController::class, 'create'])->name('admin.bit-tasks.create');
-      Route::post('/bit-tasks/create',[BitTaskController::class, 'store'])->name('admin.bit-tasks.store');
-      Route::get('/bit-tasks/edit/{id}',[BitTaskController::class, 'edit'])->name('admin.bit-tasks.edit');
-      Route::post('/bit-tasks/edit/{id}',[BitTaskController::class, 'update'])->name('admin.bit-tasks.update');
-      Route::get('/bit-tasks/delete/{id}',[BitTaskController::class, 'destroy'])->name('admin.bit-tasks.delete');
-      Route::get('/bit-tasks/status/{id}/{status}',[BitTaskController::class, 'status'])->name('admin.bit-tasks.status');
-      
-      // Bit Submissions Admin Routes
-      Route::get('/bit-submissions/datatables',[BitSubmissionController::class, 'datatables'])->name('admin.bit-submissions.datatables');
-      Route::get('/bit-submissions',[BitSubmissionController::class, 'index'])->name('admin.bit-submissions.index');
-      Route::get('/bit-submissions/pending',[BitSubmissionController::class, 'pending'])->name('admin.bit-submissions.pending');
-      Route::get('/bit-submissions/show/{id}',[BitSubmissionController::class, 'show'])->name('admin.bit-submissions.show');
-      Route::post('/bit-submissions/review/{id}',[BitSubmissionController::class, 'review'])->name('admin.bit-submissions.review');
-  });
-  Route::group(['middleware'=>'permissions:reviews'],function(){
-    // Reviews management
-    Route::group(['prefix' => 'reviews', 'as' => 'admin.reviews.'], function () {
-        Route::get('/', [App\Http\Controllers\Admin\ReviewController::class, 'index'])->name('index');
-        Route::get('/datatables', [App\Http\Controllers\Admin\ReviewController::class, 'datatables'])->name('datatables');
-        Route::get('/{id}/edit', [App\Http\Controllers\Admin\ReviewController::class, 'edit'])->name('edit');
-        Route::post('/{id}/update', [App\Http\Controllers\Admin\ReviewController::class, 'update'])->name('update');
-        Route::get('/{id}/delete', [App\Http\Controllers\Admin\ReviewController::class, 'delete'])->name('delete');
-        Route::post('/bulk-approve', [App\Http\Controllers\Admin\ReviewController::class, 'bulkApprove'])->name('bulk-approve');
-        Route::post('/bulk-reject', [App\Http\Controllers\Admin\ReviewController::class, 'bulkReject'])->name('bulk-reject');
-    });
-  }); 
 
   // Admin Claims Management Routes
   Route::group(['prefix' => 'claims', 'as' => 'admin.claims.', 'middleware' => 'permissions:claims_management'], function() {
@@ -556,14 +446,6 @@ Route::group(['prefix' => 'user', 'middleware' => ['auth'] ], function() {
     Route::get('/orders', [App\Http\Controllers\User\OrderController::class, 'index'])->name('user.orders.index');
     Route::get('/orders/{orderNumber}', [App\Http\Controllers\User\OrderController::class, 'show'])->name('user.orders.show');
 
-    // Bit Tasks User Routes
-    Route::get('/bit-tasks', [App\Http\Controllers\User\BitTaskController::class, 'index'])->name('user.bit-tasks.index');
-    Route::get('/bit-tasks/{slug}', [App\Http\Controllers\User\BitTaskController::class, 'show'])->name('user.bit-tasks.show');
-    Route::post('/bit-tasks/{slug}/submit', [App\Http\Controllers\User\BitTaskController::class, 'submit'])->name('user.bit-tasks.submit');
-    Route::get('/bit-tasks-history', [App\Http\Controllers\User\BitTaskController::class, 'history'])->name('user.bit-tasks.history');
-    
-    // Bit Wallet User Routes
-    Route::get('/bit-wallet', [App\Http\Controllers\User\BitWalletController::class, 'index'])->name('user.bit-wallet.index');
 
    
 
@@ -573,14 +455,7 @@ Route::group(['prefix' => 'user', 'middleware' => ['auth'] ], function() {
       Route::get('/tickets/{id}', [UserTicketController::class, 'show'])->name('user.tickets.show');
       Route::post('/tickets/{id}/reply', [UserTicketController::class, 'reply'])->name('user.tickets.reply');
 
-      // Reviews
-      Route::group(['prefix' => 'reviews', 'as' => 'user.reviews.'], function () {
-          Route::get('/', [App\Http\Controllers\User\ReviewController::class, 'index'])->name('index');
-          Route::post('/store', [App\Http\Controllers\User\ReviewController::class, 'store'])->name('store');
-          Route::get('/edit/{id}', [App\Http\Controllers\User\ReviewController::class, 'edit'])->name('edit');
-          Route::post('/update/{id}', [App\Http\Controllers\User\ReviewController::class, 'update'])->name('update');
-          Route::get('/delete/{id}', [App\Http\Controllers\User\ReviewController::class, 'delete'])->name('delete');
-      });
+
 
       // Subscription routes
       Route::prefix('subscription')->name('user.subscription.')->group(function () {
@@ -632,37 +507,16 @@ Route::group(['prefix' => 'user', 'middleware' => ['auth'] ], function() {
 Route::get('/', [App\Http\Controllers\Front\HomeController::class, 'index'])->name('front.index');
 
 
-Route::get('/subcategories/{categoryId}', [App\Http\Controllers\Front\HomeController::class, 'getSubcategories'])->name('front.getSubcategories');
-
 Route::post('/error/report', [App\Http\Controllers\Front\ErrorReportController::class, 'store'])->name('error.report');
 Route::post('dropzone/media',  [App\Http\Controllers\Front\HomeController::class, 'dropzoneStoreMedia'])->name('dropzone.storeMedia');
 
-
-// Product Routes
-Route::group(['prefix' => 'products'], function() {
-    Route::get('/', [App\Http\Controllers\Front\ProductController::class, 'index'])->name('front.products.index');
-    Route::get('/{slug}', [App\Http\Controllers\Front\ProductController::class, 'show'])->name('front.products.show');
-    Route::post('/get-variant-price', [App\Http\Controllers\Front\ProductController::class, 'getVariantPrice'])->name('front.products.variant-price');
-});
-
-// Service Routes
-Route::get('/services', [App\Http\Controllers\Front\ServiceController::class, 'index'])->name('front.services.index');
-Route::get('/service/{slug}', [App\Http\Controllers\Front\ServiceController::class, 'show'])->name('front.services.show');
-Route::post('/services/quote',[App\Http\Controllers\Front\ServiceController::class, 'submitQuote'])->name('front.services.quote');
 
 // Blog Routes
 Route::get('/blog', [App\Http\Controllers\Front\BlogController::class, 'index'])->name('front.blog.index');
 Route::get('/blog/{slug}', [App\Http\Controllers\Front\BlogController::class, 'show'])->name('front.blog.show');
 
-// Nostalgia Routes
-Route::get('/nostalgia', [App\Http\Controllers\Front\NostalgiaController::class, 'index'])->name('front.nostalgia.index');
-Route::get('/nostalgia/{slug}', [App\Http\Controllers\Front\NostalgiaController::class, 'show'])->name('front.nostalgia.show');
-Route::get('/nostalgia/categories/{category}/subcategories', [App\Http\Controllers\Front\NostalgiaController::class, 'getSubcategories'])->name('front.nostalgia.subcategories');
-Route::get('/nostalgia/subcategories/{subcategory}/children', [App\Http\Controllers\Front\NostalgiaController::class, 'getChildcategories'])->name('front.nostalgia.childcategories');
 
-//Postage Routes
-Route::get('/postage', [App\Http\Controllers\Front\ProductController::class, 'index'])->name('front.postage.index');
-Route::get('/postage/{slug}', [App\Http\Controllers\Front\ProductController::class, 'show'])->name('front.postage.show');
+
 // Cart Routes
 Route::group(['prefix' => 'cart', 'as' => 'front.cart.'], function () {
     Route::get('/', [CartController::class, 'index'])->name('index');
@@ -672,13 +526,6 @@ Route::group(['prefix' => 'cart', 'as' => 'front.cart.'], function () {
     Route::post('/clear', [CartController::class, 'clear'])->name('clear');
 });
 
-// Order Routes
-// Route::group(['prefix' => 'orders', 'as' => 'front.orders.', 'middleware' => 'auth'], function () {
-//     Route::get('/', [App\Http\Controllers\Front\OrderController::class, 'index'])->name('index');
-//     Route::get('/{order:order_number}', [App\Http\Controllers\Front\OrderController::class, 'show'])->name('show');
-//     Route::get('/success/{order:order_number}', [App\Http\Controllers\Front\OrderController::class, 'success'])->name('success');
-//     Route::get('/cancel/{order:order_number}', [App\Http\Controllers\Front\OrderController::class, 'cancel'])->name('cancel');
-// });
 
 // Checkout Routes
 Route::group(['prefix' => 'checkout', 'as' => 'front.checkout.'], function () {
@@ -701,10 +548,6 @@ Route::prefix('payment')->name('front.payment.')->middleware('auth')->group(func
 //Language Translation
 Route::get('index/{locale}', [App\Http\Controllers\HomeController::class, 'lang']);
 // Bit Task Public Ledger - accessible without login
-Route::get('/bit-ledger', [App\Http\Controllers\Front\BitLedgerController::class, 'index'])
-    ->name('front.bit.ledger');
-Route::get('/bit-ledger/{slug}', [App\Http\Controllers\Front\BitLedgerController::class, 'show'])
-    ->name('front.bit.ledger.show');
 
 
 // Route::get('/', [App\Http\Controllers\HomeController::class, 'root'])->name('root');
@@ -724,19 +567,6 @@ include __DIR__.'/chatify.php';
 
 
 
-// Route::middleware(['auth'])->group(function () {
-//     // Display the subscription checkout page.
-//     Route::get('/subscription/checkout', [SubscriptionCheckoutController::class, 'show'])
-//          ->name('subscription.checkout.show');
-
-//     // AJAX endpoint for dynamic price recalculation.
-//     Route::post('/subscription/checkout/calculate', [SubscriptionCheckoutController::class, 'calculatePrice'])
-//          ->name('checkout.calculate');
-
-//     // Process the subscription payment.
-//     Route::post('/subscription/checkout/process', [SubscriptionCheckoutController::class, 'processPayment'])
-//          ->name('subscription.process.payment');
-// });
 
 
 

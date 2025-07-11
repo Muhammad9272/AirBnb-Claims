@@ -1,6 +1,6 @@
 @extends('front.layouts.app')
-@section('meta_title', 'About Us - AirBnb Claims')
-@section('meta_description', 'Learn about AirBnb Claims and our mission to help Airbnb hosts get fair compensation for property damages.')
+@section('meta_title', 'About Us - '.$gs->name)
+@section('meta_description', 'Learn about '.$gs->name.' and our mission to help Airbnb hosts get fair compensation for property damages with our proven system.')
 
 @section('content')
 <!-- Hero Section (with Unsplash background) -->
@@ -13,15 +13,13 @@
 
     <div class="relative container mx-auto px-4">
         <div class="max-w-3xl mx-auto text-center text-white">
-            <h1 class="text-4xl font-bold mb-4">About AirBnb Claims</h1>
+            <h1 class="text-4xl font-bold mb-4">About {{$gs->name}}</h1>
             <p class="text-xl mb-0">
-                We're on a mission to help Airbnb hosts navigate the complex claims process and get fair compensation for property damages.
+                We handle the claims—so you can get back to hosting. Let us recover what you're owed while you focus on your guests.
             </p>
         </div>
     </div>
 </div>
-
-
 
 <!-- Our Story Section -->
 <div class="py-16 bg-white">
@@ -31,16 +29,42 @@
             
             <div class="prose prose-lg mx-auto">
                 <p>
-                    AirBnb Claims was founded in 2021 by a group of Airbnb superhosts who experienced firsthand the challenges of filing damage claims and recovering fair compensation. After numerous frustrating experiences with rejected claims, delayed responses, and inadequate payouts, we realized there was a need for expert guidance in this process.
+                    {{$gs->name}} was born out of frustration—and opportunity. As active Airbnb hosts ourselves, we experienced firsthand how difficult and inconsistent the claims process can be. After getting denied for multiple claims we knew were valid, we started asking a simple question: How many other hosts are going through this too?
                 </p>
                 
                 <p>
-                    Our founders' combined experience of over 15 years in property management and short-term rentals gave us unique insights into the intricacies of Airbnb's policies and resolution processes. We identified the common pitfalls that lead to denied claims and developed strategies to overcome these obstacles.
+                    In 2022, after successfully recovering over $10,000 from a single damage claim that we almost gave up on, it hit us—this wasn't just a one-time win. Most hosts weren't filing claims at all, and those who did often gave up after poor communication or unfair denials. When we dug deeper, we discovered that over <b>$3 billion</b> in damages goes unclaimed by hosts every year simply because they don't know the process or don't have the time to deal with it.
                 </p>
                 
                 <p>
-                    What began as informal advice to fellow hosts has since evolved into a comprehensive service dedicated to helping hosts navigate the complex landscape of Airbnb damages. Today, AirBnb Claims is trusted by hundreds of hosts worldwide to handle their claims with expertise and professionalism.
+                    We realized there was a huge gap—and we knew how to fill it. Fast forward to today, and {{$gs->name}} has helped hosts recover over <b>$85,000</b> in damages since launching the service in <b>January 2025</b>. We've managed <b>over 100 successful claims</b> so far, and we're just getting started.
                 </p>
+
+                <p>
+                    With <b>6 years of combined hosting experience</b> and management of <b>10 active Airbnb units</b>, we've developed a system that works. We built this service not just to get our money back—but to take the stress off other hosts too. {{$gs->name}} exists so you don't have to chase payouts, argue with support, or waste hours fighting a system we've already mastered.
+                </p>
+            </div>
+
+            <div class="mt-8 bg-gray-50 rounded-xl p-6">
+                <h3 class="text-xl font-bold text-gray-900 mb-4">What makes us different?</h3>
+                <ul class="space-y-3">
+                    <li class="flex items-start">
+                        <span class="flex-shrink-0 w-2 h-2 bg-accent rounded-full mt-2 mr-3"></span>
+                        <span class="text-gray-700">A <b>95% approval rate</b></span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="flex-shrink-0 w-2 h-2 bg-accent rounded-full mt-2 mr-3"></span>
+                        <span class="text-gray-700">Fast turnaround times</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="flex-shrink-0 w-2 h-2 bg-accent rounded-full mt-2 mr-3"></span>
+                        <span class="text-gray-700"><b>Deep knowledge of Airbnb's resolution process and policies</b></span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="flex-shrink-0 w-2 h-2 bg-accent rounded-full mt-2 mr-3"></span>
+                        <span class="text-gray-700">Proven <b>documentation and automation systems</b> that give every claim the best shot at success</span>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
@@ -62,11 +86,11 @@
                 </div>
                 
                 <blockquote class="text-center italic text-gray-700 text-xl mb-6">
-                    "To level the playing field for Airbnb hosts by providing expertise, advocacy, and support throughout the claims process, ensuring they receive fair compensation for legitimate damages."
+                    "We bring specialized knowledge and experience in short-term rental platform policies—especially Airbnb—and know how to present claims for maximum success."
                 </blockquote>
                 
                 <p class="text-gray-600 text-center">
-                    We believe that hosts shouldn't have to absorb the costs of guest damages due to complicated claim processes or lack of experience in documentation and negotiation.
+                    Let us handle the claims—so you can get back to hosting. We exist to take the stress off hosts by recovering what you're owed while you focus on what matters most.
                 </p>
             </div>
             
@@ -77,9 +101,9 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                     </div>
-                    <h3 class="font-bold text-gray-900 text-lg mb-2">Fairness</h3>
+                    <h3 class="font-bold text-gray-900 text-lg mb-2">Expertise</h3>
                     <p class="text-gray-600">
-                        We're committed to helping hosts receive the compensation they rightfully deserve for property damages.
+                        We bring specialized knowledge and experience in short-term rental platform policies and optimal claim presentation.
                     </p>
                 </div>
                 
@@ -91,7 +115,7 @@
                     </div>
                     <h3 class="font-bold text-gray-900 text-lg mb-2">Efficiency</h3>
                     <p class="text-gray-600">
-                        Our streamlined process saves hosts time and stress while increasing the likelihood of claim approval.
+                        Our proven systems and fast turnaround times save hosts time and stress while maximizing claim success.
                     </p>
                 </div>
                 
@@ -101,9 +125,9 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
                         </svg>
                     </div>
-                    <h3 class="font-bold text-gray-900 text-lg mb-2">Expertise</h3>
+                    <h3 class="font-bold text-gray-900 text-lg mb-2">Results</h3>
                     <p class="text-gray-600">
-                        We bring specialized knowledge and experience in Airbnb's policies and optimal claim presentation.
+                        With a 95% approval rate and over $85,000 recovered, we deliver proven results that matter.
                     </p>
                 </div>
             </div>
@@ -116,27 +140,27 @@
     <div class="container mx-auto px-4">
         <div class="max-w-3xl mx-auto">
             <h2 class="text-3xl font-bold text-gray-900 mb-2 text-center">Our Team</h2>
-            <p class="text-gray-600 text-center mb-12">Meet the experts behind AirBnb Claims</p>
+            <p class="text-gray-600 text-center mb-12">Meet the team behind {{$gs->name}}</p>
 
             @php
                 $teamMembers = [
                     [
-                        'name'        => 'Sarah Johnson',
+                        'name'        => 'Zichen Chu',
                         'role'        => 'Co-Founder & CEO',
-                        'description' => 'Former Airbnb Superhost with over 8 years of property management experience.',
-                        'image_url'   => 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&q=80',
+                        'description' => 'Airbnb Superhost with over 4 years of property management experience.',
+                        'image_url'   => asset('assets/images/team/1.jpg'),
                     ],
                     [
-                        'name'        => 'Michael Chen',
+                        'name'        => 'Justin James',
                         'role'        => 'Co-Founder & Operations',
-                        'description' => 'Previously managed a portfolio of 15+ Airbnb properties across multiple cities.',
-                        'image_url'   => 'https://images.unsplash.com/photo-1595152772835-219674b2a8a6?auto=format&fit=crop&w=400&q=80',
+                        'description' => 'Previously managed a portfolio of 10+ Airbnb properties across multiple cities.',
+                        'image_url'   => asset('assets/images/team/2.jpg'),
                     ],
                     [
-                        'name'        => 'Emma Roberts',
+                        'name'        => 'Jonathan James',
                         'role'        => 'Claims Director',
                         'description' => 'Former customer resolution specialist with 5+ years in the hospitality industry.',
-                        'image_url'   => 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=400&q=80',
+                        'image_url'   => asset('assets/images/team/3.jpg'),
                     ],
                 ];
             @endphp
@@ -165,7 +189,7 @@
 <div class="py-16 bg-gray-50">
     <div class="container mx-auto px-4">
         <div class="max-w-3xl mx-auto">
-            <h2 class="text-3xl font-bold text-gray-900 mb-12 text-center">Why Choose AirBnb Claims</h2>
+            <h2 class="text-3xl font-bold text-gray-900 mb-12 text-center">Why Choose {{$gs->name}}</h2>
             
             <div class="space-y-8">
                 <!-- Item 1 -->
@@ -178,7 +202,7 @@
                     <div>
                         <h3 class="text-xl font-bold text-gray-900 mb-2">Proven Success Rate</h3>
                         <p class="text-gray-600">
-                            Our strategically documented and presented claims achieve an 85%+ approval rate, significantly higher than the 40% industry average for self-filed claims.
+                            Our strategically documented and presented claims achieve a 95%+ approval rate, significantly higher than the 40% industry average for self-filed claims.
                         </p>
                     </div>
                 </div>
@@ -193,7 +217,7 @@
                     <div>
                         <h3 class="text-xl font-bold text-gray-900 mb-2">Specialized Expertise</h3>
                         <p class="text-gray-600">
-                            Our team has intimate knowledge of Airbnb's policies, documentation requirements, and the specific language that resonates with their support team and resolution center.
+                            Our team has intimate knowledge of OTA's coverage policies, documentation requirements, and the specific language that resonates with their support team and resolution center.
                         </p>
                     </div>
                 </div>
@@ -221,9 +245,9 @@
                         </div>
                     </div>
                     <div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-2">Transparent Pricing Model</h3>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Fast Turnaround Times</h3>
                         <p class="text-gray-600">
-                            Our success-based pricing ensures our interests are aligned with yours – we only succeed when you receive your compensation.
+                            Our proven documentation and automation systems give every claim the best shot at success with quick processing and resolution.
                         </p>
                     </div>
                 </div>
@@ -244,7 +268,7 @@
         <div class="max-w-3xl mx-auto text-center text-white">
             <h2 class="text-3xl font-bold mb-6">Ready to Get Started?</h2>
             <p class="text-xl mb-8">
-                Join hundreds of satisfied hosts who've successfully recovered compensation for property damages with our help.
+                Join the hosts who've successfully recovered over $85,000 in damages with our proven system and expertise.
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
                 <a href="{{ route('user.register') }}" 

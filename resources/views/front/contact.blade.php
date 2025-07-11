@@ -45,7 +45,7 @@
                                 <div class="ml-4">
                                     <h3 class="text-lg font-medium text-gray-900">Email</h3>
                                     <p class="mt-1 text-gray-600">
-                                        <a href="mailto:support@airbnbclaims.com" class="hover:text-accent">support@airbnbclaims.com</a>
+                                        <a href="mailto:support@claimpilotplus.com" class="hover:text-accent">support@claimpilotplus.com</a>
                                     </p>
                                     <p class="mt-1 text-sm text-gray-500">Our team typically responds within 24 hours</p>
                                 </div>
@@ -62,7 +62,7 @@
                                 <div class="ml-4">
                                     <h3 class="text-lg font-medium text-gray-900">Phone</h3>
                                     <p class="mt-1 text-gray-600">
-                                        <a href="tel:+18005551234" class="hover:text-accent">(800) 555-1234</a>
+                                        <a href="tel:+13127727896" class="hover:text-accent">(312) 772-7896 </a>
                                     </p>
                                     <p class="mt-1 text-sm text-gray-500">Monday-Friday, 9AM-5PM EST</p>
                                 </div>
@@ -263,7 +263,7 @@
                     <div class="bg-white rounded-xl p-6 border border-gray-200 shadow-lg">
                         <h3 class="text-lg font-medium text-gray-900 mb-3">How do I get technical support?</h3>
                         <p class="text-gray-600">
-                            For technical issues with your account or the platform, please email <a href="mailto:support@airbnbclaims.com" class="text-accent hover:underline">support@airbnbclaims.com</a> with "Technical Support" in the subject line, or create a support ticket from your user dashboard.
+                            For technical issues with your account or the platform, please email <a href="mailto:support@claimpilotplus.com" class="text-accent hover:underline">support@claimpilotplus.com</a> with "Technical Support" in the subject line, or create a support ticket from your user dashboard.
                         </p>
                     </div>
                 </div>

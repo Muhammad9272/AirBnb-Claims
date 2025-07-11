@@ -3,6 +3,37 @@
 @section('css')
 <!--datatable css-->
 <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet" type="text/css" />
+<link href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap5.min.css" rel="stylesheet" type="text/css" />
+<style>
+    /* Custom responsive styles */
+    .card {
+        margin-bottom: 20px;
+    }
+    
+    .table-responsive {
+        overflow-x: auto;
+    }
+    
+    @media (max-width: 768px) {
+        .mini-stats-wid {
+            margin-bottom: 15px;
+        }
+        
+        .btn-group {
+            flex-wrap: wrap;
+        }
+        
+        .btn-group .btn {
+            margin-bottom: 5px;
+        }
+    }
+    
+    /* DataTables responsive adjustments */
+    table.dataTable.dtr-inline.collapsed>tbody>tr>td.dtr-control:before,
+    table.dataTable.dtr-inline.collapsed>tbody>tr>th.dtr-control:before {
+        background-color: #007bff;
+    }
+</style>
 @endsection
 
 @section('content')
@@ -19,7 +50,7 @@
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-lg-3 col-md-6">
+                    <div class="col-lg-3 col-md-6 col-sm-6">
                         <div class="card mini-stats-wid">
                             <div class="card-body">
                                 <div class="d-flex">
@@ -37,7 +68,7 @@
                         </div>
                     </div>
                     
-                    <div class="col-lg-3 col-md-6">
+                    <div class="col-lg-3 col-md-6 col-sm-6">
                         <div class="card mini-stats-wid">
                             <div class="card-body">
                                 <div class="d-flex">
@@ -55,7 +86,7 @@
                         </div>
                     </div>
                     
-                    <div class="col-lg-3 col-md-6">
+                    <div class="col-lg-3 col-md-6 col-sm-6">
                         <div class="card mini-stats-wid">
                             <div class="card-body">
                                 <div class="d-flex">
@@ -73,7 +104,7 @@
                         </div>
                     </div>
                     
-                    <div class="col-lg-3 col-md-6">
+                    <div class="col-lg-3 col-md-6 col-sm-6">
                         <div class="card mini-stats-wid">
                             <div class="card-body">
                                 <div class="d-flex">
@@ -99,9 +130,9 @@
 <div class="row">
     <div class="col-lg-12">
         <div class="card">
-            <div class="card-header d-flex align-items-center">
-                <h5 class="card-title mb-0 flex-grow-1">Claims List</h5>
-                <div>
+            <div class="card-header d-flex flex-column flex-md-row align-items-start align-items-md-center">
+                <h5 class="card-title mb-2 mb-md-0 flex-grow-1">Claims List</h5>
+                <div class="mt-2 mt-md-0">
                     <a href="{{ route('admin.claims.export', ['status' => $status]) }}" class="btn btn-success btn-sm">
                         <i class="ri-file-download-line align-bottom me-1"></i> Export CSV
                     </a>
@@ -109,35 +140,37 @@
             </div>
             <div class="card-body">
                 <div class="row mb-3">
-                    <div class="col-md-6">
-                        <div class="btn-group" role="group">
-                            <a href="{{ route('admin.claims.index', ['status' => 'all']) }}" class="btn {{ $status == 'all' ? 'btn-primary' : 'btn-outline-primary' }}">All</a>
-                            <a href="{{ route('admin.claims.index', ['status' => 'pending']) }}" class="btn {{ $status == 'pending' ? 'btn-primary' : 'btn-outline-primary' }}">Pending</a>
-                            <a href="{{ route('admin.claims.index', ['status' => 'under_review']) }}" class="btn {{ $status == 'under_review' ? 'btn-primary' : 'btn-outline-primary' }}">Under Review</a>
-                            <a href="{{ route('admin.claims.index', ['status' => 'approved']) }}" class="btn {{ $status == 'approved' ? 'btn-primary' : 'btn-outline-primary' }}">Approved</a>
-                            <a href="{{ route('admin.claims.index', ['status' => 'rejected']) }}" class="btn {{ $status == 'rejected' ? 'btn-primary' : 'btn-outline-primary' }}">Rejected</a>
+                    <div class="col-12">
+                        <div class="btn-group " role="group">
+                            <a href="{{ route('admin.claims.index', ['status' => 'all']) }}" class="btn {{ $status == 'all' ? 'btn-primary' : 'btn-outline-primary' }} btn-sm">All</a>
+                            <a href="{{ route('admin.claims.index', ['status' => 'pending']) }}" class="btn {{ $status == 'pending' ? 'btn-primary' : 'btn-outline-primary' }} btn-sm">Pending</a>
+                            <a href="{{ route('admin.claims.index', ['status' => 'under_review']) }}" class="btn {{ $status == 'under_review' ? 'btn-primary' : 'btn-outline-primary' }} btn-sm">Under Review</a>
+                            <a href="{{ route('admin.claims.index', ['status' => 'approved']) }}" class="btn {{ $status == 'approved' ? 'btn-primary' : 'btn-outline-primary' }} btn-sm">Approved</a>
+                            <a href="{{ route('admin.claims.index', ['status' => 'rejected']) }}" class="btn {{ $status == 'rejected' ? 'btn-primary' : 'btn-outline-primary' }} btn-sm">Rejected</a>
                         </div>
                     </div>
                 </div>
                 
-                <table id="claims-table" class="table table-striped table-bordered dt-responsive nowrap" style="width:100%">
-                    <thead>
-                        <tr>
-                            <th>Claim #</th>
-                            <th>User</th>
-                            <th>Title</th>
-                            <th>Amount Requested</th>
-                            <th>Amount Approved</th>
-                            <th>Status</th>
-                            <th>Created</th>
-                            <th>Updated</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- DataTable content will be loaded here -->
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table id="claims-table" class="table table-striped table-bordered dt-responsive nowrap w-100">
+                        <thead>
+                            <tr>
+                                <th>Claim #</th>
+                                <th>User</th>
+                                <th>Title</th>
+                                <th>Amount Requested</th>
+                                <th>Amount Approved</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th>Updated</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- DataTable content will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -147,11 +180,15 @@
 @section('script')
 <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.9/js/responsive.bootstrap5.min.js"></script>
+
 <script>
     $(document).ready(function() {
         var table = $('#claims-table').DataTable({
             processing: true,
             serverSide: true,
+            responsive: true,
             ajax: {
                 url: "{{ route('admin.claims.datatables') }}",
                 data: function (d) {
@@ -159,14 +196,35 @@
                 }
             },
             columns: [
-                { data: 'claim_number', name: 'claim_number' },
-                { data: 'user_info', name: 'user_info' },
-                { data: 'title', name: 'title' },
-                { data: 'amount_requested', name: 'amount_requested' },
-                { data: 'amount_approved', name: 'amount_approved' },
+                { 
+                    data: 'claim_number', 
+                    name: 'claim_number',
+                    responsivePriority: 1
+                },
+                { 
+                    data: 'user_info', 
+                    name: 'user_info',
+                    responsivePriority: 2
+                },
+                { 
+                    data: 'title', 
+                    name: 'title',
+                    responsivePriority: 3
+                },
+                { 
+                    data: 'amount_requested', 
+                    name: 'amount_requested',
+                    responsivePriority: 4
+                },
+                { 
+                    data: 'amount_approved', 
+                    name: 'amount_approved',
+                    responsivePriority: 5
+                },
                 { 
                     data: 'status', 
                     name: 'status',
+                    responsivePriority: 1,
                     render: function(data, type, row) {
                         var badgeClass = '';
                         switch(data) {
@@ -189,11 +247,41 @@
                         return '<span class="' + badgeClass + '">' + data.replace('_', ' ').charAt(0).toUpperCase() + data.replace('_', ' ').slice(1) + '</span>';
                     }
                 },
-                { data: 'created_at', name: 'created_at' },
-                { data: 'updated_at', name: 'updated_at' },
-                { data: 'action', name: 'action', orderable: false, searchable: false }
+                { 
+                    data: 'created_at', 
+                    name: 'created_at',
+                    responsivePriority: 6
+                },
+                { 
+                    data: 'updated_at', 
+                    name: 'updated_at',
+                    responsivePriority: 7
+                },
+                { 
+                    data: 'action', 
+                    name: 'action', 
+                    orderable: false, 
+                    searchable: false,
+                    responsivePriority: 1
+                }
             ],
-            order: [[6, 'desc']]
+            order: [[6, 'desc']],
+            pageLength: 25,
+            lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+            dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+                 '<"row"<"col-sm-12"tr>>' +
+                 '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+            language: {
+                search: "Search claims:",
+                lengthMenu: "Show _MENU_ claims",
+                info: "Showing _START_ to _END_ of _TOTAL_ claims",
+                paginate: {
+                    first: "First",
+                    last: "Last",
+                    next: "Next",
+                    previous: "Previous"
+                }
+            }
         });
     });
 </script>

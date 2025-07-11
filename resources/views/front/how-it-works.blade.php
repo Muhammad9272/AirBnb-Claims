@@ -1,6 +1,6 @@
 @extends('front.layouts.app')
-@section('meta_title', 'How It Works - AirBnb Claims')
-@section('meta_description', 'Learn how our AirBnb claims process works and how we help hosts get fair compensation for property damages.')
+@section('meta_title', 'How It Works - ClaimPilot+')
+@section('meta_description', 'Learn how our ClaimPilot+ claims process works and how we help hosts get fair compensation for property damages.')
 
 @section('content')
 <!-- Hero Section (with Unsplash background) -->
@@ -15,7 +15,7 @@
         <div class="max-w-3xl mx-auto text-center text-white">
             <h1 class="text-4xl font-bold mb-4">How It Works</h1>
             <p class="text-xl mb-0">
-                Our streamlined process makes it easy to submit, track, and resolve your Airbnb damage claims.
+                Our streamlined process makes it easy to submit, track, and resolve your OTA damage claims.
             </p>
         </div>
     </div>
@@ -26,10 +26,10 @@
 <div class="py-16 bg-white">
     <div class="container mx-auto px-4">
         <div class="max-w-3xl mx-auto">
-            <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">The AirBnb Claims Process</h2>
+            <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">The OTA's Claim Filing Process</h2>
             
             <p class="text-lg text-gray-700 mb-12 text-center">
-                We've simplified the complex Airbnb claims process into a streamlined system that maximizes your chances of approval.
+                We've simplified the complex claim filing process into a streamlined system that maximizes your chances of approval.
             </p>
             
             @php
@@ -41,7 +41,7 @@
                         'bullets'=> [
                             'Basic account information (name, email, phone)',
                             'Payment method for subscription',
-                            'Information about your Airbnb properties',
+                            'Information about your property portfolio',
                         ],
                     ],
                     [
@@ -49,41 +49,30 @@
                         'title'  => 'Submit Claim Details',
                         'desc'   => 'When damage occurs, submit all relevant information through our user-friendly dashboard. Our guided form makes it easy to provide all necessary details.',
                         'bullets'=> [
-                            'Airbnb reservation details',
+                            'Reservation details',
                             'Description of damages',
                             'Photos documenting the damage',
-                            'Repair estimates or receipts',
+                            'Repair estimates or receipts (if applicable)',
                             'Guest communications about the damage',
                         ],
                     ],
                     [
                         'number' => 3,
-                        'title'  => 'Expert Review & Optimization',
-                        'desc'   => 'Our claims specialists review your submission, identify potential issues, and optimize your claim for maximum success. We may request additional information if needed.',
-                        'bullets'=> [
-                            'Thorough assessment of claim validity',
-                            'Professional documentation organization',
-                            'Strategic presentation of evidence',
-                            'Identification of claim strengthening opportunities',
-                        ],
-                    ],
-                    [
-                        'number' => 4,
                         'title'  => 'Claim Submission & Advocacy',
-                        'desc'   => 'We submit your optimized claim through Airbnb\'s Resolution Center and act as your advocate throughout the process, handling all communication with Airbnb.',
+                        'desc'   => 'We submit your optimized claim through the OTA\'s Resolution Center and act as your advocate throughout the process, handling all submission & communication.',
                         'bullets'=> [
                             'Strategic claim timing and submission',
-                            'Professional communication with Airbnb',
-                            'Response to Airbnb inquiries and objections',
+                            'Professional communication with resolution center',
+                            'Response to OTA\'s inquiries and objections',
                             'Regular status updates to you',
                         ],
                     ],
                     [
-                        'number' => 5,
+                        'number' => 4,
                         'title'  => 'Resolution & Payment',
-                        'desc'   => 'Once Airbnb makes a decision, we notify you immediately. For approved claims, we help ensure you receive payment promptly. Our success fee is only charged on successfully approved claims.',
+                        'desc'   => 'Once the OTA\'s makes a decision, we notify you immediately. For approved claims, we help ensure you receive payment promptly. Our success fee is only charged on successfully approved claims.',
                         'metrics'=> [
-                            ['label' => 'Approval Rate',            'width' => '85%', 'text' => '85% approval rate'],
+                            ['label' => 'Approval Rate',            'width' => '90%', 'text' => '90% approval rate'],
                             ['label' => 'Average Time to Resolution','width' => '70%', 'text' => '2-4 weeks average'],
                         ],
                     ],
@@ -185,7 +174,7 @@
                 ],
                 [
                     'icon' => '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6-030 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                                </svg>',
                     'title'       => 'Secure Document Storage',
                     'description' => 'All your property documentation, before/after photos, and claim evidence stored securely in one place.',
@@ -221,7 +210,7 @@
         <div class="max-w-3xl mx-auto text-center text-white">
             <h2 class="text-3xl font-bold mb-6">Ready to Get Started?</h2>
             <p class="text-xl mb-8">
-                Join hundreds of satisfied hosts who've successfully recovered compensation for property damages with our help.
+                Join the hosts who've successfully recovered over $85,000 in damages with our proven system and expertise.
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
                 <a href="{{ route('user.register') }}" 

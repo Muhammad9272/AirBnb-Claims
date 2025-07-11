@@ -25,13 +25,13 @@
             At ClaimPilot+, we believe that managing claims shouldn't be another headache for busy Airbnb hosts. Focus on growing your business while we expertly navigate the complexities of Airbnb's claims system.
           </p>
           <div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
-            <button class="bg-gradient-to-r from-accent to-accent-light hover:from-accent-light hover:to-accent text-white px-10 py-4 rounded-xl font-semibold text-lg transition-all transform hover:scale-105 shadow-2xl hover:shadow-accent/25">
+            <a href="{{ route('front.pricing') }}" class="bg-gradient-to-r from-accent to-accent-light hover:from-accent-light hover:to-accent text-white px-10 py-4 rounded-xl font-semibold text-lg transition-all transform hover:scale-105 shadow-2xl hover:shadow-accent/25">
               View Pricing
               <svg class="inline-block ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
               </svg>
-            </button>
-            <button class="border-2 border-white/30 hover:border-white/50 text-white px-10 py-4 rounded-xl font-semibold text-lg transition-all hover:bg-white/10 group">
+            </a>
+            <button id="watchDemoBtn" class="border-2 border-white/30 hover:border-white/50 text-white px-10 py-4 rounded-xl font-semibold text-lg transition-all hover:bg-white/10 group">
               <svg class="inline-block mr-2 h-5 w-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -43,7 +43,46 @@
       </div>
     </section>
 
-
+    <!-- Video Modal -->
+    <div id="videoModal" class="fixed inset-0 bg-black bg-opacity-90 z-50 hidden items-center justify-center p-4">
+      <div class="relative max-w-4xl w-full">
+        <!-- Close Button -->
+        <button id="closeModal" class="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors z-10">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+        
+        <!-- Video Container -->
+        <div class="relative aspect-video bg-black rounded-lg overflow-hidden shadow-2xl">
+          <!-- YouTube Video Embed -->
+          {{-- <iframe 
+            id="demoVideo"
+            class="w-full h-full" 
+            src="" 
+            data-src="https://www.youtube.com/embed/YOUR_VIDEO_ID?rel=0&showinfo=0&modestbranding=1&autoplay=1"
+            frameborder="0" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowfullscreen>
+          </iframe> --}}
+          
+          <!-- Alternative: Self-hosted Video (uncomment to use instead of YouTube) -->
+          
+          <video 
+            id="demoVideo"
+            class="w-full h-full object-cover" 
+            controls 
+            autoplay
+            poster="https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=1950&q=80"
+          >
+            <source src="{{ asset('assets/front/demo/demo.mp4') }}" type="video/mp4">
+            {{-- <source src="{{ asset('videos/claimpilot-demo.webm') }}" type="video/webm"> --}}
+            Your browser does not support the video tag.
+          </video>
+         
+        </div>
+      </div>
+    </div>
 
 
 <!-- About Section -->
@@ -464,4 +503,81 @@
         </div>
       </div>
     </section>
+@endsection
+@section('script')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const watchDemoBtn = document.getElementById('watchDemoBtn');
+    const videoModal = document.getElementById('videoModal');
+    const closeModal = document.getElementById('closeModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const demoVideo = document.getElementById('demoVideo');
+    
+    // Open modal
+    watchDemoBtn.addEventListener('click', function() {
+        videoModal.classList.remove('hidden');
+        videoModal.classList.add('flex');
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        
+        // Load video when modal opens (for YouTube)
+        if (demoVideo.tagName === 'IFRAME') {
+            demoVideo.src = demoVideo.getAttribute('data-src');
+        }
+        
+        // Auto-play for self-hosted video
+        if (demoVideo.tagName === 'VIDEO') {
+            demoVideo.play();
+        }
+    });
+    
+    // Close modal functions
+    function closeVideoModal() {
+        videoModal.classList.add('hidden');
+        videoModal.classList.remove('flex');
+        document.body.style.overflow = 'auto'; // Restore scrolling
+        
+        // Stop video when modal closes
+        if (demoVideo.tagName === 'IFRAME') {
+            demoVideo.src = ''; // This stops the YouTube video
+        }
+        
+        if (demoVideo.tagName === 'VIDEO') {
+            demoVideo.pause();
+            demoVideo.currentTime = 0;
+        }
+    }
+    
+    // Close modal event listeners
+    closeModal.addEventListener('click', closeVideoModal);
+    closeModalBtn.addEventListener('click', closeVideoModal);
+    
+    // Close modal when clicking outside
+    videoModal.addEventListener('click', function(e) {
+        if (e.target === videoModal) {
+            closeVideoModal();
+        }
+    });
+    
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && !videoModal.classList.contains('hidden')) {
+            closeVideoModal();
+        }
+    });
+    
+    // Video analytics (optional)
+    watchDemoBtn.addEventListener('click', function() {
+        // Track demo video views
+        if (typeof gtag !== 'undefined') {
+            gtag('event', 'video_play', {
+                event_category: 'engagement',
+                event_label: 'demo_video'
+            });
+        }
+        
+        // Or use your preferred analytics
+        console.log('Demo video opened');
+    });
+});
+</script>
 @endsection
