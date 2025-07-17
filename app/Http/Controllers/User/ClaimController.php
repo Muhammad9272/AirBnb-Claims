@@ -57,7 +57,7 @@ class ClaimController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:191',
             'description' => 'required|string',
-            'property_address' => 'required|string|max:191',
+            'property_address' => 'string|max:191',
             'amount_requested' => 'required|numeric|min:1',
             'check_in_date' => 'required|date',
             'check_out_date' => 'required|date|after_or_equal:check_in_date',

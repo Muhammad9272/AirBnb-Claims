@@ -491,15 +491,15 @@
           Let us handle the claims so you can concentrate on what matters most—delighting your guests and expanding your business.
         </p>
         <div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
-          <button class="bg-gradient-to-r from-accent to-accent-light hover:from-accent-light hover:to-accent text-white px-10 py-4 rounded-xl font-semibold text-lg transition-all transform hover:scale-105 shadow-2xl hover:shadow-accent/25">
+          <a href="{{ route('user.register') }}" class="bg-gradient-to-r from-accent to-accent-light hover:from-accent-light hover:to-accent text-white px-10 py-4 rounded-xl font-semibold text-lg transition-all transform hover:scale-105 shadow-2xl hover:shadow-accent/25">
             Get Started Today
             <svg class="inline-block ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
             </svg>
-          </button>
-          <button class="border-2 border-accent hover:border-accent-light text-accent hover:text-accent-light px-10 py-4 rounded-xl font-semibold text-lg transition-all hover:bg-accent/5">
+          </a>
+          <a href="{{ route('front.contact') }}" class="border-2 border-accent hover:border-accent-light text-accent hover:text-accent-light px-10 py-4 rounded-xl font-semibold text-lg transition-all hover:bg-accent/5">
             Contact Us
-          </button>
+          </a>
         </div>
       </div>
     </section>

@@ -426,10 +426,10 @@ use App\CentralLogics\Helpers;
                                 <td>${{ number_format($claim->amount_approved, 2) }}</td>
                             </tr>
                             @endif
-                            <tr>
+                            {{-- <tr>
                                 <th>Property Address</th>
                                 <td>{{ $claim->property_address }}</td>
-                            </tr>
+                            </tr> --}}
                             <tr>
                                 <th>Airbnb Reservation Code</th>
                                 <td>{{ $claim->airbnb_reservation_code }}</td>
