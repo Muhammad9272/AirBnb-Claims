@@ -75,7 +75,7 @@
             autoplay
             poster="https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=1950&q=80"
           >
-            <source src="{{ asset('assets/front/demo/demo.mp4') }}" type="video/mp4">
+            <source src="{{ asset('assets/front/demo/demo2.mp4') }}" type="video/mp4">
             {{-- <source src="{{ asset('videos/claimpilot-demo.webm') }}" type="video/webm"> --}}
             Your browser does not support the video tag.
           </video>
