@@ -15,6 +15,26 @@
                 'answer'   => 'We offer expertise and experience that significantly increases your chances of claim approval. Our team knows exactly what documentation Airbnb requires, how to present evidence effectively, and how to navigate common rejection reasons. Our success rate is over 85%, compared to around 40% for hosts filing independently.'
             ],
             [
+                'question' => 'Why do you need co-host access?',
+                'answer'   => 'Airbnb only allows the listing owner or co-host to file official AirCover claims. We use this access exclusively to manage your claims, and you can remove us at any time. This ensures we can act quickly on your behalf to secure the compensation you deserve.'
+            ],
+            [
+                'question' => 'Will you message guests or change my calendar?',
+                'answer'   => 'No — we only touch what\'s necessary to file your claim. We never interfere with bookings, guest communications, or your property operations. Your hosting experience remains completely under your control.'
+            ],
+            [
+                'question' => 'Can I remove your team after the claim is processed?',
+                'answer'   => 'Yes — co-host access can be revoked at any time via your Airbnb settings. You have complete control over our access and can remove us whenever you choose. Many clients keep us on for ongoing claim management, but the choice is entirely yours.'
+            ],
+            [
+                'question' => 'What exactly can you access as a co-host?',
+                'answer'   => 'As a co-host, we can only access the specific listings you add us to. We can view booking details, submit claims, and communicate with Airbnb support about claims. We cannot change pricing, availability, house rules, or any other property settings.'
+            ],
+            [
+                'question' => 'How do I know you won\'t misuse my account?',
+                'answer'   => 'We\'re a professional claims management service with a track record of successful claims. All our actions are logged in your Airbnb account, so you can see exactly what we do. Plus, you can remove our access instantly if you\'re ever uncomfortable.'
+            ],
+            [
                 'question' => 'Is my information secure?',
                 'answer'   => 'Yes, protecting your information is our top priority. We use bank-level encryption for all data transfers and storage. We never share your personal information with third parties except as required to process your claim with Airbnb. Please review our <a href="'.route('front.help.privacy').'" class="text-accent hover:underline">Privacy Policy</a> for more details.'
             ],
@@ -97,20 +117,20 @@
                 '
             ],
             [
-                'question' => 'What if I don’t have "before" photos of the damaged items?',
-                'answer'   => 'While "before" photos are helpful, they’re not always necessary for a successful claim. If you don’t have specific before photos, you can use listing photos if they show the items in question, maintenance records, prior guest reviews mentioning the condition of your property, or cleaning reports from before the guest’s stay. Our team is skilled at building strong cases even without "before" photos by utilizing other types of evidence and documentation.'
+                'question' => 'What if I don't have "before" photos of the damaged items?',
+                'answer'   => 'While "before" photos are helpful, they're not always necessary for a successful claim. If you don't have specific before photos, you can use listing photos if they show the items in question, maintenance records, prior guest reviews mentioning the condition of your property, or cleaning reports from before the guest's stay. Our team is skilled at building strong cases even without "before" photos by utilizing other types of evidence and documentation.'
             ],
             [
                 'question' => 'How should I communicate with guests about damages?',
                 'answer'   => '
                     When communicating with guests about damages:
                     <ul class="list-disc pl-5 space-y-1 text-gray-600">
-                        <li>Always use the Airbnb messaging system so there’s an official record</li>
+                        <li>Always use the Airbnb messaging system so there's an official record</li>
                         <li>Be polite, professional, and factual</li>
                         <li>Describe the damage clearly and objectively</li>
                         <li>Include photos of the damage in your messages if possible</li>
                         <li>Avoid accusatory language or emotional reactions</li>
-                        <li>Clearly state the resolution you’re seeking</li>
+                        <li>Clearly state the resolution you're seeking</li>
                         <li>Give the guest an opportunity to respond</li>
                     </ul>
                     Even if the guest denies responsibility, having this communication documented strengthens your claim with Airbnb.
@@ -128,7 +148,7 @@
             [
                 'question' => 'When and how do I pay the success fee?',
                 'answer'   => '
-                    The success fee is only charged when your claim is approved and you receive payment from Airbnb. Once Airbnb issues your payment, you’ll receive an invoice from us for the success fee percentage associated with your subscription plan. You can pay this invoice securely through our platform using your preferred payment method. This approach ensures you never pay a success fee unless we’ve actually helped you recover funds.
+                    The success fee is only charged when your claim is approved and you receive payment from Airbnb. Once Airbnb issues your payment, you'll receive an invoice from us for the success fee percentage associated with your subscription plan. You can pay this invoice securely through our platform using your preferred payment method. This approach ensures you never pay a success fee unless we've actually helped you recover funds.
                 '
             ],
             [
@@ -138,13 +158,13 @@
             [
                 'question' => 'Can I cancel my subscription?',
                 'answer'   => '
-                    Yes, you can cancel your subscription at any time through your account settings. When you cancel, you’ll maintain access to your subscription benefits until the end of your current billing period. Any claims that are already in progress will continue to be handled by our team even after your subscription ends. There are no cancellation fees, and you can rejoin at any time if you need our services again in the future.
+                    Yes, you can cancel your subscription at any time through your account settings. When you cancel, you'll maintain access to your subscription benefits until the end of your current billing period. Any claims that are already in progress will continue to be handled by our team even after your subscription ends. There are no cancellation fees, and you can rejoin at any time if you need our services again in the future.
                 '
             ],
             [
                 'question' => 'Do you offer refunds if my claim is denied?',
                 'answer'   => '
-                    Our business model is designed so you only pay success fees on approved claims. Your subscription fee covers our platform access, expertise, and claim preparation services regardless of the outcome. While we cannot guarantee approval for every claim (as the final decision rests with Airbnb), our high success rate and expertise significantly improve your chances of receiving compensation. If your claim is denied, we don’t charge any success fee, and we’ll work with you to explore appeals or alternative approaches.
+                    Our business model is designed so you only pay success fees on approved claims. Your subscription fee covers our platform access, expertise, and claim preparation services regardless of the outcome. While we cannot guarantee approval for every claim (as the final decision rests with Airbnb), our high success rate and expertise significantly improve your chances of receiving compensation. If your claim is denied, we don't charge any success fee, and we'll work with you to explore appeals or alternative approaches.
                 '
             ],
         ],
@@ -153,7 +173,7 @@
             [
                 'question' => 'How do I create an account?',
                 'answer'   => '
-                    Creating an account is simple! Click on the "Sign Up" button in the top-right corner of our website. You’ll need to provide your name, email address, and create a password. After submitting the registration form, you’ll receive a verification email. Click the link in that email to verify your account, and you’ll be ready to log in. Once logged in, you can complete your profile, select a subscription plan, and start creating claims.
+                    Creating an account is simple! Click on the "Sign Up" button in the top-right corner of our website. You'll need to provide your name, email address, and create a password. After submitting the registration form, you'll receive a verification email. Click the link in that email to verify your account, and you'll be ready to log in. Once logged in, you can complete your profile, select a subscription plan, and start creating claims.
                 '
             ],
             [
@@ -165,7 +185,7 @@
             [
                 'question' => 'Can I upgrade or downgrade my subscription?',
                 'answer'   => '
-                    Yes, you can upgrade or downgrade your subscription at any time through your account settings. When upgrading, the new subscription benefits take effect immediately, and you’ll be charged a prorated amount for the remainder of your billing cycle. When downgrading, the changes will take effect at the start of your next billing cycle. This flexibility allows you to adjust your subscription as your hosting business and needs change over time.
+                    Yes, you can upgrade or downgrade your subscription at any time through your account settings. When upgrading, the new subscription benefits take effect immediately, and you'll be charged a prorated amount for the remainder of your billing cycle. When downgrading, the changes will take effect at the start of your next billing cycle. This flexibility allows you to adjust your subscription as your hosting business and needs change over time.
                 '
             ],
             [
@@ -177,8 +197,12 @@
             [
                 'question' => 'What happens to my ongoing claims if I cancel my subscription?',
                 'answer'   => '
-                    If you cancel your subscription, we will continue to process and manage any claims that were initiated during your active subscription period until they reach a resolution. These claims are still subject to the success fee from your original plan if they are approved. However, you won’t be able to submit new claims after cancellation unless you reactivate your subscription. Your account will remain active, allowing you to access historical claim information and resubscribe in the future if needed.
+                    If you cancel your subscription, we will continue to process and manage any claims that were initiated during your active subscription period until they reach a resolution. These claims are still subject to the success fee from your original plan if they are approved. However, you won't be able to submit new claims after cancellation unless you reactivate your subscription. Your account will remain active, allowing you to access historical claim information and resubscribe in the future if needed.
                 '
+            ],
+            [
+                'question' => 'What if I\'m not satisfied with your service?',
+                'answer'   => 'You can remove our co-host access at any time with no questions asked. We only succeed when you do, so we\'re committed to providing excellent service and maximizing your claim payouts.'
             ],
         ],
     ];
@@ -216,7 +240,7 @@
         @endforeach
     </div>
 
-    {{-- 3. Loop over each category’s FAQs --}}
+    {{-- 3. Loop over each category's FAQs --}}
     @foreach($faqs as $categoryKey => $questions)
         <div
             x-show="activeCategory === '{{ $categoryKey }}'"
@@ -255,10 +279,10 @@
     @endforeach
 </div>
 
-{{-- 4. “Still have questions?” Banner --}}
+{{-- 4. "Still have questions?" Banner --}}
 <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
     <h3 class="text-lg font-medium text-gray-900 mb-3">Still have questions?</h3>
-    <p class="text-gray-600 mb-4">If you couldn’t find the answer you’re looking for, our support team is here to help.</p>
+    <p class="text-gray-600 mb-4">If you couldn't find the answer you're looking for, our support team is here to help.</p>
     <div class="flex flex-col sm:flex-row gap-4">
         <a href="{{ route('user.tickets.create') }}"
            class="inline-flex items-center justify-center px-6 py-3 bg-accent hover:bg-accent-dark text-white rounded-lg transition duration-150"

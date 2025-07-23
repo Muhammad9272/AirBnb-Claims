@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\CentralLogics\Helpers;
+
 use App\Http\Controllers\Controller;
 use App\Models\EmailVerifications;
 use App\Models\GeneralSetting;
@@ -10,6 +11,8 @@ use App\Models\User;
 use Auth;
 use Illuminate\Http\Request;
 use Session;
+use App\Classes\GeniusMailer;
+use Illuminate\Support\Facades\Log;
 class LoginController extends Controller
 {
 
@@ -79,6 +82,16 @@ class LoginController extends Controller
             $user->is_email_verified=1;
             $user->update();
             Auth::guard('web')->login($user);
+
+             // Send welcome email after successful registration
+            try {
+                $mailer = new GeniusMailer();
+                $mailer->sendWelcomeEmail($user);
+            } catch (\Exception $e) {
+                // Log the error but don't stop the registration process
+                Log::error('Welcome email failed: ' . $e->getMessage());
+            }
+
 
              // Redirect to the intended route or fallback to dashboard
             $redirectRoute = session('url.intended', route('user.dashboard'));

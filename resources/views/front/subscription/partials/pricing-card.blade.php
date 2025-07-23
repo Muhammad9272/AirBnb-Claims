@@ -83,7 +83,7 @@
                                 <span class="text-xl text-gray-500 ml-2">/{{ Helpers::setInterval($plan->interval) }}</span>
                             </div>
                             @if($plan->price > 0)
-                                <p class="text-sm text-gray-500 mt-2">Billed {{ $plan->interval === 'month' ? 'monthly' : 'annually' }}</p>
+                                <p class="text-sm text-gray-500 mt-2">Billed {{ Helpers::setInterval($plan->interval) }}</p>
                             @endif
                         </div>
                     </div>

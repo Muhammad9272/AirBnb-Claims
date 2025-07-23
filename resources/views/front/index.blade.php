@@ -72,7 +72,7 @@
             id="demoVideo"
             class="w-full h-full object-cover" 
             controls 
-            autoplay
+            
             poster="https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=1950&q=80"
           >
             <source src="{{ asset('assets/front/demo/demo2.mp4') }}" type="video/mp4">
@@ -442,8 +442,20 @@
                 'answer' => 'ClaimPilot+ streamlines your Airbnb claims process by providing an easy-to-use platform where you can submit damage claims, track their progress, and receive reimbursements. Simply upload photos and documentation, and our expert team helps process your claim quickly for maximum recovery.'
               ],
               [
+                'question' => 'Why do you need co-host access?',
+                'answer' => 'Airbnb only allows the listing owner or co-host to file official AirCover claims. We use this access exclusively to manage your claims, and you can remove us at any time. This ensures we can act quickly on your behalf to secure the compensation you deserve.'
+              ],
+              [
+                'question' => 'Will you message guests or change my calendar?',
+                'answer' => 'No — we only touch what\'s necessary to file your claim. We never interfere with bookings, guest communications, or your property operations. Your hosting experience remains completely under your control.'
+              ],
+              [
                 'question' => 'What types of claims can I submit?',
                 'answer' => 'You can submit various types of claims including property damage, theft, cleaning fees, maintenance costs, and any other expenses related to guest stays. Our platform handles both minor incidents and major damage claims with the same level of attention to detail.'
+              ],
+              [
+                'question' => 'Can I remove your team after the claim is processed?',
+                'answer' => 'Yes — co-host access can be revoked at any time via your Airbnb settings. You have complete control over our access and can remove us whenever you choose. Many clients keep us on for ongoing claim management, but the choice is entirely yours.'
               ],
               [
                 'question' => 'How fast are claims processed?',
@@ -451,14 +463,17 @@
               ],
               [
                 'question' => 'Is my data secure?',
-                'answer' => 'Absolutely. We use bank-level 256-bit encryption, are SOC 2 compliant, and store all data in secure, encrypted databases. Your personal information and claim documentation are completely protected with enterprise-grade security measures.'
+                'answer' => 'Absolutely. We use bank-level 256-bit encryption, are SOC 2 compliant, and store all data in secure, encrypted databases. Your personal information and claim documentation are completely protected with enterprise-grade security measures. All our actions as co-hosts are logged in your Airbnb account for complete transparency.'
+              ],
+              [
+                'question' => 'What exactly can you access as a co-host?',
+                'answer' => 'As a co-host, we can only access the specific listings you add us to. We can view booking details, submit claims, and communicate with Airbnb support about claims. We cannot change pricing, availability, house rules, or any other property settings.'
               ],
               [
                 'question' => 'Can I cancel my subscription anytime?',
-                'answer' => 'Yes, you can cancel your subscription at any time with no cancellation fees. You\'ll continue to have access to your account until the end of your current billing period, and we\'ll handle any claims that were submitted prior to cancellation.'
+                'answer' => 'Yes, you can cancel your subscription at any time with no cancellation fees. You\'ll continue to have access to your account until the end of your current billing period, and we\'ll handle any claims that were submitted prior to cancellation. You can also remove our co-host access instantly if needed.'
               ]
             ];
-
             foreach ($faqs as $index => $faq) {
               echo '
               <div class="faq-item bg-white rounded-xl p-6 shadow-xl transition-all duration-300 hover:shadow-2xl cursor-pointer">

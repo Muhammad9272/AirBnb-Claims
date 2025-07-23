@@ -9,6 +9,8 @@ use Cookie;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Contracts\User as ProviderUser;
 use Session;
+use App\Classes\GeniusMailer;
+use Illuminate\Support\Facades\Log;
 class SocialAccountService
 {
 
@@ -64,6 +66,16 @@ class SocialAccountService
         $user->role_id=1;
         $user->is_email_verified=$verify;
         $user->update();
+
+
+        // Send welcome email after successful registration
+        try {
+            $mailer = new GeniusMailer();
+            $mailer->sendWelcomeEmail($user);
+        } catch (\Exception $e) {
+            // Log the error but don't stop the registration process
+            Log::error('Welcome email failed: ' . $e->getMessage());
+        }
 
         if ($settings->is_affilate == 1) {
           $referred_by='';

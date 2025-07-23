@@ -12,6 +12,9 @@ use Auth;
 use Cookie;
 use Illuminate\Http\Request;
 use Session;
+
+use App\Classes\GeniusMailer;
+use Illuminate\Support\Facades\Log;
 class RegisterController extends Controller
 {
     public function __construct()
@@ -70,6 +73,15 @@ class RegisterController extends Controller
           }else{
              $user->is_email_verified=1;
              $user->update();
+
+             // Send welcome email after successful registration
+            try {
+                $mailer = new GeniusMailer();
+                $mailer->sendWelcomeEmail($user);
+            } catch (\Exception $e) {
+                // Log the error but don't stop the registration process
+                Log::error('Welcome email failed: ' . $e->getMessage());
+            }
           }
           //clear cart
           //Cart::clearCart();
