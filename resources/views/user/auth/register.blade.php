@@ -104,14 +104,17 @@
                         </svg>
                     </button>
 
-                    <!-- Social Signup Divider -->
-                    <div class="relative text-center my-6">
-                        <span class="px-3 bg-white relative z-10 text-sm text-gray-500">
-                            or sign up with
-                        </span>
-                        <div class="absolute top-1/2 w-full h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent -z-1"></div>
-                    </div>
+                     @if ($gs->google_login == 1)
+                         <!-- Social Signup Divider -->
+                        <div class="relative text-center my-6">
+                            <span class="px-3 bg-white relative z-10 text-sm text-gray-500">
+                                or sign up with
+                            </span>
+                            <div class="absolute top-1/2 w-full h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent -z-1"></div>
+                        </div>
+                    @endif
 
+                   
                     <!-- Social Login Buttons -->
                     <div>
                         @if ($gs->google_login == 1)
