@@ -150,19 +150,19 @@
                         'name'        => 'Wilbert James',
                         'role'        => 'Co-Founder & CEO',
                         'description' => 'Airbnb Superhost with over 4 years of property management experience.',
-                        'image_url'   => asset('assets/images/team/1.jpg'),
+                        'image_url'   => asset('assets/images/team/2.jpg'),
                     ],
                     [
                         'name'        => 'Jonathan James',
                         'role'        => 'Co-Founder & Operations',
                         'description' => 'Previously managed a portfolio of 10+ Airbnb properties across multiple cities.',
-                        'image_url'   => asset('assets/images/team/2.jpg'),
+                        'image_url'   => asset('assets/images/team/3.jpg'),
                     ],
                     [
                         'name'        => 'Zichen Chu',
                         'role'        => 'Claims Director',
                         'description' => 'Former customer resolution specialist with 5+ years in the hospitality industry.',
-                        'image_url'   => asset('assets/images/team/3.jpg'),
+                        'image_url'   => asset('assets/images/team/1.jpg'),
                     ],
                 ];
             @endphp
