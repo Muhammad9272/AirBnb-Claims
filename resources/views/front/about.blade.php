@@ -142,22 +142,24 @@
             <h2 class="text-3xl font-bold text-gray-900 mb-2 text-center">Our Team</h2>
             <p class="text-gray-600 text-center mb-12">Meet the team behind {{$gs->name}}</p>
 
+
+
             @php
                 $teamMembers = [
                     [
-                        'name'        => 'Zichen Chu',
+                        'name'        => 'Wilbert James',
                         'role'        => 'Co-Founder & CEO',
                         'description' => 'Airbnb Superhost with over 4 years of property management experience.',
                         'image_url'   => asset('assets/images/team/1.jpg'),
                     ],
                     [
-                        'name'        => 'Justin James',
+                        'name'        => 'Jonathan James',
                         'role'        => 'Co-Founder & Operations',
                         'description' => 'Previously managed a portfolio of 10+ Airbnb properties across multiple cities.',
                         'image_url'   => asset('assets/images/team/2.jpg'),
                     ],
                     [
-                        'name'        => 'Jonathan James',
+                        'name'        => 'Zichen Chu',
                         'role'        => 'Claims Director',
                         'description' => 'Former customer resolution specialist with 5+ years in the hospitality industry.',
                         'image_url'   => asset('assets/images/team/3.jpg'),
