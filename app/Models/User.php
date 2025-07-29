@@ -347,13 +347,14 @@ class User extends Authenticatable
         return false;
     }
 
-    public function sectionCheck($value){
-        $sections = explode(" , ", $this->role->section);
-        if (in_array($value, $sections)){
-            return true;
-        }else{
+    public function sectionCheck($value)
+    {
+        if (!$this->role || !$this->role->section) {
             return false;
         }
+
+        $sections = explode(" , ", $this->role->section);
+        return in_array($value, $sections);
     }
 
     /**

@@ -98,8 +98,7 @@ class DashboardController extends Controller
             ->whatsapp()
             ->getRawLinks();
             // ->telegram();
-        $products = Product::active()->latest()->take(2)->get();
-        return view('user.profile',compact('data','socialShare','products'));
+        return view('user.profile',compact('data','socialShare'));
     }
 
     public function accountSettings()
