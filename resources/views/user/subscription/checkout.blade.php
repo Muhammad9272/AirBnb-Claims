@@ -23,7 +23,7 @@
                         <h3 class="text-lg font-bold text-gray-800 mb-2">Plan Summary</h3>
                         <div class="flex justify-between items-center mb-2">
                             <span class="text-gray-700 font-medium">{{ $plan->name }}</span>
-                            <span class="text-lg font-bold">${{ number_format($plan->price, 2) }}</span>
+                            <span class="text-lg font-bold">{{ Helpers::setCurrency($plan->price) }}</span>
                         </div>
                         <div class="text-sm text-gray-500">
                             <p>Billing: {{ ucfirst(Helpers::setInterval($plan->interval)) }}</p>
@@ -114,7 +114,7 @@
                         <div class="border-t border-gray-200 mt-6 pt-4">
                             <div class="flex items-center justify-between mb-4">
                                 <span class="font-medium">Total Due Today:</span>
-                                <span class="text-2xl font-bold">${{ number_format($plan->price, 2) }}</span>
+                                <span class="text-2xl font-bold">{{ Helpers::setCurrency($plan->price) }}</span>
                             </div>
                             
                             <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">

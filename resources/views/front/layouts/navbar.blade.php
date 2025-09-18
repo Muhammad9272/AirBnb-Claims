@@ -19,7 +19,7 @@
           <div class="hidden md:block">
             <div class="ml-10 flex items-baseline space-x-3">
               <a href="{{ route('front.about') }}" class="text-white/80 hover:text-white px-3 py-2 text-sm font-medium transition-colors">About</a>
-               <a href="{{ route('front.blog.index') }}" class="text-white/80 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Blogs</a>
+               <a href="{{ route('front.blog.index') }}" class="text-white/80 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Blog</a>
               <a href="{{ route('front.how-it-works') }}" class="text-white/80 hover:text-white px-3 py-2 text-sm font-medium transition-colors">How It Works</a>
 
               <a href="{{route('front.pricing')}}" class="text-white/80 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Pricing</a>
@@ -81,7 +81,7 @@
       <div id="mobile-menu" class="md:hidden hidden bg-primary/95 backdrop-blur-md">
         <div class="px-2 pt-2 pb-3 space-y-1">
           <a href="{{ route('front.about') }}" class="text-white/80 hover:text-white px-3 py-2 text-sm font-medium transition-colors">About</a>
-          <a href="{{ route('front.blog.index') }}" class="text-white/80 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Blogs</a>
+          <a href="{{ route('front.blog.index') }}" class="text-white/80 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Blog</a>
           <a href="{{ route('front.how-it-works') }}" class="text-white/80 hover:text-white px-3 py-2 text-sm font-medium transition-colors">How It Works</a>
           <a href="{{ route('front.pricing') }}" class="text-white/80 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Pricing</a>
           <a href="{{ route('front.contact') }}" class="text-white/80 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Contact</a>

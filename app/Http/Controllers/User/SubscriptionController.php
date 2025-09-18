@@ -303,7 +303,7 @@ class SubscriptionController extends Controller
      * @param string $productId
      * @return \Stripe\Price
      */
-    private function getOrCreateStripePrice(SubPlan $plan, $productId)
+    private function getOrCreateStripePriceOld(SubPlan $plan, $productId)
     {
         // Check if the plan already has a price ID stored
         if ($plan->stripe_price_id) {
@@ -336,6 +336,75 @@ class SubscriptionController extends Controller
         // Store the price ID on the plan for future use
         $plan->stripe_price_id = $price->id;
         $plan->save();
+        
+        return $price;
+    }
+
+    /**
+     * Get or create a Stripe price for the subscription plan
+     * 
+     * @param SubPlan $plan
+     * @param string $productId
+     * @return \Stripe\Price
+     */
+    private function getOrCreateStripePrice(SubPlan $plan, $productId)
+    {
+        // Check if the plan already has a price ID stored
+        if ($plan->stripe_price_id) {
+            try {
+                // Retrieve the existing price to compare
+                $existingPrice = Price::retrieve($plan->stripe_price_id);
+                
+                // Check if the price matches our current plan price
+                $currentPriceCents = (int)($plan->price * 100);
+                
+                if ($existingPrice->unit_amount === $currentPriceCents) {
+                    // Price matches, return existing price
+                    return $existingPrice;
+                } else {
+                    // Price has changed, we need to create a new one
+                    Log::info("Price changed for plan {$plan->id}. Old: {$existingPrice->unit_amount}, New: {$currentPriceCents}. Creating new price.");
+                }
+                
+            } catch (ApiErrorException $e) {
+                // Price not found or other error, we'll create a new one
+                Log::warning("Stripe price not found: {$plan->stripe_price_id}, creating new one.");
+            }
+        }
+        
+        // Convert interval to Stripe format
+        $interval = $this->getStripeInterval($plan->interval);
+        
+        // Create a new price
+        $price = Price::create([
+            'product' => $productId,
+            'unit_amount' => (int)($plan->price * 100), // Convert to cents
+            'currency' => 'usd',
+            'recurring' => [
+                'interval' => $interval['interval'],
+                'interval_count' => $interval['interval_count'],
+            ],
+            'metadata' => [
+                'plan_id' => $plan->id,
+                'created_at' => now()->toDateTimeString(), // For tracking when this price was created
+            ],
+        ]);
+        
+        // Archive/deactivate the old price if it exists
+        if ($plan->stripe_price_id) {
+            try {
+                Price::update($plan->stripe_price_id, ['active' => false]);
+                Log::info("Archived old Stripe price: {$plan->stripe_price_id}");
+            } catch (ApiErrorException $e) {
+                Log::warning("Could not archive old Stripe price: {$plan->stripe_price_id}. Error: " . $e->getMessage());
+            }
+        }
+        
+        // Store the new price ID on the plan
+        $plan->stripe_price_id = $price->id;
+        $plan->save();
+        
+        Log::info("Created new Stripe price {$price->id} for plan {$plan->id} with amount {$price->unit_amount}");
         
         return $price;
     }

@@ -79,7 +79,7 @@
                         <!-- Pricing -->
                         <div class="mt-6">
                             <div class="flex items-center justify-center">
-                                <span class="text-5xl font-bold text-gray-900">${{ number_format($plan->price, 0) }}</span>
+                                <span class="text-5xl font-bold text-gray-900">{{ Helpers::setCurrency($plan->price) }}</span>
                                 <span class="text-xl text-gray-500 ml-2">/{{ Helpers::setInterval($plan->interval) }}</span>
                             </div>
                             @if($plan->price > 0)

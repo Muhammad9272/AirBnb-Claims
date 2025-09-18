@@ -203,8 +203,8 @@ class Helpers
     public static function generalVariables($key = null)
     {
         $vars = [
-            'currency_symbol' => '£',
-            'currency' => 'GBP',
+            'currency_symbol' => '$',
+            'currency' => 'USD',
         ];
 
 
