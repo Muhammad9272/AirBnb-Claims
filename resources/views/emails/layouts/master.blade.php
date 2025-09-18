@@ -50,7 +50,8 @@
 <body>
     <div class="email-container">
         <div class="email-header">
-            <img src="{{ asset('assets/images/'.$gs->logo) }}" alt="{{ $gs->name }}" class="email-logo">
+             <img src="{{ URL::asset('assets/logo/logo-light.png') }}" alt="" class="email-logo">
+            {{-- <img src="{{ asset('assets/images/'.$gs->logo) }}" alt="{{ $gs->name }}" class="email-logo"> --}}
         </div>
         
         <div class="email-content">

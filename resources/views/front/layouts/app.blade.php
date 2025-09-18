@@ -26,29 +26,40 @@
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Custom Tailwind Config -->
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              primary: '#00031D',
-              secondary: '#001133',
-              accent: '#4F46E5',
-              'accent-light': '#6366F1',
-            },
-            fontFamily: {
-              'sans': ['Inter', 'system-ui', 'sans-serif'],
-            },
-            animation: {
-              'fade-in': 'fadeIn 0.6s ease-out',
-              'slide-up': 'slideUp 0.8s ease-out',
-              'float': 'float 6s ease-in-out infinite',
-            }
-          }
+   <script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          primary: '#00031D',
+          secondary: '#001133',
+          accent: '#4F46E5',
+          'accent-light': '#6366F1',
+        },
+        fontFamily: {
+          'sans': ['Inter', 'system-ui', 'sans-serif'],
+        },
+        animation: {
+          'fade-in': 'fadeIn 0.6s ease-out',
+          'slide-up': 'slideUp 0.8s ease-out',
+          'float': 'float 6s ease-in-out infinite',
+        },
+        boxShadow: {
+          'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
+          'medium': '0 4px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 15px -3px rgba(0, 0, 0, 0.05)',
+          'strong': '0 10px 40px -10px rgba(0, 0, 0, 0.15), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+          'accent': '0 4px 20px -2px rgba(79, 70, 229, 0.3)',
+          'accent-light': '0 4px 20px -2px rgba(99, 102, 241, 0.3)',
+          'primary': '0 8px 30px -5px rgba(0, 3, 29, 0.4)',
+          'card': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+          'card-hover': '0 4px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+          'inner-light': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
+          'glow': '0 0 20px rgba(79, 70, 229, 0.4), 0 0 40px rgba(79, 70, 229, 0.2)',
         }
       }
-    </script>
-    
+    }
+  }
+</script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     

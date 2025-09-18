@@ -5,20 +5,23 @@
           <div class="flex items-center">
             <div class="flex-shrink-0">
               <a href="{{ route('front.index') }}" class="flex items-center space-x-3">
-                <div class="w-10 h-10 bg-gradient-to-r from-accent to-accent-light rounded-xl flex items-center justify-center">
+                <img src="{{ URL::asset('assets/logo/logo-light.png') }}" alt="" width="190">
+               {{--  <div class="w-10 h-10 bg-gradient-to-r from-accent to-accent-light rounded-xl flex items-center justify-center">
                   <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                   </svg>
                 </div>
-                <span class="text-white font-bold text-xl">ClaimPilot<span class="text-accent">+</span></span>
+                <span class="text-white font-bold text-xl">ClaimPilot<span class="text-accent">+</span></span> --}}
               </a>
             </div>
           </div>
           
           <div class="hidden md:block">
-            <div class="ml-10 flex items-baseline space-x-8">
+            <div class="ml-10 flex items-baseline space-x-3">
               <a href="{{ route('front.about') }}" class="text-white/80 hover:text-white px-3 py-2 text-sm font-medium transition-colors">About</a>
+               <a href="{{ route('front.blog.index') }}" class="text-white/80 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Blogs</a>
               <a href="{{ route('front.how-it-works') }}" class="text-white/80 hover:text-white px-3 py-2 text-sm font-medium transition-colors">How It Works</a>
+
               <a href="{{route('front.pricing')}}" class="text-white/80 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Pricing</a>
               <a href="{{ route('front.contact') }}" class="text-white/80 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Contact</a>
               
@@ -77,11 +80,13 @@
       <!-- Mobile menu -->
       <div id="mobile-menu" class="md:hidden hidden bg-primary/95 backdrop-blur-md">
         <div class="px-2 pt-2 pb-3 space-y-1">
-          <a href="#about" class="text-white block px-3 py-2 text-base font-medium">About</a>
-          <a href="#how-it-works" class="text-white block px-3 py-2 text-base font-medium">How It Works</a>
-          <a href="#pricing" class="text-white block px-3 py-2 text-base font-medium">Pricing</a>
-          <a href="#contact" class="text-white block px-3 py-2 text-base font-medium">Contact</a>
-          
+          <a href="{{ route('front.about') }}" class="text-white/80 hover:text-white px-3 py-2 text-sm font-medium transition-colors">About</a>
+          <a href="{{ route('front.blog.index') }}" class="text-white/80 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Blogs</a>
+          <a href="{{ route('front.how-it-works') }}" class="text-white/80 hover:text-white px-3 py-2 text-sm font-medium transition-colors">How It Works</a>
+          <a href="{{ route('front.pricing') }}" class="text-white/80 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Pricing</a>
+          <a href="{{ route('front.contact') }}" class="text-white/80 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Contact</a>
+
+                    
           @auth
             <!-- Mobile User Menu when logged in -->
             <div class="pt-4 border-t border-white/20">

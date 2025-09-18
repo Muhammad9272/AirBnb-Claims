@@ -34,6 +34,7 @@ class AdminController extends Controller
 
     public function index(Request $request)
     {
+       
         // Get counts for key metrics
         $totalUsers = User::count();
         $totalClaims = Claim::count();

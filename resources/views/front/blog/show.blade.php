@@ -3,7 +3,6 @@
 @section('meta_title', $post->title )
 @section('meta_description', $post->summary ?? Str::limit(strip_tags($post->content), 160)  )
 
-
 @section('meta')
     <meta name="keywords" content="{{ $post->formatted_tags ?? 'blog, article' }}">
     
@@ -17,7 +16,7 @@
     <meta property="article:modified_time" content="{{ $post->updated_at->toISOString() }}">
     <meta property="article:section" content="{{ $post->category->name }}">
     @if($post->tags)
-        @foreach(json_decode($post->tags, true) as $tag)
+        @foreach(is_array($post->tags) ? $post->tags : json_decode($post->tags, true) as $tag)
             <meta property="article:tag" content="{{ $tag }}">
         @endforeach
     @endif
@@ -66,9 +65,9 @@
             <!-- Breadcrumb -->
             <div class="container mx-auto px-4 md:px-8 py-4">
                 <nav class="text-sm text-gray-800 dark:text-gray-200">
-                    <a href="/" class="hover:text-purple-600 font-bold">Home</a>
+                    <a href="/" class="hover:text-accent font-bold">Home</a>
                     <span class="mx-2">/</span>
-                    <a href="{{ route('front.blog.index') }}" class="hover:text-purple-600 font-bold">Blog</a>
+                    <a href="{{ route('front.blog.index') }}" class="hover:text-accent font-bold">Blog</a>
                     <span class="mx-2">/</span>
                     <span class="text-gray-800 dark:text-gray-200 font-semibold">{{ $post->title }}</span>
                 </nav>
@@ -77,9 +76,9 @@
     </section>
 
     <div class="container mx-auto px-4 py-12">
-        <div class="flex flex-col lg:flex-row gap-8">
-            <!-- Main Content -->
-            <div class="lg:w-2/3">
+        <div class="max-w-4xl mx-auto">
+            <!-- Main Content Card -->
+            <div class="bg-white  shadow-card  rounded-lg p-8 mb-8">
                 <!-- Article Meta -->
                 <div class="flex items-center gap-4 mb-6 text-sm text-gray-600 dark:text-gray-400">
                     <span><i class="far fa-calendar-alt mr-1"></i>{{ $post->created_at->format('M d, Y') }}</span>
@@ -91,7 +90,7 @@
                 @if($post->photo)
                     <img src="{{ Helpers::image($post->photo, 'blog/') }}" 
                          alt="{{ $post->title }}"
-                         class="w-full rounded-xl mb-8">
+                         class="w-full rounded-lg mb-8">
                 @endif
 
                 <!-- Content -->
@@ -102,46 +101,41 @@
                 <!-- Tags -->
                 @if(!empty($post->tags))
                     <div class="flex flex-wrap gap-3 mb-8">
-                        @foreach(json_decode($post->tags,true) as $tag)
+                        @foreach(is_array($post->tags) ? $post->tags : json_decode($post->tags, true) as $tag)
                             <x-tag>{{ $tag }}</x-tag>
                         @endforeach
                     </div>
                 @endif
-
-                <!-- Related Posts -->
-                @if($related->count() > 0)
-                    <div class="border-t border-gray-200 dark:border-gray-700 pt-8 mt-8">
-                        <h3 class="text-2xl font-bold mb-6 dark:text-white">Related Posts</h3>
-                        <div class="grid md:grid-cols-3 gap-6">
-                            @foreach($related as $relatedPost)
-                                <a href="{{ route('front.blog.show', $relatedPost->slug) }}" 
-                                   class="group">
-                                    <div class="bg-white text-black rounded-xl shadow-lg overflow-hidden">
-                                        @if($relatedPost->photo)
-                                            <img src="{{ Helpers::image($relatedPost->photo, 'blog/') }}" 
-                                                 alt="{{ $relatedPost->title }}"
-                                                 class="w-full h-40 object-cover">
-                                        @endif
-                                        <div class="p-4">
-                                            <h4 class="font-semibold group-hover:text-purple-600  transition-colors">
-                                                {{ $relatedPost->title }}
-                                            </h4>
-                                            <span class="text-sm text-gray-500">
-                                                {{ $relatedPost->created_at->format('M d, Y') }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </a>
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
             </div>
 
-     
+            <!-- Related Posts -->
+            @if($related->count() > 0)
+                <div class="">
+                    <h3 class="text-2xl font-bold mb-6 dark:text-white">Related Posts</h3>
+                    <div class="grid md:grid-cols-3 gap-6">
+                        @foreach($related as $relatedPost)
+                            <a href="{{ route('front.blog.show', $relatedPost->slug) }}" 
+                               class="group">
+                                <div class="bg-gray-50 dark:bg-primary2 rounded-lg shadow-card overflow-hidden">
+                                    @if($relatedPost->photo)
+                                        <img src="{{ Helpers::image($relatedPost->photo, 'blog/') }}" 
+                                             alt="{{ $relatedPost->title }}"
+                                             class="w-full h-40 object-cover">
+                                    @endif
+                                    <div class="p-4">
+                                        <h4 class="font-semibold text-black group-hover:text-accent transition-colors">
+                                            {{ $relatedPost->title }}
+                                        </h4>
+                                        <span class="text-sm text-gray-500 dark:text-gray-400">
+                                            {{ $relatedPost->created_at->format('M d, Y') }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
-
-    <!-- Why Choose Us Section -->
-    @include('components.why-choose-us')
 @endsection

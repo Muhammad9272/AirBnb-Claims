@@ -1,13 +1,13 @@
 <span {{ $attributes->merge([
     'class' => 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium text-sm 
                 transition-all duration-300 transform hover:scale-105
-                bg-gradient-to-r from-purple-50 to-purple-100 
-                dark:from-purple-900/50 dark:to-purple-800/50
-                text-purple-700 dark:text-purple-300
-                border border-purple-200/50 dark:border-purple-700/50
-                shadow-sm hover:shadow
-                backdrop-blur-sm'
+                bg-gradient-to-r from-accent/10 to-accent-light/10 
+                dark:from-accent/20 dark:to-accent-light/20
+                text-accent dark:text-accent-light
+                border border-accent/20 dark:border-accent-light/30
+                shadow-sm hover:shadow-md hover:shadow-accent/25
+                backdrop-blur-sm hover:bg-gradient-to-r hover:from-accent/15 hover:to-accent-light/15'
 ]) }}>
-    <i class="fas fa-tag text-xs text-purple-500"></i>
+    <i class="fas fa-tag text-xs text-accent/70 dark:text-accent-light/70"></i>
     {{ $slot }}
 </span>

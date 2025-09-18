@@ -4,12 +4,13 @@
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div class="col-span-1 md:col-span-2">
             <div class="flex items-center space-x-3 mb-4">
-              <div class="w-10 h-10 bg-gradient-to-r from-accent to-accent-light rounded-xl flex items-center justify-center">
+               <img src="{{ URL::asset('assets/logo/logo-light.png') }}" alt="" width="190">
+              {{-- <div class="w-10 h-10 bg-gradient-to-r from-accent to-accent-light rounded-xl flex items-center justify-center">
                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
               </div>
-              <span class="text-white font-bold text-xl">ClaimPilot<span class="text-accent">+</span></span>
+              <span class="text-white font-bold text-xl">ClaimPilot<span class="text-accent">+</span></span> --}}
             </div>
             <p class="text-white/70 mb-6 max-w-md">
               {{ $gs->slogan ?? 'Your white-glove Airbnb claims management partner. We handle the complexities so you can focus on growing your business.' }}

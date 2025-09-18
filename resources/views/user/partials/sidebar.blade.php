@@ -1,17 +1,17 @@
 <div class="bg-white rounded-xl shadow-lg overflow-hidden sticky top-4">
     <!-- User Profile Section -->
     <div class="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-6">
-        <div class="flex items-center space-x-3">
-            <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center backdrop-blur-sm border-2" >
+        <div class="flex items-center">
+            <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center mr-4 flex-shrink-0 overflow-hidden">
                 @if(auth()->user()->photo && auth()->user()->photo != 'user.png')
-                    <img src="{{ Helpers::image(auth()->user()->photo, 'user/avatar/', 'user.png') }}" alt="Profile" class="w-10 h-10 rounded-full object-cover">
+                    <img src="{{ Helpers::image(auth()->user()->photo, 'user/avatar/', 'user.png') }}" alt="{{ auth()->user()->name }}" class="w-full h-full object-cover">
                 @else
-                    <span class="text-lg font-bold text-white ">{{ substr(auth()->user()->name, 0, 1) }}</span>
+                    <span class="text-white text-xl font-semibold">{{ substr(auth()->user()->name, 0, 1) }}</span>
                 @endif
             </div>
             <div class="flex-1 min-w-0">
-                <h3 class="text-lg font-semibold truncate">{{ auth()->user()->name }}</h3>
-                <p class="text-blue-100 text-sm opacity-90 truncate">{{ auth()->user()->email }}</p>
+                <h3 class="font-monument text-lg font-semibold truncate">{{ Auth::user()->name }}</h3>
+                <p class="text-sm text-white/90 break-all">{{ Auth::user()->email }}</p>
             </div>
         </div>
         
