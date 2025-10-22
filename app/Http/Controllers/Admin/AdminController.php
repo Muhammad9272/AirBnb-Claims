@@ -326,6 +326,15 @@ class AdminController extends Controller
         $data->from_email = $request->from_email;
         
         $data->bit_value = $request->bit_value;
+        
+        // Save referral and influencer settings
+        $data->referral_reward_percentage = $request->referral_reward_percentage;
+        $data->influencer_commission_percentage = $request->influencer_commission_percentage;
+        $data->influencer_commission_duration_days = $request->influencer_commission_duration_days;
+        $data->influencer_max_claims = $request->influencer_max_claims;
+        $data->lead_discount_code = $request->lead_discount_code;
+        $data->lead_discount_percentage = $request->lead_discount_percentage;
+        
         $data->update();
 
         Session::flash('message', 'Successfully updated Data');

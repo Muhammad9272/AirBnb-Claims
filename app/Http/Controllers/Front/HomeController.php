@@ -8,14 +8,17 @@ use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\Blog;
 use App\Models\Service;
+use App\Models\User;
+use App\Models\GeneralSetting;
 use Cache;
 use DB;
-
+use Cookie;
+use App\CentralLogics\{Helpers, CheckoutLogics};
 class HomeController extends Controller
 {   
     public function __construct(Request $request)
     {
-        $this->middleware('auth')->only(['pickInterests', 'pickInterestStore']);
+    
         $this->request = $request;
     }
 
@@ -24,8 +27,15 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+
+        // Handle referral tracking if 'ref' parameter exists
+        if (!empty($request->ref)) {
+
+            $re=$this->trackReferral($request->ref);
+        }
+
         // Get all active subscription plans
         $subscriptionPlans = \App\Models\SubPlan::where('status', 1)
             // ->orderBy('is_featured', 'desc')
@@ -46,6 +56,42 @@ class HomeController extends Controller
         
         return view('front.index', compact('subscriptionPlans'));
     }
+
+    /**
+     * Track referral code in cookie
+     *
+     * @param string $affiliateCode
+     * @return void
+     */
+    private function trackReferral($affiliateCode)
+    {
+        // Find user with this affiliate code
+        $affiliateUser = User::where('affiliate_code', $affiliateCode)->first();
+       
+        // Check if affiliate user exists
+        if (!$affiliateUser) {
+            return;
+        }
+
+
+        // Get general settings to check if affiliate system is enabled
+        $gs = GeneralSetting::first();
+        
+        // Check if affiliate system is enabled
+        if (!$gs || !$gs->is_affiliate) {
+            return;
+        }
+
+
+
+
+        // Store affiliate code in cookie for 30 days
+        Cookie::queue('affiliate_code', $affiliateCode, 60 * 24 * 30); // 30 days
+        
+        // Optional: Log the referral visit for analytics
+        // You can add logging here if needed
+    }
+
     
     /**
      * Format the subscription interval in human-readable form

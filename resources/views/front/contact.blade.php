@@ -68,24 +68,7 @@
                                 </div>
                             </div>
                             
-                            <div class="flex items-start">
-                                <div class="flex-shrink-0">
-                                    <div class="bg-accent/10 rounded-full p-2">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        </svg>
-                                    </div>
-                                </div>
-                                <div class="ml-4">
-                                    <h3 class="text-lg font-medium text-gray-900">Office</h3>
-                                    <p class="mt-1 text-gray-600">
-                                        123 Business Avenue<br>
-                                        Suite 456<br>
-                                        New York, NY 10001
-                                    </p>
-                                </div>
-                            </div>
+    
                             
                             <div class="border-t border-gray-200 pt-6 mt-8">
                                 <h3 class="text-lg font-medium text-gray-900 mb-4">Follow Us</h3>

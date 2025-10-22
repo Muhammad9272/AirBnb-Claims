@@ -22,9 +22,15 @@ class UserSubscription extends Model
         'payment_method',
         'transaction_id',
         'price',
+        'discount_code',
+        'discount_amount',
+        'discount_percentage',
+        'wallet_credit_used',
+        'amount_paid',
         'expires_at',
         'canceled_at',
     ];
+
 
     protected $casts = [
         'trial_ends_at' => 'datetime',

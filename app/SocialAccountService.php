@@ -67,6 +67,9 @@ class SocialAccountService
         $user->is_email_verified=$verify;
         $user->update();
 
+        // Handle affiliate & referral tracking (single function call)
+        User::handleReferralTracking($user);
+
 
         // Send welcome email after successful registration
         try {
@@ -77,22 +80,7 @@ class SocialAccountService
             Log::error('Welcome email failed: ' . $e->getMessage());
         }
 
-        if ($settings->is_affilate == 1) {
-          $referred_by='';
-          if(Session::has('affilate')){
-            $referred_by=Session::get('affilate');
-          }
-
-          $affiliate_code=substr(uniqid(), 0, 8);
-          while($affiliate_user=User::where('affiliate_code', '=', $affiliate_code)->exists())
-          {
-           $affiliate_code=substr(uniqid(), 0, 8);
-          }
-          $user->update([
-            'affiliate_code' =>$affiliate_code,
-            'referred_by' =>$referred_by,
-          ]);
-        }
+        
         
     }// !$user
         return $user;

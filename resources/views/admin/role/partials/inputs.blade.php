@@ -26,7 +26,23 @@
                         </div>
                     </div>
 
-                     {{-- SUPPORT TICKETS --}}
+                    {{-- LEADS MANAGEMENT --}}
+                    <div class="col-lg-6">
+                        <div class="form-check form-switch form-switch-right form-switch-lg d-flex justify-content-between">
+                            <label class="form-check-label" for="">Leads Management</label>
+                            <input type="checkbox" class="form-check-input" {{ (isset($data) && $data->sectionCheck('leads_management')) ? 'checked' : '' }} name="section[]" value="leads_management">
+                        </div>
+                    </div>
+
+                    {{-- INFLUENCERS --}}
+                    <div class="col-lg-6">
+                        <div class="form-check form-switch form-switch-right form-switch-lg d-flex justify-content-between">
+                            <label class="form-check-label" for="">Influencers</label>
+                            <input type="checkbox" class="form-check-input" {{ (isset($data) && $data->sectionCheck('influencers')) ? 'checked' : '' }} name="section[]" value="influencers">
+                        </div>
+                    </div>
+
+                    {{-- CLAIMS MANAGEMENT --}}
                     <div class="col-lg-6">
                         <div class="form-check form-switch form-switch-right form-switch-lg d-flex justify-content-between">
                             <label class="form-check-label" for="">Claims Management</label>
@@ -34,10 +50,10 @@
                         </div>
                     </div>
 
-                     {{-- SUPPORT TICKETS --}}
+                    {{-- SUBSCRIPTIONS --}}
                     <div class="col-lg-6">
                         <div class="form-check form-switch form-switch-right form-switch-lg d-flex justify-content-between">
-                            <label class="form-check-label" for=""> Subscriptions</label>
+                            <label class="form-check-label" for="">Subscriptions</label>
                             <input type="checkbox" class="form-check-input" {{ (isset($data) && $data->sectionCheck('subscriptions')) ? 'checked' : '' }} name="section[]" value="subscriptions">
                         </div>
                     </div>

@@ -30,6 +30,7 @@
 
                             <th data-ordering="false">ID</th>
                             <th >User Info</th>
+                            <th>Referral Info</th>
                             
                             
                             {{-- <th>Memebership Status</th> --}}
@@ -100,6 +101,7 @@
                          { data: 'affiliate_code', name: 'affiliate_code'},
                         // { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
                         { data: 'user_details', name: 'user_details'},
+                        { data: 'referral_info', name: 'referral_info'},
                         // { data: 'country_niche', name: 'country_niche'},
                         
                        

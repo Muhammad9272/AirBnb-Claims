@@ -46,23 +46,11 @@ class RegisterController extends Controller
           $input['role_id']=1;
           $input['password'] = bcrypt($request['password']);
 
-            if ($gs->is_affilate == 1) {
-              $referred_by='';
-              if(Session::has('affilate')){
-                $referred_by=Session::get('affilate');
-              }
-
-              $affiliate_code=substr(uniqid(), 0, 8);
-              while(User::where('affiliate_code', '=', $affiliate_code)->exists())
-              {
-               $affiliate_code=substr(uniqid(), 0, 8);
-              }
-
-              $input['affiliate_code'] = $affiliate_code;
-              $input['referred_by'] = $referred_by;
-            }
+            
 
           $user->fill($input)->save();
+           // Handle affiliate & referral tracking (single function call)
+          User::handleReferralTracking($user);
 
 
           if($gs->email_verification==1){

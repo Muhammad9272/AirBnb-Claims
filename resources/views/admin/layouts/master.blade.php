@@ -16,6 +16,7 @@
     <!-- App favicon -->
     <link rel="icon" type="image/x-icon" href="{{ asset('assets/images/' . $gs->favicon) }}" />
     <link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico') }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Custom styles -->
     {{-- <link href="{{ asset('assets/admin/css/custom-styles.css') }}" rel="stylesheet" type="text/css" /> --}}

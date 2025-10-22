@@ -15,6 +15,7 @@ use App\Models\Subscriptions;
 use App\Models\Transaction;
 use App\Models\UserQuizBankAccess;
 use Auth;
+use Illuminate\Support\Facades\Cookie;
 use Carbon\Carbon;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -41,11 +42,13 @@ class User extends Authenticatable
         'photo',
         'affiliate_code',
         'role_id',
+        'role_type',
         'referred_by',
         'niche',
         'country_id',
         'oauth_uid',
         'oauth_provider',
+        'is_email_verified',
         // 'language',
         'tags','about','coaching_services','faqs','price'
     ];
@@ -105,72 +108,98 @@ class User extends Authenticatable
           return $this->belongsTo(Country::class, 'country_id');
     }
    
-    public function careerEventRegistrations()
-    {
-      return $this->hasMany(CareerEventRegistration::class,'user_id');
-    }
-
-    public function studentAppointments()
-    {
-      return $this->hasMany(Appointment::class,'student_id');
-    }
-    public function tutorAppointments()
-    {
-      return $this->hasMany(Appointment::class,'tutor_id');
-    }
-
-    public function UserQuizBankAccess()
-    {
-      return $this->hasMany(UserQuizBankAccess::class,'user_id');
-    }
-
+   
     public function orders()
     {
         return $this->hasMany(Order::class)->where('payment_status','!=','pending');
     }
 
-    public function bitSubmissions()
-    {
-        return $this->hasMany(BitSubmission::class);
-    }
 
-    public function bitTransactions()
-    {
-        return $this->hasMany(BitTransaction::class);
-    }
 
-    public function addBits($amount, $sourceType, $sourceId, $description)
+
+    public static function handleReferralTracking($user)
     {
-        $this->bit_balance += $amount;
-        $this->save();
+        $gs = \App\Models\GeneralSetting::first();
         
-        return BitTransaction::create([
-            'user_id' => $this->id,
-            'amount' => $amount,
-            'balance_after' => $this->bit_balance,
-            'source_type' => $sourceType,
-            'source_id' => $sourceId,
-            'description' => $description
-        ]);
-    }
-
-    public function deductBits($amount, $sourceType, $sourceId, $description)
-    {
-        if ($this->bit_balance < $amount) {
-            return false;
+        // Check if affiliate system is enabled
+        if (!$gs || $gs->is_affiliate != 1) {
+            return;
         }
+
+        // Generate unique affiliate code for new user
+        do {
+            $code = strtoupper(substr(uniqid(), -8));
+        } while (self::where('affiliate_code', $code)->exists());
         
-        $this->bit_balance -= $amount;
-        $this->save();
-        
-        return BitTransaction::create([
-            'user_id' => $this->id,
-            'amount' => -$amount,
-            'balance_after' => $this->bit_balance,
-            'source_type' => $sourceType,
-            'source_id' => $sourceId,
-            'description' => $description
-        ]);
+        $user->affiliate_code = $code;
+
+        // Get referrer from cookie
+        $affiliateCode = Cookie::get('affiliate_code');
+        if ($affiliateCode) {
+            $referrer = self::where('affiliate_code', $affiliateCode)->first();
+            
+            // Validate referrer exists and not self-referral
+            if ($referrer && $referrer->id !== $user->id) {
+                $user->referred_by = $referrer->id;
+                
+                // Create referral transaction (pending until subscription)
+                // \App\Models\ReferralTransaction::create([
+                //     'referrer_user_id' => $referrer->id,
+                //     'referee_user_id' => $user->id,
+                //     'subscription_id' => null,
+                //     'credit_amount' => 0,
+                //     'status' => 'pending',
+                // ]);
+            }
+            
+            // Clear cookie after use
+            Cookie::queue(Cookie::forget('affiliate_code'));
+        }
+
+        // Initialize wallet if not set
+        // if ($user->wallet_balance === null) {
+        //     $user->wallet_balance = 0.00;
+        // }
+
+        $user->save();
+    }
+
+    // Relationships
+    public function referralsMade()
+    {
+        return $this->hasMany(ReferralTransaction::class, 'referrer_user_id');
+    }
+
+    public function referralsReceived()
+    {
+        return $this->hasMany(ReferralTransaction::class, 'referee_user_id');
+    }
+
+    public function referredBy()
+    {
+        return $this->belongsTo(User::class, 'referred_by');
+    }
+
+    public function walletTransactions()
+    {
+        return $this->hasMany(WalletTransaction::class, 'user_id')->orderBy('created_at', 'desc');
+    }
+
+     // Get all users who signed up via this user's referral link
+    public function referredUsers()
+    {
+        return $this->hasMany(User::class, 'referred_by');
+    }
+
+    // Influencer commission relationships
+    public function influencerCommissions()
+    {
+        return $this->hasMany(InfluencerCommission::class, 'influencer_user_id');
+    }
+
+    public function customerCommissions()
+    {
+        return $this->hasMany(InfluencerCommission::class, 'customer_user_id');
     }
 
     /**
@@ -188,6 +217,7 @@ class User extends Authenticatable
     {
         return $this->hasMany(UserSubscription::class)
             ->where('status', 'active')
+            ->orderBy('id','desc' )
             ->where(function($query) {
                 $query->whereNull('expires_at')
                       ->orWhere('expires_at', '>', now());
@@ -292,7 +322,7 @@ class User extends Authenticatable
      */
     public function canCreateClaim()
     {
-        $activeSubscription = $this->activeuserSubscriptions()->first();
+        $activeSubscription = $this->activeuserSubscriptions()->latest()->first();
         
         if (!$activeSubscription) {
             return [

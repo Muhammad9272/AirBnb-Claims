@@ -7,14 +7,31 @@
 </li>
 @endif
 
+{{-- LEADS MANAGEMENT --}}
+@if(Auth::guard('admin')->user()->sectionCheck('leads_management'))
+<li class="nav-item">
+    <a class="nav-link menu-link" href="{{ route('admin.leads.index') }}">
+        <i class="ri-user-add-line"></i> <span>Leads Management</span>
+    </a>
+</li>
+@endif
 
+{{-- INFLUENCERS --}}
+@if(Auth::guard('admin')->user()->sectionCheck('influencers'))
+<li class="nav-item">
+    <a class="nav-link menu-link" href="{{ route('admin.influencers.index') }}">
+        <i class="ri-team-line"></i> <span>Influencers</span>
+    </a>
+</li>
+@endif
+
+{{-- CLAIMS MANAGEMENT --}}
 @if(Auth::guard('admin')->user()->sectionCheck('claims_management'))
-                <!-- Claims Management -->
-                <li class="nav-item">
-                    <a class="nav-link menu-link" href="{{ route('admin.claims.index') }}">
-                        <i class="ri-file-list-3-line"></i> <span>Claims Management</span>
-                    </a>
-                </li>
+<li class="nav-item">
+    <a class="nav-link menu-link" href="{{ route('admin.claims.index') }}">
+        <i class="ri-file-list-3-line"></i> <span>Claims Management</span>
+    </a>
+</li>
 @endif
 @if(Auth::guard('admin')->user()->sectionCheck('subscriptions'))
                  <li class="nav-item">

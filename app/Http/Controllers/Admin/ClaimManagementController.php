@@ -8,6 +8,8 @@ use App\Models\Claim;
 use App\Models\ClaimComment;
 use App\Models\ClaimStatusHistory;
 use App\Models\User;
+use App\Models\GeneralSetting;
+use App\Models\InfluencerCommission;
 use DataTables;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -144,14 +146,24 @@ class ClaimManagementController extends Controller
                     $commissionRate = $activeSubscription->plan->commission_percentage ?? 0;
                     $claim->commission_amount = ($request->approved_amount * $commissionRate) / 100;
                 }
+
+               
             }
             
             // Record rejection reason if status is rejected
             if ($newStatus === 'rejected') {
                 $claim->rejection_reason = $request->rejection_reason;
+
             }
             
             $claim->save();
+            if($newStatus === 'approved' || $newStatus === 'rejected' ){
+                // Update influencer commission based on new status
+                $this->updateInfluencerCommission($claim, $newStatus);
+            }
+            
+
+            
             
             // Add status history
             ClaimStatusHistory::create([
@@ -333,5 +345,127 @@ class ClaimManagementController extends Controller
         ];
         
         return view('admin.claims.reports', compact('reportData', 'startDate', 'endDate', 'period', 'status'));
+    }
+
+    /**
+     * Update influencer commission when claim status changes
+     *
+     * @param  Claim  $claim
+     * @param  string  $newStatus
+     * @return void
+     */
+    private function updateInfluencerCommission($claim, $newStatus)
+    {
+        try {
+            // Find existing commission record for this claim
+            $commission = InfluencerCommission::where('claim_id', $claim->id)->first();
+            
+            if (!$commission) {
+                return; // No commission record exists
+            }
+
+            if ($newStatus === 'approved') {
+                // Get general settings for commission validation
+                $gs = GeneralSetting::first();
+                
+                if (!$gs || !$gs->influencer_commission_percentage) {
+                    $commission->update([
+                        'status' => 'rejected',
+                        'notes' => ($commission->notes ?? '') . "\n[" . now()->format('Y-m-d H:i:s') . "] Commission rejected: Influencer commission is disabled in settings."
+                    ]);
+                    return;
+                }
+
+                // Verify referrer is still an influencer
+                $referrer = User::find($commission->influencer_user_id);
+                if (!$referrer || $referrer->role_type !== 'influencer') {
+                    $commission->update([
+                        'status' => 'rejected',
+                        'commission_amount' => 0,
+                        'notes' => ($commission->notes ?? '') . "\n[" . now()->format('Y-m-d H:i:s') . "] Commission rejected: Referrer is no longer an influencer or account not found."
+                    ]);
+                    
+                    \Log::info('Commission rejected - referrer not an influencer', [
+                        'commission_id' => $commission->id,
+                        'claim_id' => $claim->id,
+                        'referrer_id' => $commission->influencer_user_id
+                    ]);
+                    return;
+                }
+
+                // RE-VALIDATE: Check if claim approval is within commission duration from CLAIM CREATION DATE
+                if ($gs->influencer_commission_duration_days) {
+                    $claimCreationDate = $claim->created_at;
+                    $commissionEndDate = $claimCreationDate->copy()->addDays($gs->influencer_commission_duration_days);
+                    $now = now();
+                    
+                    if ($now->greaterThan($commissionEndDate)) {
+                        // Commission period expired - reject the commission
+                        $commission->update([
+                            'status' => 'rejected',
+                            'commission_amount' => 0,
+                            'notes' => ($commission->notes ?? '') . "\n[" . now()->format('Y-m-d H:i:s') . "] Commission rejected: Claim approved after commission period expired. Claim created on {$claimCreationDate->format('Y-m-d')}, commission period ({$gs->influencer_commission_duration_days} days) ended on {$commissionEndDate->format('Y-m-d')}."
+                        ]);
+
+                        \Log::info('Influencer commission rejected - period expired at approval', [
+                            'commission_id' => $commission->id,
+                            'claim_id' => $claim->id,
+                            'claim_created' => $claimCreationDate,
+                            'claim_approved' => $now,
+                            'commission_end_date' => $commissionEndDate
+                        ]);
+                        return;
+                    }
+                }
+
+                // Recalculate commission based on APPROVED amount (not requested)
+                $finalCommission = ($claim->amount_approved * $gs->influencer_commission_percentage) / 100;
+                $finalCommission = round($finalCommission, 2);
+
+                // Prepare approval notes
+                $approvalNotes = ($commission->notes ?? '') . "\n[" . now()->format('Y-m-d H:i:s') . "] Commission approved. ";
+                $approvalNotes .= "Final commission calculated based on approved amount: $" . number_format($claim->amount_approved, 2) . ". ";
+                $approvalNotes .= "Commission rate: {$gs->influencer_commission_percentage}%. ";
+                $approvalNotes .= "Final commission amount: $" . number_format($finalCommission, 2) . ". ";
+                $approvalNotes .= "Approved by: " . auth()->user()->name . " (ID: " . auth()->id() . ").";
+
+                // Update commission record
+                $commission->update([
+                    'commission_amount' => $finalCommission,
+                    'status' => 'approved', // Changed from pending to approved
+                    'commission_date' => now(),
+                    'notes' => $approvalNotes,
+                ]);
+
+                \Log::info('Influencer commission approved', [
+                    'commission_id' => $commission->id,
+                    'claim_id' => $claim->id,
+                    'estimated_commission' => $commission->estimated_commission,
+                    'final_commission' => $finalCommission
+                ]);
+
+            } elseif ($newStatus === 'rejected') {
+                // If claim is rejected, reject the commission
+                $rejectionNotes = ($commission->notes ?? '') . "\n[" . now()->format('Y-m-d H:i:s') . "] Commission rejected: Claim was rejected by admin. ";
+                $rejectionNotes .= "Rejected by: " . auth()->user()->name . " (ID: " . auth()->id() . ").";
+                
+                $commission->update([
+                    'status' => 'rejected',
+                    'commission_amount' => 0, // Set to 0 since claim was rejected
+                    'notes' => $rejectionNotes,
+                ]);
+
+                \Log::info('Influencer commission rejected due to claim rejection', [
+                    'commission_id' => $commission->id,
+                    'claim_id' => $claim->id
+                ]);
+            }
+
+        } catch (\Exception $e) {
+            \Log::error('Failed to update influencer commission: ' . $e->getMessage(), [
+                'claim_id' => $claim->id,
+                'trace' => $e->getTraceAsString()
+            ]);
+        }
     }
 }

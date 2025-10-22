@@ -135,6 +135,43 @@
             </a>
         </div>
 
+        <!-- Affiliate Section -->
+        <div class="space-y-1">
+            <div class="flex items-center space-x-3 p-3 text-gray-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                </svg>
+                <span class="text-xs font-semibold uppercase tracking-wider">Affiliate</span>
+            </div>
+            
+            <a href="{{ route('user.affiliate.index') }}" class="flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 hover:text-purple-600 {{ request()->routeIs('user.affiliate.index') ? 'bg-gradient-to-r from-blue-50 to-purple-50 text-purple-600 border-r-4 border-purple-600' : 'text-gray-600' }}">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                </svg>
+                <span class="font-medium">Refer & Earn</span>
+                <span class="ml-auto bg-gradient-to-r from-blue-500 to-purple-600 text-white text-xs px-2 py-1 rounded-full">New</span>
+            </a>
+
+            <a href="{{ route('user.affiliate.wallet') }}" class="flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 hover:bg-gradient-to-r hover:from-green-50 hover:to-teal-50 hover:text-teal-600 {{ request()->routeIs('user.affiliate.wallet') ? 'bg-gradient-to-r from-green-50 to-teal-50 text-teal-600 border-r-4 border-teal-600' : 'text-gray-600' }}">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                </svg>
+                <span class="font-medium">Wallet</span>
+            </a>
+
+            @if(auth()->user()->role_type === 'influencer')
+                <a href="{{ route('user.influencer.index') }}" class="flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:text-pink-600 {{ request()->routeIs('user.influencer.index') ? 'bg-gradient-to-r from-purple-50 to-pink-50 text-pink-600 border-r-4 border-pink-600' : 'text-gray-600' }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+                    </svg>
+                    <span class="font-medium">Influencer Dashboard</span>
+                    <span class="ml-auto px-2 py-1 text-xs font-semibold text-white bg-gradient-to-r from-purple-500 to-pink-500 rounded-full">
+                        Pro
+                    </span>
+                </a>
+            @endif
+        </div>
+
         <!-- Support Section -->
         <div class="space-y-1">
             <div class="flex items-center space-x-3 p-3 text-gray-500">
@@ -216,85 +253,3 @@
     @endif
 </div>
 
-<style>
-.sticky {
-    position: sticky;
-}
-
-/* Smooth scrolling for better UX */
-.overflow-y-auto {
-    scrollbar-width: thin;
-    scrollbar-color: #cbd5e0 #f7fafc;
-}
-
-.overflow-y-auto::-webkit-scrollbar {
-    width: 4px;
-}
-
-.overflow-y-auto::-webkit-scrollbar-track {
-    background: #f7fafc;
-}
-
-.overflow-y-auto::-webkit-scrollbar-thumb {
-    background-color: #cbd5e0;
-    border-radius: 2px;
-}
-
-.overflow-y-auto::-webkit-scrollbar-thumb:hover {
-    background-color: #a0aec0;
-}
-
-/* Enhance hover animations */
-nav a {
-    transform: translateX(0);
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-nav a:hover {
-    transform: translateX(4px);
-}
-
-nav a.bg-blue-50,
-nav a.bg-green-50,
-nav a.bg-purple-50,
-nav a.bg-yellow-50 {
-    transform: translateX(4px);
-}
-
-/* Badge animations */
-.bg-orange-500,
-.bg-red-500 {
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0%, 100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: .7;
-    }
-}
-
-/* Gradient text effect for active states */
-.text-blue-600 {
-    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.text-green-600 {
-    background: linear-gradient(135deg, #10b981, #059669);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.text-purple-600 {
-    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-</style>

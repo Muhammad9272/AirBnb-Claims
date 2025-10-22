@@ -83,6 +83,41 @@ class UserController extends Controller
                                 </div>'; 
                             })
                             
+                            ->addColumn('referral_info', function(User $data) {
+                                $referredBy = null;
+                                $referralCount = 0;
+                                $isInfluencer = $data->role_type === 'influencer';
+                                
+                                // Get who referred this user
+                                if ($data->referred_by) {
+                                    $referrer = User::find($data->referred_by);
+                                    $referredBy = $referrer ? $referrer->name : 'Unknown';
+                                }
+                                
+                                // Count how many users this user has referred
+                                $referralCount = User::where('referred_by', $data->id)->count();
+                                
+                                $html = '<div class="small">';
+                                
+                                if ($isInfluencer) {
+                                    $html .= '<span class="badge bg-purple mb-1"><i class="ri-star-fill"></i> Influencer</span><br>';
+                                }
+                                
+                                if ($referredBy) {
+                                    $html .= '<strong>Referred By:</strong> '.$referredBy.'<br>';
+                                }
+                                
+                                if ($referralCount > 0) {
+                                    $html .= '<strong>Total Referrals:</strong> <span class="badge bg-success">'.$referralCount.'</span><br>';
+                                }
+                                
+                                $html .= '<strong>Affiliate Code:</strong> <code class="text-primary">'.$data->affiliate_code.'</code>';
+                                
+                                $html .= '</div>';
+                                
+                                return $html;
+                            })
+                            
                             ->editColumn('created_at', function(User $data) {
                                 return $data->created_at->format('F d, Y');
                             })
@@ -105,7 +140,7 @@ class UserController extends Controller
                                 return $actions;
                             })
 
-                            ->rawColumns(['user_details','created_at','member_ship_level','member_ship','status','action'])
+                            ->rawColumns(['user_details','created_at','member_ship_level','member_ship','referral_info','status','action'])
                             ->toJson(); //--- Returning Json Data To Client Side
       
     }
@@ -230,7 +265,10 @@ class UserController extends Controller
     public function show($id)
     {
         $data = User::findOrFail($id);
-        $affiliate_earnings=Transaction::where('referrer_link',$data->affiliate_code)->sum('earning_net_user');
+        // Calculate affiliate earnings from ReferralTransaction table
+        $affiliate_earnings = \App\Models\ReferralTransaction::where('referrer_user_id', $data->id)
+            ->where('status', 'completed')
+            ->sum('credit_amount');
         $subplans=SubPlan::active()->get();
         return view('admin.users.show',compact('data','affiliate_earnings','subplans'));
     }

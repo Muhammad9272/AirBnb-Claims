@@ -34,7 +34,9 @@ class LoginController extends Controller
                   'email'   => 'required|email',
                   'password' => 'required'
         ]);
-        $user = User::where('email', $request->email)->where('role_type','user')->first();
+       $user = User::where('email', $request->email)
+        ->whereIn('role_type', ['user', 'influencer'])
+        ->first();
         if (isset($user) && password_verify($request->password, $user->password) ) {
 
           $gs=GeneralSetting::find(1);

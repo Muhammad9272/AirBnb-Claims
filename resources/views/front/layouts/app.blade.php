@@ -157,6 +157,8 @@
   <!-- Alpine.js -->
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
+<!-- Line Awesome -->
+<link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
   @yield('css')
 </head>
 
@@ -170,7 +172,7 @@
     @yield('content')
   </div>
 
-
+ @include('front.partials.lead_funnel_popup')
   @include('front.layouts.footer')
 
   <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="

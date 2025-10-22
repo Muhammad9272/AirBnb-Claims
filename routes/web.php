@@ -19,6 +19,18 @@ use App\Http\Controllers\Admin\Blog\BlogCategoryController;
 use App\Http\Controllers\Admin\Blog\BlogController;
 
 use App\Http\Controllers\User\TicketController as UserTicketController;
+
+// Route::group([
+//     'prefix' => 'admin/support/chat',
+//     'middleware' => ['auth:admin'],
+//     'namespace' => 'App\Http\Controllers\vendor\Chatify',
+// ], function () {
+//     Route::get('/', [MessagesController::class, 'index'])->name('user');
+//     Route::get('/{id}', [MessagesController::class, 'idFetchData'])->name('idFetchData');
+// });
+
+
+// Include Chatify routeser;
 use App\Http\Controllers\Front\CartController;
 use App\Http\Controllers\Front\CheckoutController;
 // use App\Http\Controllers\Vendor\Chatify\MessagesController;
@@ -67,6 +79,32 @@ Route::prefix('management0712')->group(function() {
     Route::get('/generalsettings',[AdminController::class, 'generalsettings'])->name('admin.generalsettings');
     Route::post('/generalsettings',[AdminController::class, 'generalsettingsupdate'])->name('admin.generalsettings.update');
   });
+
+  // Leads Management Routes
+  Route::group(['prefix' => 'leads', 'as' => 'admin.leads.', 'middleware' => 'permissions:leads_management'], function () {
+    Route::get('/', [App\Http\Controllers\Admin\LeadsController::class, 'index'])->name('index');
+    Route::post('/{lead}/status', [App\Http\Controllers\Admin\LeadsController::class, 'updateStatus'])->name('update.status');
+    Route::get('/export', [App\Http\Controllers\Admin\LeadsController::class, 'export'])->name('export');
+    Route::delete('/{lead}', [App\Http\Controllers\Admin\LeadsController::class, 'destroy'])->name('destroy');
+  });
+
+  // Influencer Management Routes
+  Route::group(['prefix' => 'influencers', 'as' => 'admin.influencers.', 'middleware' => 'permissions:influencers'], function () {
+    Route::get('/', [App\Http\Controllers\Admin\InfluencerController::class, 'index'])->name('index');
+    Route::get('/create', [App\Http\Controllers\Admin\InfluencerController::class, 'create'])->name('create');
+    Route::post('/', [App\Http\Controllers\Admin\InfluencerController::class, 'store'])->name('store');
+    Route::get('/{influencer}', [App\Http\Controllers\Admin\InfluencerController::class, 'show'])->name('show');
+    Route::post('/{influencer}/toggle-status', [App\Http\Controllers\Admin\InfluencerController::class, 'updateStatus'])->name('update.status');
+    Route::post('/{influencer}/resend-credentials', [App\Http\Controllers\Admin\InfluencerController::class, 'resendCredentials'])->name('resend.credentials');
+    Route::delete('/{influencer}', [App\Http\Controllers\Admin\InfluencerController::class, 'destroy'])->name('destroy');
+    
+    // Commission Management
+    Route::post('/commission/{commission}/update-status', [App\Http\Controllers\Admin\InfluencerController::class, 'updateCommissionStatus'])->name('commission.update.status');
+    Route::post('/commission/{commission}/mark-paid', [App\Http\Controllers\Admin\InfluencerController::class, 'markCommissionPaid'])->name('commission.mark.paid');
+  });
+
+  // Secret Login for Influencers (Super Admin Only)
+  Route::get('/influencers/secret/login/{id}', [App\Http\Controllers\Admin\InfluencerController::class, 'secret'])->name('admin.influencer.secret');
 
 
 
@@ -347,6 +385,9 @@ Route::prefix('management0712')->group(function() {
      Route::get('/support/chat', [MessagesController::class, 'index'])->name('admin.live.chat');
      // include __DIR__.'/chatify.php';      
   });
+
+  // Affiliate & Lead Management Routes
+
  
 
 });
@@ -397,6 +438,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/subscription/checkout/{slug}', [App\Http\Controllers\User\SubscriptionController::class, 'showCheckout'])
          ->name('subscription.checkout.show');
 
+    Route::post('/subscription/validate-discount', [App\Http\Controllers\User\SubscriptionController::class, 'validateDiscount'])
+        ->name('subscription.validate.discount');
+
     // Process the subscription payment
     Route::post('/subscription/process', [App\Http\Controllers\User\SubscriptionController::class, 'processSubscription'])
          ->name('subscription.process.payment');
@@ -412,6 +456,17 @@ Route::middleware(['auth'])->group(function () {
     // Subscription transactions history
     Route::get('/subscription/transactions', [App\Http\Controllers\User\SubscriptionController::class, 'transactions'])
          ->name('subscription.transactions');
+});
+
+// Referral & Wallet Routes
+Route::middleware(['auth'])->prefix('affiliate')->name('user.affiliate.')->group(function () {
+    Route::get('/', [App\Http\Controllers\User\ReferralController::class, 'index'])->name('index');
+    Route::get('/wallet', [App\Http\Controllers\User\ReferralController::class, 'wallet'])->name('wallet');
+});
+
+// Influencer Dashboard Route
+Route::middleware(['auth'])->prefix('influencer')->name('user.influencer.')->group(function () {
+    Route::get('/', [App\Http\Controllers\User\InfluencerController::class, 'index'])->name('index');
 });
 
 // Stripe Webhook
@@ -495,8 +550,7 @@ Route::group(['prefix' => 'user', 'middleware' => ['auth'] ], function() {
        // include __DIR__.'/chatify.php';      
     });
 
-    
-
+ 
     
 
 });
@@ -506,6 +560,8 @@ Route::group(['prefix' => 'user', 'middleware' => ['auth'] ], function() {
 
 Route::get('/', [App\Http\Controllers\Front\HomeController::class, 'index'])->name('front.index');
 
+// Lead Capture Route
+Route::post('/leads/store', [App\Http\Controllers\Front\LeadController::class, 'store'])->name('leads.store');
 
 Route::post('/error/report', [App\Http\Controllers\Front\ErrorReportController::class, 'store'])->name('error.report');
 Route::post('dropzone/media',  [App\Http\Controllers\Front\HomeController::class, 'dropzoneStoreMedia'])->name('dropzone.storeMedia');
@@ -592,6 +648,10 @@ Route::get('/how-it-works', [App\Http\Controllers\Front\PageController::class, '
 Route::get('/pricing', [App\Http\Controllers\Front\PageController::class, 'pricing'])->name('front.pricing');
 Route::get('/contact', [App\Http\Controllers\Front\PageController::class, 'contact'])->name('front.contact');
 Route::post('/contact', [App\Http\Controllers\Front\PageController::class, 'submitContactForm'])->name('front.contact.submit');
+
+// Lead Funnel Routes (Public)
+Route::post('/leads/store', [App\Http\Controllers\Front\LeadController::class, 'store'])->name('leads.store');
+
 
 // Route::view('/test/page', 'front.test');
 Route::get('{any}', [App\Http\Controllers\Front\HomeController::class, 'page'])->name('front.page');

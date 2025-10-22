@@ -141,6 +141,58 @@
                                     </div>
                                 </div>
 
+                                <div class="col-12">
+                                    <h4 class="card-title mb-3">Referral & Influencer Settings</h4>
+                                </div>
+                                
+                                <div class="col-xl-6 col-md-6">
+                                    <div>
+                                        <label for="referralRewardInput" class="form-label">Referral Reward Percentage (%)</label>
+                                        <input type="number" step="0.01" class="form-control" id="referralRewardInput" value="{{$data->referral_reward_percentage}}" name="referral_reward_percentage" required>
+                                        <small class="text-muted">Percentage of commission rewarded to users who refer others</small>
+                                    </div>
+                                </div>
+
+                                <div class="col-xl-6 col-md-6">
+                                    <div>
+                                        <label for="influencerCommissionInput" class="form-label">Influencer Commission Percentage (%)</label>
+                                        <input type="number" step="0.01" class="form-control" id="influencerCommissionInput" value="{{$data->influencer_commission_percentage}}" name="influencer_commission_percentage" required>
+                                        <small class="text-muted">Commission percentage earned by influencers</small>
+                                    </div>
+                                </div>
+
+                                <div class="col-xl-6 col-md-6">
+                                    <div>
+                                        <label for="commissionDurationInput" class="form-label">Influencer Commission Duration (Days)</label>
+                                        <input type="number" class="form-control" id="commissionDurationInput" value="{{$data->influencer_commission_duration_days}}" name="influencer_commission_duration_days" required>
+                                        <small class="text-muted">Number of days an influencer can earn commission on their referrals</small>
+                                    </div>
+                                </div>
+
+                                <div class="col-xl-6 col-md-6">
+                                    <div>
+                                        <label for="maxClaimsInput" class="form-label">Maximum Claims Per Influencer</label>
+                                        <input type="number" class="form-control" id="maxClaimsInput" value="{{$data->influencer_max_claims}}" name="influencer_max_claims">
+                                        <small class="text-muted">Maximum number of claims an influencer can make against each refferal (leave blank for unlimited)</small>
+                                    </div>
+                                </div>
+
+                                <div class="col-xl-6 col-md-6">
+                                    <div>
+                                        <label for="discountCodeInput" class="form-label">Lead Discount Code</label>
+                                        <input type="text" class="form-control" id="discountCodeInput" value="{{$data->lead_discount_code}}" name="lead_discount_code">
+                                        <small class="text-muted">Discount code for leads (new potential customers)</small>
+                                    </div>
+                                </div>
+
+                                <div class="col-xl-6 col-md-6">
+                                    <div>
+                                        <label for="discountPercentageInput" class="form-label">Lead Discount Percentage (%)</label>
+                                        <input type="number" step="0.01" class="form-control" id="discountPercentageInput" value="{{$data->lead_discount_percentage}}" name="lead_discount_percentage" required>
+                                        <small class="text-muted">Discount percentage for new leads</small>
+                                    </div>
+                                </div>
+
                                 {{-- <div class="col-xl-6 col-md-6">
                                     <div>
                                         <label for="basiInput" class="form-label"> Email</label>

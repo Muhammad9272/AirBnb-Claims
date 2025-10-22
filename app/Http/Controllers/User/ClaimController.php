@@ -8,6 +8,9 @@ use App\Models\Claim;
 use App\Models\ClaimComment;
 use App\Models\ClaimEvidence;
 use App\Models\ClaimStatusHistory;
+use App\Models\InfluencerCommission;
+use App\Models\GeneralSetting;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\CentralLogics\Helpers;
 use Carbon\Carbon;
@@ -126,6 +129,9 @@ class ClaimController extends Controller
             }
         }
         
+        // Create influencer commission record (if applicable)
+        $this->createInfluencerCommissionRecord($claim);
+        
         // Notify admin about new claim
         $title = "New Claim Submitted";
         $message = "A new claim #{$claim->claim_number} has been submitted by {$claim->user->name}";
@@ -134,6 +140,129 @@ class ClaimController extends Controller
         
         return redirect()->route('user.claims.show', $claim->id)
             ->with('success', 'Claim submitted successfully! Your claim number is ' . $claimNumber);
+    }
+
+    /**
+     * Create influencer commission record when claim is created
+     * Commission will be in 'pending' status until claim is approved
+     *
+     * @param  Claim  $claim
+     * @return void
+     */
+
+    /**
+     * Create influencer commission record when claim is created
+     * Commission will be in 'pending' status until claim is approved
+     *
+     * @param  Claim  $claim
+     * @return void
+     */
+    private function createInfluencerCommissionRecord($claim)
+    {
+        try {
+            // Get general settings
+            $gs = GeneralSetting::first();
+            
+            if (!$gs || !$gs->influencer_commission_percentage) {
+                return; // Influencer commission not enabled
+            }
+
+            // Check if user was referred by someone
+            if (!$claim->user->referred_by) {
+                return; // User was not referred
+            }
+
+            // Get the referrer (who referred this user)
+            $referrer = User::find($claim->user->referred_by);
+            
+            // Check if referrer exists and is an influencer
+            if (!$referrer || $referrer->role_type !== 'influencer') {
+                return; // Referrer not found or not an influencer
+            }
+
+            // Check if claim creation is within commission duration from CLAIM CREATION DATE
+            if ($gs->influencer_commission_duration_days) {
+                $claimCreationDate = $claim->created_at;
+                $commissionEndDate = $claimCreationDate->copy()->addDays($gs->influencer_commission_duration_days);
+                $now = now();
+                
+                if ($now->greaterThan($commissionEndDate)) {
+                    \Log::info('Commission not created - duration expired', [
+                        'claim_id' => $claim->id,
+                        'claim_created' => $claimCreationDate,
+                        'commission_end_date' => $commissionEndDate,
+                        'current_date' => $now
+                    ]);
+                    return; // Commission period expired
+                }
+            }
+
+            // Check if max claims limit is reached (if set)
+            if ($gs->influencer_max_claims) {
+                $existingCommissions = InfluencerCommission::where('influencer_user_id', $referrer->id)
+                    ->where('customer_user_id', $claim->user_id)
+                    ->whereIn('status', ['pending', 'approved', 'paid']) // Count all valid commissions
+                    ->count();
+                
+                if ($existingCommissions >= $gs->influencer_max_claims) {
+                    \Log::info('Commission not created - max claims limit reached', [
+                        'claim_id' => $claim->id,
+                        'influencer_id' => $referrer->id,
+                        'customer_id' => $claim->user_id,
+                        'existing_commissions' => $existingCommissions,
+                        'max_allowed' => $gs->influencer_max_claims
+                    ]);
+                    return; // Max claims limit reached
+                }
+            }
+
+            // Calculate estimated commission amount (based on requested amount)
+            $estimatedCommission = ($claim->amount_requested * $gs->influencer_commission_percentage) / 100;
+            $estimatedCommission = round($estimatedCommission, 2);
+
+            // Prepare notes
+            $notes = "Commission created for claim #{$claim->claim_number}. ";
+            $notes .= "Customer: {$claim->user->name} (ID: {$claim->user->id}). ";
+            $notes .= "Influencer: {$referrer->name} (ID: {$referrer->id}). ";
+            $notes .= "Estimated commission based on requested amount: $" . number_format($claim->amount_requested, 2) . ". ";
+            $notes .= "Commission rate: {$gs->influencer_commission_percentage}%. ";
+            $notes .= "Claim created: {$claim->created_at->format('Y-m-d H:i:s')}. ";
+            if ($gs->influencer_commission_duration_days) {
+                $commissionEndDate = $claim->created_at->copy()->addDays($gs->influencer_commission_duration_days);
+                $notes .= "Commission valid until: {$commissionEndDate->format('Y-m-d H:i:s')}.";
+            }
+
+            // Create influencer commission record with 'pending' status
+            InfluencerCommission::create([
+                'influencer_user_id' => $referrer->id,
+                'customer_user_id' => $claim->user_id,
+                'claim_id' => $claim->id,
+                'subscription_id' => null,
+                'estimated_commission' => $estimatedCommission,
+                'commission_amount' => null, // Will be set when claim is approved
+                'status' => 'pending', // Pending until claim is approved
+                'commission_date' => null, // Will be set when claim is approved
+                'paid_date' => null,
+                'payment_method' => null,
+                'payment_reference' => null,
+                'notes' => $notes,
+                'created_at' => now(),
+            ]);
+
+            \Log::info('Influencer commission record created', [
+                'claim_id' => $claim->id,
+                'influencer_id' => $referrer->id,
+                'customer_id' => $claim->user_id,
+                'estimated_commission' => $estimatedCommission
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Failed to create influencer commission record: ' . $e->getMessage(), [
+                'claim_id' => $claim->id,
+                'user_id' => $claim->user_id,
+                'trace' => $e->getTraceAsString()
+            ]);
+        }
     }
 
     /**

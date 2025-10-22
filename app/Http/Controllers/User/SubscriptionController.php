@@ -6,6 +6,11 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\SubPlan;
 use App\Models\UserSubscription;
+use App\Models\User;
+use App\Models\ReferralTransaction;
+use App\Models\WalletTransaction;
+use App\Models\Lead;
+use App\Models\GeneralSetting;
 use Stripe\Stripe;
 use Stripe\Checkout\Session;
 use Stripe\Price;
@@ -13,35 +18,68 @@ use Stripe\Product;
 use Stripe\Exception\ApiErrorException;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
-
+use Illuminate\Support\Facades\DB;
+use App\CentralLogics\{Helpers, CheckoutLogics};
 class SubscriptionController extends Controller
 {
     /**
-     * Display the available subscription plans.
-     *
-     * @return \Illuminate\View\View
+     * Validate discount code via AJAX
      */
-    public function plans()
+    public function validateDiscount(Request $request)
     {
-        // Get all active subscription plans
-        $plans = SubPlan::where('status', 1)->orderBy('price', 'asc')->get();
-        
-        return view('user.subscription.plans', compact('plans'));
+        $request->validate([
+            'discount_code' => 'required|string',
+            'plan_id' => 'required|exists:sub_plans,id',
+        ]);
+
+        $gs = GeneralSetting::first();
+        $plan = SubPlan::find($request->plan_id);
+        $user = auth()->user();
+        $code = strtoupper(trim($request->discount_code));
+
+        // Check if it's the lead funnel discount code
+        if ($code === strtoupper($gs->lead_discount_code)) {
+            // Validate user is in leads table and hasn't used the code
+            $lead = Lead::where('email', $user->email)
+                ->where('discount_code_used', false)
+                ->first();
+
+            if (!$lead) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This discount code is not valid for your account'
+                ]);
+            }
+
+            $discountPercentage = Helpers::getPrice($gs->lead_discount_percentage ?? 0);
+            $discountAmount = ($plan->price * $discountPercentage) / 100;
+
+            return response()->json([
+                'success' => true,
+                'discount_amount' => Helpers::getPrice($discountAmount),
+                'discount_percentage' => $discountPercentage,
+                'message' => "Discount applied successfully!"
+            ]);
+        }
+
+        // Add other discount code types here (custom codes, promotional codes, etc.)
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Invalid discount code'
+        ]);
     }
-    
+
     /**
      * Show the checkout page for a specific plan
-     * 
-     * @param string $slug
-     * @return \Illuminate\View\View
      */
     public function showCheckout($slug)
     {
         $plan = SubPlan::where('slug', $slug)->where('status', 1)->firstOrFail();
+        $user = auth()->user();
         
         // Check if user already has this plan
-        $activeSubscription = auth()->user()->activeuserSubscriptions()->first();
+        $activeSubscription = $user->activeuserSubscriptions()->first();
         if ($activeSubscription && $activeSubscription->subplan_id == $plan->id) {
             return redirect()->route('user.subscription.plans')
                 ->with('info', 'You are already subscribed to this plan.');
@@ -52,77 +90,88 @@ class SubscriptionController extends Controller
     
     /**
      * Process subscription payment with Stripe
-     * 
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function processSubscription(Request $request)
     {
         $request->validate([
             'plan_id' => 'required|exists:sub_plans,id',
             'payment_method' => 'required|in:stripe',
+            'discount_code' => 'nullable|string',
+            'use_wallet' => 'nullable|boolean',
+            'agreement_accepted' => 'required|accepted',
         ]);
         
         $plan = SubPlan::findOrFail($request->plan_id);
         $user = auth()->user();
         
-        // Set Stripe API key
+        // Calculate final pricing
+        $pricing = $this->calculatePricing($plan, $user, $request->discount_code, $request->use_wallet);
+        
+        // Validate discount code if provided
+        if ($request->discount_code && !$pricing['discount_code']) {
+            return redirect()->back()
+                ->with('error', 'Invalid discount code')
+                ->withInput();
+        }
+        
+        // If amount is 0 or negative (covered by wallet/discount), create subscription directly
+        if ($pricing['final_amount'] <= 0) {
+            return $this->createFreeSubscription($plan, $user, $pricing);
+        }
+        
         Stripe::setApiKey(config('services.stripe.secret'));
         
         try {
-            // First, create or get a product for the plan
             $stripeProduct = $this->getOrCreateStripeProduct($plan);
             
-            // Then, create or get a price for the product
-            $stripePrice = $this->getOrCreateStripePrice($plan, $stripeProduct->id);
+            // Create pending subscription with all discount details
+            $subscription = UserSubscription::create([
+                'user_id' => $user->id,
+                'subplan_id' => $plan->id,
+                'payment_method' => 'stripe',
+                'status' => 'pending',
+                'price' => $plan->price,
+                'discount_code' => $pricing['discount_code'],
+                'discount_amount' => $pricing['discount_amount'],
+                'discount_percentage' => $pricing['discount_percentage'],
+                'wallet_credit_used' => $pricing['wallet_used'],
+                'amount_paid' => $pricing['final_amount'],
+            ]);
             
-            // Create pending subscription record first so we have the ID for success URL
-            $subscription = new UserSubscription();
-            $subscription->user_id = $user->id;
-            $subscription->subplan_id = $plan->id;
-            $subscription->payment_method = 'stripe';
-            $subscription->status = 'pending';
-            $subscription->price = $plan->price;
-            $subscription->save();
-            
-            // Create a subscription checkout session
+            // Create one-time payment session (not recurring subscription)
             $checkout_session = Session::create([
                 'payment_method_types' => ['card'],
                 'customer_email' => $user->email,
                 'client_reference_id' => $user->id,
                 'line_items' => [
                     [
-                        'price' => $stripePrice->id,
+                        'price_data' => [
+                            'currency' => 'usd',
+                            'product' => $stripeProduct->id,
+                            'unit_amount' => (int)($pricing['final_amount'] * 100),
+                            'recurring' => [
+                                'interval' => $this->getStripeInterval($plan->interval)['interval'],
+                                'interval_count' => $this->getStripeInterval($plan->interval)['interval_count'],
+                            ],
+                        ],
                         'quantity' => 1,
                     ],
                 ],
                 'mode' => 'subscription',
-                'success_url' => route('subscription.success') . 
-                                 '?session_id={CHECKOUT_SESSION_ID}',
+                'success_url' => route('subscription.success') . '?session_id={CHECKOUT_SESSION_ID}',
                 'cancel_url' => route('subscription.cancel'),
                 'metadata' => [
                     'plan_slug' => $plan->slug,
                     'user_id' => $user->id,
                     'subscription_id' => $subscription->id,
                 ],
-                'subscription_data' => [
-                    'metadata' => [
-                        'plan_slug' => $plan->slug,
-                        'user_id' => $user->id,
-                        'subscription_id' => $subscription->id,
-                    ],
-                ],
             ]);
             
-            // Update subscription with transaction ID
             $subscription->transaction_id = $checkout_session->id;
-            $subscription->stripe_price = $stripePrice->id;
             $subscription->save();
             
-            // Save session ID to session for verification
             $request->session()->put('stripe_session_id', $checkout_session->id);
             
-            // Redirect to Stripe Checkout
             return redirect()->away($checkout_session->url);
             
         } catch (ApiErrorException $e) {
@@ -131,121 +180,344 @@ class SubscriptionController extends Controller
                 ->with('error', 'Payment processing error: ' . $e->getMessage());
         }
     }
-    
+
     /**
      * Handle successful subscription
-     * 
-     * @param Request $request
-     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
      */
     public function success(Request $request)
     {
         try {
             $sessionId = $request->get('session_id');
             
-            // Log the session ID for debugging
-            Log::info('Subscription success page accessed', ['session_id' => $sessionId]);
-            
-            // Verify session ID from our saved session or just proceed if it's available
             if (!$sessionId) {
                 return redirect()->route('user.subscription.plans')
                     ->with('error', 'Invalid payment session.');
             }
             
-            // Set Stripe API key
             Stripe::setApiKey(config('services.stripe.secret'));
             
-            // Retrieve the session to get subscription details
-            try {
-                $session = Session::retrieve($sessionId);
+            $session = Session::retrieve($sessionId);
+            $subscription = UserSubscription::where('transaction_id', $sessionId)->first();
                 
-                // Update subscription status
-                $subscription = UserSubscription::where('transaction_id', $sessionId)
-                    ->first();
-                    
+            if (!$subscription) {
+                if (isset($session->subscription)) {
+                    $subscription = UserSubscription::where('stripe_id', $session->subscription)->first();
+                }
+                
                 if (!$subscription) {
-                    // Try to find by Stripe subscription ID if it was already set by webhook
-                    if (isset($session->subscription)) {
-                        $subscription = UserSubscription::where('stripe_id', $session->subscription)->first();
-                    }
-                    
-                    // If still not found, redirect to dashboard
-                    if (!$subscription) {
-                        Log::warning('Subscription not found for success page', ['session_id' => $sessionId]);
-                        return redirect()->route('user.dashboard')
-                            ->with('warning', 'Your subscription is being processed. Please check back shortly.');
-                    }
+                    return redirect()->route('user.dashboard')
+                        ->with('warning', 'Your subscription is being processed.');
                 }
-                
-                // Update subscription with details from Stripe session
-                $subscription->stripe_id = $session->subscription;
-                $subscription->stripe_status = 'active';
-                $subscription->status = 'active';
-                
-                // Set expires_at to 1 month from now if it's not set
-                if (!$subscription->expires_at) {
-                    $subscription->expires_at = now()->addMonth();
-                }
-                
-                $subscription->save();
-                
-                // Clear session
-                $request->session()->forget('stripe_session_id');
-                
-                return view('user.subscription.success', compact('subscription'));
-                
-            } catch (\Exception $e) {
-                Log::error('Error retrieving stripe session: ' . $e->getMessage(), ['session_id' => $sessionId]);
-                
-                // If we can't get the session, but have the session ID, still try to find the subscription
-                $subscription = UserSubscription::where('transaction_id', $sessionId)->first();
-                
-                if ($subscription) {
-                    return view('user.subscription.success', compact('subscription'));
-                }
-                
-                return redirect()->route('user.dashboard')
-                    ->with('warning', 'Your subscription is being processed. Please check back shortly.');
             }
+
+            // Check if already processed (prevent duplicate processing on refresh)
+            if ($subscription->status === 'active' && $subscription->stripe_status === 'active') {
+                // Already processed, just show the success page
+                return view('user.subscription.success', compact('subscription'));
+            }
+
+            DB::beginTransaction();
+            try {
+                $subscription->update([
+                    'stripe_id' => $session->subscription,
+                    'stripe_status' => 'active',
+                    'status' => 'active',
+                    'expires_at' => $subscription->expires_at ?? $this->calculateExpiryDate($subscription->subplan->interval),
+                ]);
+
+                // Deduct wallet if used
+                if ($subscription->wallet_credit_used > 0) {
+                    $this->deductWallet(auth()->user(), $subscription->wallet_credit_used, $subscription);
+                }
+
+                // Mark lead discount as used
+                if ($subscription->discount_code) {
+                    $this->markDiscountAsUsed(auth()->user()->email);
+                }
+
+                // Process referral bonus ONLY for regular users (not influencers)
+                $this->processReferralBonus($subscription);
+
+                DB::commit();
+            } catch (\Exception $e) {
+                DB::rollBack();
+                throw $e;
+            }
+            
+            $request->session()->forget('stripe_session_id');
+            
+            return view('user.subscription.success', compact('subscription'));
+            
         } catch (\Exception $e) {
-            Log::error('Exception in subscription success page: ' . $e->getMessage());
+            Log::error('Subscription success error: ' . $e->getMessage());
             return redirect()->route('user.dashboard')
-                ->with('warning', 'There was an issue loading your subscription details. Please contact support if your subscription doesn\'t appear.');
+                ->with('warning', 'Your subscription is being processed.');
         }
     }
-    
+
     /**
-     * Handle cancelled subscription checkout
-     * 
-     * @return \Illuminate\Http\RedirectResponse
+     * Calculate pricing with discounts and wallet credit
+     * ENSURES final amount is never negative
      */
-    public function cancel()
+    private function calculatePricing(SubPlan $plan, User $user, $discountCode = null, $useWallet = false)
     {
-        return redirect()->route('user.subscription.plans')
-            ->with('info', 'You have cancelled the subscription process.');
+        $gs = GeneralSetting::first();
+        $originalPrice = Helpers::getPrice($plan->price);
+        $discountAmount = 0;
+        $discountPercentage = 0;
+        $validDiscountCode = null;
+        
+        // Apply discount code if provided
+        if ($discountCode) {
+            $code = strtoupper(trim($discountCode));
+            
+            // Check if it's the lead funnel discount code
+            if ($code === strtoupper($gs->lead_discount_code)) {
+                // Validate user is in leads table and hasn't used the code
+                $lead = Lead::where('email', $user->email)
+                    ->where('discount_code_used', false)
+                    ->first();
+                
+                if ($lead) {
+                    $discountPercentage = Helpers::getPrice($gs->lead_discount_percentage ?? 0);
+                    $discountAmount = ($originalPrice * $discountPercentage) / 100;
+                    $validDiscountCode = $code;
+                }
+            }
+            // Add other discount code types here
+        }
+        
+        $priceAfterDiscount = max(0, $originalPrice - $discountAmount);
+        
+        // Apply wallet credit if requested
+        $walletUsed = 0;
+        if ($useWallet && $user->wallet_balance > 0 && $priceAfterDiscount > 0) {
+            $walletUsed = min(Helpers::getPrice($user->wallet_balance), $priceAfterDiscount);
+        }
+        
+        // IMPORTANT: Ensure final amount is never negative
+        $finalAmount = max(0, $priceAfterDiscount - $walletUsed);
+        
+        return [
+            'original_price' => Helpers::getPrice($originalPrice),
+            'discount_code' => $validDiscountCode,
+            'discount_amount' => Helpers::getPrice($discountAmount),
+            'discount_percentage' => Helpers::getPrice($discountPercentage),
+            'price_after_discount' => Helpers::getPrice($priceAfterDiscount),
+            'wallet_used' => Helpers::getPrice($walletUsed),
+            'final_amount' => Helpers::getPrice($finalAmount),
+        ];
     }
-    
+
     /**
-     * Display user's subscription transactions
+     * Create subscription without payment (covered by wallet/discount)
      */
-    public function transactions()
+    private function createFreeSubscription(SubPlan $plan, User $user, array $pricing)
     {
-        $user = auth()->user();
-        
-        // Get user's subscription transactions/history using the correct relationship
-        $transactions = $user->userSubscriptions()
-            ->with('subplan')
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
-        
-        return view('user.subscription.transactions', compact('transactions'));
+        DB::beginTransaction();
+        try {
+            $subscription = UserSubscription::create([
+                'user_id' => $user->id,
+                'subplan_id' => $plan->id,
+                'payment_method' => 'wallet',
+                'status' => 'active',
+                'price' => $plan->price,
+                'discount_code' => $pricing['discount_code'],
+                'discount_amount' => $pricing['discount_amount'],
+                'discount_percentage' => $pricing['discount_percentage'],
+                'wallet_credit_used' => $pricing['wallet_used'],
+                'amount_paid' => 0.00,
+                'expires_at' => $this->calculateExpiryDate($plan->interval),
+            ]);
+
+            // Deduct wallet if used
+            if ($pricing['wallet_used'] > 0) {
+                $this->deductWallet($user, $pricing['wallet_used'], $subscription);
+            }
+
+            // Mark lead discount as used
+            if ($pricing['discount_code']) {
+                $this->markDiscountAsUsed($user->email);
+            }
+
+            // Process referral bonus
+            $this->processReferralBonus($subscription);
+
+            DB::commit();
+
+            return redirect()->route('user.dashboard')
+                ->with('success', 'Subscription activated successfully!');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Free subscription error: ' . $e->getMessage());
+            return redirect()->route('user.subscription.plans')
+                ->with('error', 'Subscription failed. Please try again.');
+        }
     }
-    
+
+    /**
+     * Process referral bonus for REGULAR users only (NOT influencers)
+     * Calculated based on amount_paid (after discounts)
+     */
+    private function processReferralBonus(UserSubscription $subscription)
+    {
+        $user = User::find($subscription->user_id);
+        
+        if (!$user || !$user->referred_by) {
+            return;
+        }
+
+        $gs = GeneralSetting::first();
+        if (!$gs || $gs->is_affiliate != 1) {
+            return;
+        }
+
+        $referrer = User::find($user->referred_by);
+        if (!$referrer) {
+            return;
+        }
+
+        // IMPORTANT: Only process for regular users (role_id = 1)
+        // Influencers (role_id = 2) get commission on APPROVED CLAIMS, not subscriptions
+        if ($referrer->role_id == 2) {
+            Log::info("Skipping referral bonus - referrer is influencer", [
+                'referrer_id' => $referrer->id,
+                'customer_id' => $user->id,
+            ]);
+            return;
+        }
+
+        DB::beginTransaction();
+        try {
+            // Calculate credit based on AMOUNT_PAID (after discount), not original price
+            $rewardPercentage = Helpers::getPrice($gs->referral_reward_percentage ?? 10);
+            $amountPaid = Helpers::getPrice($subscription->amount_paid);
+            $creditAmount = Helpers::getPrice( ($amountPaid * $rewardPercentage) / 100);
+
+            // Skip if amount is 0
+            if ($creditAmount <= 0) {
+                DB::commit();
+                return;
+            }
+
+            // CHECKPOINT: Check referral bonus type setting
+            $bonusType = $gs->referral_bonus_type ?? 'once'; // Default to 'once'
+
+
+            if ($bonusType === 'once') {
+                // For 'once' type, create ONLY if it doesn't exist (no update)
+                $referralTransaction = ReferralTransaction::firstOrCreate(
+                    [
+                        'referrer_user_id' => $referrer->id,
+                        'referee_user_id' => $user->id,
+                    ],
+                    [
+                        'subscription_id' => $subscription->id,
+                        'credit_amount' => $creditAmount,
+                        'status' => 'completed',
+                    ]
+                );
+
+            } else {
+                // For 'unlimited' type, create new record each time
+                $referralTransaction = ReferralTransaction::create([
+                    'referrer_user_id' => $referrer->id,
+                    'referee_user_id' => $user->id,
+                    'subscription_id' => $subscription->id,
+                    'credit_amount' => $creditAmount,
+                    'status' => 'completed',
+                ]);
+            }
+
+            // Update referrer's wallet
+            $balanceBefore = Helpers::getPrice($referrer->wallet_balance);
+            $balanceAfter = $balanceBefore + $creditAmount;
+
+            $referrer->wallet_balance = $balanceAfter;
+            $referrer->save();
+
+            // Create wallet transaction
+            // WalletTransaction::create([
+            //     'user_id' => $referrer->id,
+            //     'transaction_type' => 'referral_earned',
+            //     'amount' => $creditAmount,
+            //     'related_user_id' => $user->id,
+            //     'related_subscription_id' => $subscription->id,
+            //     'related_referral_transaction_id' => $referralTransaction->id,
+            //     'balance_before' => $balanceBefore,
+            //     'balance_after' => $balanceAfter,
+            //     'description' => "Referral bonus from {$user->name} (${$amountPaid} subscription)",
+            // ]);
+
+            $dd = WalletTransaction::create([
+                'user_id' => $referrer->id,
+                'transaction_type' => 'referral_earned',
+                'amount' => $creditAmount,
+                'related_user_id' => $user->id,
+                'related_subscription_id' => $subscription->id,
+                'related_referral_transaction_id' => $referralTransaction->id,
+                'balance_before' => $balanceBefore,
+                'balance_after' => $balanceAfter,
+                'description' => "Referral bonus from {$user->name} (\${$amountPaid} subscription)",
+                'created_at' => now(),
+            ]);
+
+            DB::commit();
+
+            Log::info("Referral bonus credited", [
+                'referrer_id' => $referrer->id,
+                'referee_id' => $user->id,
+                'amount_paid' => $amountPaid,
+                'credit_amount' => $creditAmount,
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Referral bonus error: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Deduct wallet credit from user
+     */
+    private function deductWallet(User $user, float $amount, UserSubscription $subscription)
+    {
+        $balanceBefore = Helpers::getPrice($user->wallet_balance);
+        $balanceAfter = max(0, $balanceBefore - $amount);
+
+        $user->wallet_balance = $balanceAfter;
+        $user->save();
+
+        WalletTransaction::create([
+            'user_id' => $user->id,
+            'transaction_type' => 'subscription_used',
+            'amount' => -$amount,
+            'related_subscription_id' => $subscription->id,
+            'balance_before' => $balanceBefore,
+            'balance_after' => $balanceAfter,
+            'description' => "Applied to subscription #{$subscription->id}",
+            'created_at' => now(),
+        ]);
+    }
+
+    /**
+     * Mark lead discount code as used
+     */
+    private function markDiscountAsUsed(string $email)
+    {
+        Lead::where('email', $email)
+            ->where('discount_code_used', false)
+            ->update([
+                'discount_code_used' => true,
+                'is_registered' => true,
+                'registered_user_id' => auth()->id(),
+                'status' => 'converted',
+            ]);
+    }
+
     /**
      * Calculate expiry date based on interval
-     * 
-     * @param string $interval
-     * @return Carbon
      */
     private function calculateExpiryDate($interval)
     {
@@ -257,30 +529,47 @@ class SubscriptionController extends Controller
             'quarterly' => $now->addMonths(3),
             'biannually' => $now->addMonths(6),
             'yearly' => $now->addYear(),
-            default => $now->addMonth(), // Default to monthly
+            default => $now->addMonth(),
         };
     }
-    
+
+    /**
+     * Handle cancelled subscription checkout
+     */
+    public function cancel()
+    {
+        return redirect()->route('user.subscription.plans')
+            ->with('info', 'You have cancelled the subscription process.');
+    }
+
+    /**
+     * Display user's subscription transactions
+     */
+    public function transactions()
+    {
+        $user = auth()->user();
+        
+        $transactions = $user->userSubscriptions()
+            ->with('subplan')
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
+        
+        return view('user.subscription.transactions', compact('transactions'));
+    }
+
     /**
      * Get or create a Stripe product for the subscription plan
-     * 
-     * @param SubPlan $plan
-     * @return \Stripe\Product
      */
     private function getOrCreateStripeProduct(SubPlan $plan)
     {
-        // Check if the plan already has a product ID stored
         if ($plan->stripe_product_id) {
             try {
-                // Try to retrieve the existing product
                 return Product::retrieve($plan->stripe_product_id);
             } catch (ApiErrorException $e) {
-                // Product not found or other error, we'll create a new one
                 Log::warning("Stripe product not found: {$plan->stripe_product_id}, creating new one.");
             }
         }
         
-        // Create a new product
         $product = Product::create([
             'name' => $plan->name,
             'description' => $plan->details ?? "Subscription plan: {$plan->name}",
@@ -289,40 +578,37 @@ class SubscriptionController extends Controller
             ],
         ]);
         
-        // Store the product ID on the plan for future use
         $plan->stripe_product_id = $product->id;
         $plan->save();
         
         return $product;
     }
-    
+
     /**
      * Get or create a Stripe price for the subscription plan
-     * 
-     * @param SubPlan $plan
-     * @param string $productId
-     * @return \Stripe\Price
      */
-    private function getOrCreateStripePriceOld(SubPlan $plan, $productId)
+    private function getOrCreateStripePrice(SubPlan $plan, $productId)
     {
-        // Check if the plan already has a price ID stored
         if ($plan->stripe_price_id) {
             try {
-                // Try to retrieve the existing price
-                return Price::retrieve($plan->stripe_price_id);
+                $existingPrice = Price::retrieve($plan->stripe_price_id);
+                $currentPriceCents = (int)($plan->price * 100);
+                
+                if ($existingPrice->unit_amount === $currentPriceCents) {
+                    return $existingPrice;
+                } else {
+                    Log::info("Price changed for plan {$plan->id}. Creating new price.");
+                }
             } catch (ApiErrorException $e) {
-                // Price not found or other error, we'll create a new one
                 Log::warning("Stripe price not found: {$plan->stripe_price_id}, creating new one.");
             }
         }
         
-        // Convert interval to Stripe format
         $interval = $this->getStripeInterval($plan->interval);
         
-        // Create a new price
         $price = Price::create([
             'product' => $productId,
-            'unit_amount' => (int)($plan->price * 100), // Convert to cents
+            'unit_amount' => (int)($plan->price * 100),
             'currency' => 'usd',
             'recurring' => [
                 'interval' => $interval['interval'],
@@ -330,10 +616,18 @@ class SubscriptionController extends Controller
             ],
             'metadata' => [
                 'plan_id' => $plan->id,
+                'created_at' => now()->toDateTimeString(),
             ],
         ]);
         
-        // Store the price ID on the plan for future use
+        if ($plan->stripe_price_id) {
+            try {
+                Price::update($plan->stripe_price_id, ['active' => false]);
+            } catch (ApiErrorException $e) {
+                Log::warning("Could not archive old Stripe price: " . $e->getMessage());
+            }
+        }
+        
         $plan->stripe_price_id = $price->id;
         $plan->save();
         
@@ -341,79 +635,7 @@ class SubscriptionController extends Controller
     }
 
     /**
-     * Get or create a Stripe price for the subscription plan
-     * 
-     * @param SubPlan $plan
-     * @param string $productId
-     * @return \Stripe\Price
-     */
-    private function getOrCreateStripePrice(SubPlan $plan, $productId)
-    {
-        // Check if the plan already has a price ID stored
-        if ($plan->stripe_price_id) {
-            try {
-                // Retrieve the existing price to compare
-                $existingPrice = Price::retrieve($plan->stripe_price_id);
-                
-                // Check if the price matches our current plan price
-                $currentPriceCents = (int)($plan->price * 100);
-                
-                if ($existingPrice->unit_amount === $currentPriceCents) {
-                    // Price matches, return existing price
-                    return $existingPrice;
-                } else {
-                    // Price has changed, we need to create a new one
-                    Log::info("Price changed for plan {$plan->id}. Old: {$existingPrice->unit_amount}, New: {$currentPriceCents}. Creating new price.");
-                }
-                
-            } catch (ApiErrorException $e) {
-                // Price not found or other error, we'll create a new one
-                Log::warning("Stripe price not found: {$plan->stripe_price_id}, creating new one.");
-            }
-        }
-        
-        // Convert interval to Stripe format
-        $interval = $this->getStripeInterval($plan->interval);
-        
-        // Create a new price
-        $price = Price::create([
-            'product' => $productId,
-            'unit_amount' => (int)($plan->price * 100), // Convert to cents
-            'currency' => 'usd',
-            'recurring' => [
-                'interval' => $interval['interval'],
-                'interval_count' => $interval['interval_count'],
-            ],
-            'metadata' => [
-                'plan_id' => $plan->id,
-                'created_at' => now()->toDateTimeString(), // For tracking when this price was created
-            ],
-        ]);
-        
-        // Archive/deactivate the old price if it exists
-        if ($plan->stripe_price_id) {
-            try {
-                Price::update($plan->stripe_price_id, ['active' => false]);
-                Log::info("Archived old Stripe price: {$plan->stripe_price_id}");
-            } catch (ApiErrorException $e) {
-                Log::warning("Could not archive old Stripe price: {$plan->stripe_price_id}. Error: " . $e->getMessage());
-            }
-        }
-        
-        // Store the new price ID on the plan
-        $plan->stripe_price_id = $price->id;
-        $plan->save();
-        
-        Log::info("Created new Stripe price {$price->id} for plan {$plan->id} with amount {$price->unit_amount}");
-        
-        return $price;
-    }
-    
-    /**
-     * Convert our internal interval to Stripe's format
-     * 
-     * @param string $interval
-     * @return array
+     * Convert internal interval to Stripe's format
      */
     private function getStripeInterval($interval)
     {
