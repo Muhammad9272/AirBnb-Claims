@@ -192,17 +192,59 @@
 
   <!-- JavaScript for mobile menu, scrolling nav and FAQs -->
     <script>
-      // Mobile menu toggle
-      document.getElementById('mobile-menu-btn').addEventListener('click', function() {
-        const menu = document.getElementById('mobile-menu');
-        menu.classList.toggle('hidden');
+      // Mobile drawer menu functionality
+      const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+      const mobileMenuClose = document.getElementById('mobile-menu-close');
+      const mobileDrawer = document.getElementById('mobile-drawer');
+      const mobileOverlay = document.getElementById('mobile-menu-overlay');
+      const body = document.body;
+
+      // Open mobile drawer
+      function openMobileDrawer() {
+        mobileDrawer.classList.remove('translate-x-full');
+        mobileDrawer.classList.add('translate-x-0');
+        mobileOverlay.classList.remove('invisible', 'opacity-0');
+        mobileOverlay.classList.add('visible', 'opacity-100');
+        body.style.overflow = 'hidden'; // Prevent body scroll
+      }
+
+      // Close mobile drawer
+      function closeMobileDrawer() {
+        mobileDrawer.classList.remove('translate-x-0');
+        mobileDrawer.classList.add('translate-x-full');
+        mobileOverlay.classList.remove('visible', 'opacity-100');
+        mobileOverlay.classList.add('invisible', 'opacity-0');
+        body.style.overflow = ''; // Restore body scroll
+      }
+
+      // Event listeners
+      if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener('click', openMobileDrawer);
+      }
+
+      if (mobileMenuClose) {
+        mobileMenuClose.addEventListener('click', closeMobileDrawer);
+      }
+
+      if (mobileOverlay) {
+        mobileOverlay.addEventListener('click', closeMobileDrawer);
+      }
+
+      // Close drawer when clicking on menu items
+      document.querySelectorAll('.mobile-menu-item').forEach(item => {
+        item.addEventListener('click', function(e) {
+          // Don't close immediately for forms
+          if (!this.closest('form')) {
+            setTimeout(closeMobileDrawer, 200);
+          }
+        });
       });
 
-      // Close mobile menu when clicking on a link
-      document.querySelectorAll('#mobile-menu a').forEach(link => {
-        link.addEventListener('click', function() {
-          document.getElementById('mobile-menu').classList.add('hidden');
-        });
+      // Close drawer on escape key
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && !mobileDrawer.classList.contains('translate-x-full')) {
+          closeMobileDrawer();
+        }
       });
 
       // Add scroll event for navbar background change
