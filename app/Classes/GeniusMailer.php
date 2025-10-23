@@ -113,7 +113,7 @@ class GeniusMailer
         $discountMessage = "
             <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;'>
                 <div style='text-align: center; margin-bottom: 30px;'>
-                    <h1 style='color: #1e1e2d; margin-bottom: 10px;'>🎉 Your Exclusive Discount is Here!</h1>
+                    // <h1 style='color: #1e1e2d; margin-bottom: 10px;'>🎉 Your Exclusive Discount is Here!</h1>
                     <p style='color: #666; font-size: 18px;'>Thank you for your interest in " . $setup->name . "!</p>
                 </div>
                 
