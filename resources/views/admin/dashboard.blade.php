@@ -361,7 +361,7 @@
                                             </a>
                                         </td>
                                         <td>{{ $user->email }}</td>
-                                        <td>{{ $user->created_at->format('M d, Y') }}</td>
+                                        <td>{{ $user->created_at ? $user->created_at->format('M d, Y') : 'N/A' }}</td>
                                     </tr>
                                 @empty
                                     <tr>

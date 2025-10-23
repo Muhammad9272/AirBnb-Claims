@@ -564,7 +564,21 @@ class SubscriptionController extends Controller
     {
         if ($plan->stripe_product_id) {
             try {
-                return Product::retrieve($plan->stripe_product_id);
+                $product = Product::retrieve($plan->stripe_product_id);
+                
+                // Update the product name in Stripe if it has changed
+                if ($product->name !== $plan->name || $product->description !== ($plan->details ?? "Subscription plan: {$plan->name}")) {
+                    $product = Product::update(
+                        $plan->stripe_product_id,
+                        [
+                            'name' => $plan->name,
+                            'description' => $plan->details ?? "Subscription plan: {$plan->name}",
+                        ]
+                    );
+                    Log::info("Updated Stripe product name for plan {$plan->id}: {$plan->name}");
+                }
+                
+                return $product;
             } catch (ApiErrorException $e) {
                 Log::warning("Stripe product not found: {$plan->stripe_product_id}, creating new one.");
             }
