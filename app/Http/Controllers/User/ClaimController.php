@@ -128,6 +128,31 @@ class ClaimController extends Controller
                 ]);
             }
         }
+
+        // Process video evidence from session if exists
+        if ($pendingVideo = session('pendingVideo')) {
+            if (isset($pendingVideo['filename']) && isset($pendingVideo['path'])) {
+                ClaimEvidence::create([
+                    'claim_id' => $claim->id,
+                    'file_path' => $pendingVideo['path'],
+                    'file_name' => $pendingVideo['filename'],
+                    'file_type' => pathinfo($pendingVideo['filename'], PATHINFO_EXTENSION),
+                    'description' => $pendingVideo['description'] ?? null,
+                    'type' => 'other',
+                    'is_video' => true,
+                    'uploaded_by' => Auth::id()
+                ]);
+
+                // Add a comment about the video evidence
+                ClaimComment::create([
+                    'claim_id' => $claim->id,
+                    'user_id' => Auth::id(),
+                    'comment' => 'Added video evidence: ' . $pendingVideo['filename']
+                ]);
+            }
+            // Clear the pending video from session
+            session()->forget('pendingVideo');
+        }
         
         // Create influencer commission record (if applicable)
         $this->createInfluencerCommissionRecord($claim);

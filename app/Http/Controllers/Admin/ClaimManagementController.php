@@ -15,6 +15,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Services\NotificationService;
+use Illuminate\Support\Facades\Mail;
 
 class ClaimManagementController extends Controller
 {
@@ -212,7 +213,6 @@ class ClaimManagementController extends Controller
         ]);
         
         $claim = Claim::findOrFail($id);
-        
         $comment = new ClaimComment();
         $comment->claim_id = $claim->id;
         $comment->user_id = Auth::id();
@@ -220,8 +220,31 @@ class ClaimManagementController extends Controller
         $comment->is_admin = true;
         $comment->save();
         
-        // Send notification about new comment
         NotificationService::newComment($comment);
+
+        try {
+            $recipient = $claim->user;
+            if ($recipient && !empty($recipient->email) && !$comment->is_private) {
+                $subject = "New comment on your claim #" . ($claim->claim_number ?? $claim->id);
+                $claimUrl = url('user/claims/' . $claim->id);
+                $body = "<p>Hi " . e($recipient->name ?? 'User') . ",</p>";
+                $body .= "<p>An admin has commented on your claim <strong>#" . e($claim->claim_number ?? $claim->id) . "</strong>:</p>";
+                $body .= "<blockquote style=\"border-left:4px solid #ccc;padding-left:8px;\"> " . nl2br(e($comment->comment)) . " </blockquote>";
+                $body .= "<p>You can view the claim here: <a href=\"" . $claimUrl . "\">View Claim</a></p>";
+                $body .= "<p>Regards,<br/>" . e(config('app.name')) . "</p>";
+
+                Mail::send([], [], function ($message) use ($recipient, $subject, $body) {
+                $message->to($recipient->email, $recipient->name ?? null)
+                            ->subject($subject)
+                            ->html($body);
+                });
+            }
+        } catch (\Exception $e) {
+            \Log::error('Failed to send claim comment email: ' . $e->getMessage(), [
+                'claim_id' => $claim->id,
+                'comment_id' => $comment->id
+            ]);
+        }
         
         return redirect()->back()->with('success', 'Comment added successfully');
     }

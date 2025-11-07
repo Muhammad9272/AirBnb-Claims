@@ -17,18 +17,9 @@ use App\Http\Controllers\Admin\SubPlanController;
 
 use App\Http\Controllers\Admin\Blog\BlogCategoryController;
 use App\Http\Controllers\Admin\Blog\BlogController;
+use App\Http\Controllers\ChunkedUploadController;
 
 use App\Http\Controllers\User\TicketController as UserTicketController;
-
-// Route::group([
-//     'prefix' => 'admin/support/chat',
-//     'middleware' => ['auth:admin'],
-//     'namespace' => 'App\Http\Controllers\vendor\Chatify',
-// ], function () {
-//     Route::get('/', [MessagesController::class, 'index'])->name('user');
-//     Route::get('/{id}', [MessagesController::class, 'idFetchData'])->name('idFetchData');
-// });
-
 
 // Include Chatify routeser;
 use App\Http\Controllers\Front\CartController;
@@ -37,6 +28,7 @@ use App\Http\Controllers\Front\CheckoutController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
+use \App\Http\Controllers\User\SurveyController;
 
 
 
@@ -213,7 +205,11 @@ Route::prefix('management0712')->group(function() {
         ->name('admin.subscriptions.detail');
   });
 
- 
+ Route::group(['middleware' => 'permissions:analytics'], function () {
+    // Admin routes
+    Route::get('/survey-analytics', [App\Http\Controllers\Admin\SurveyAnalyticsController::class, 'index'])
+        ->name('admin.survey.analytics');
+});
 
 
   
@@ -342,6 +338,8 @@ Route::prefix('management0712')->group(function() {
   Route::delete('/notifications/{id}', [App\Http\Controllers\Admin\NotificationController::class, 'delete'])->name('admin.notifications.delete');
   Route::delete('/notifications', [App\Http\Controllers\Admin\NotificationController::class, 'deleteAll'])->name('admin.notifications.delete-all');
   Route::get('/notifications/unread-count', [App\Http\Controllers\Admin\NotificationController::class, 'getUnreadCount'])->name('admin.notifications.unread-count');
+  Route::get('/notifications/list', [App\Http\Controllers\Admin\NotificationController::class, 'getNotifications'])
+    ->name('admin.notifications.list');
 
 
     // ROLE SECTION
@@ -359,9 +357,9 @@ Route::prefix('management0712')->group(function() {
     Route::get('/role',[App\Http\Controllers\Admin\RoleController::class, 'index'])->name('admin.role.index');
     Route::get('/role/create',[App\Http\Controllers\Admin\RoleController::class, 'create'] )->name('admin.role.create');
     Route::post('/role/create',[App\Http\Controllers\Admin\RoleController::class, 'store'])->name('admin.role.store');
-    Route::get('/role/edit/{id}',[App\Http\Controllers\Admin\RoleController::class, 'edit'])->name('admin.role.edit');
-    Route::post('/role/edit/{id}',[App\Http\Controllers\Admin\RoleController::class, 'update'])->name('admin.role.update');
-    Route::get('/role/delete/{id}',[App\Http\Controllers\Admin\RoleController::class, 'destroy'])->name('admin.role.delete');
+    Route::get('/role/edit/{id}',[AppHttp\Controllers\Admin\RoleController::class, 'edit'])->name('admin.role.edit');
+    Route::post('/role/edit/{id}',[AppHttp\Controllers\Admin\RoleController::class, 'update'])->name('admin.role.update');
+    Route::get('/role/delete/{id}',[AppHttp\Controllers\Admin\RoleController::class, 'destroy'])->name('admin.role.delete');
   });
 
     //ADMIN STAFF SECTION 
@@ -391,8 +389,6 @@ Route::prefix('management0712')->group(function() {
  
 
 });
-
-
 
 
 
@@ -531,7 +527,7 @@ Route::group(['prefix' => 'user', 'middleware' => ['auth'] ], function() {
         Route::post('/{id}/comment', [App\Http\Controllers\User\ClaimController::class, 'addComment'])->name('comment');
         Route::post('/{id}/evidence', [App\Http\Controllers\User\ClaimController::class, 'addEvidence'])->name('evidence');
     });
-
+    
     // Claims Routes
     Route::group([ 'as' => 'user.'], function() {
       // Notifications routes
@@ -586,9 +582,9 @@ Route::group(['prefix' => 'cart', 'as' => 'front.cart.'], function () {
 // Checkout Routes
 Route::group(['prefix' => 'checkout', 'as' => 'front.checkout.'], function () {
     Route::get('/', [App\Http\Controllers\Front\CheckoutController::class, 'index'])->name('index');
-    Route::post('/process', [App\Http\Controllers\Front\CheckoutController::class, 'process'])->name('process');
+    Route::post('/process', [AppHttp\Controllers\Front\CheckoutController::class, 'process'])->name('process');
     // Route::get('/success/{orderNumber}', [App\Http\Controllers\Front\CheckoutController::class, 'success'])->name('success');
-    Route::get('/cancel/{orderNumber}', [App\Http\Controllers\Front\CheckoutController::class, 'cancel'])->name('cancel');
+    Route::get('/cancel/{orderNumber}', [AppHttp\Controllers\Front\CheckoutController::class, 'cancel'])->name('cancel');
 });
 
 
@@ -652,23 +648,23 @@ Route::post('/contact', [App\Http\Controllers\Front\PageController::class, 'subm
 // Lead Funnel Routes (Public)
 Route::post('/leads/store', [App\Http\Controllers\Front\LeadController::class, 'store'])->name('leads.store');
 
+Route::post('/upload/chunk', [ChunkedUploadController::class, 'upload'])
+    ->name('upload.chunk')
+    ->middleware('auth');
+Route::post('user/claims/evidence/{id}/delete', [ChunkedUploadController::class, 'deleteEvidence'])->name('evidence.delete');
+
+Route::get('/survey', [SurveyController::class, 'index'])->name('survey.index');
+Route::post('/survey/submit', [SurveyController::class, 'submit'])->name('survey.submit');
+
 
 // Route::view('/test/page', 'front.test');
 Route::get('{any}', [App\Http\Controllers\Front\HomeController::class, 'page'])->name('front.page');
 
 
 
-// Route::group([
-//     'prefix' => 'admin/support/chat',
-//     'middleware' => ['auth:admin'],
-//     'namespace' => 'App\Http\Controllers\vendor\Chatify',
-// ], function () {
-//     Route::get('/', [MessagesController::class, 'index'])->name('user');
-//     Route::get('/{id}', [MessagesController::class, 'idFetchData'])->name('idFetchData');
-// });
 
 
-// Include Chatify routes
+
 
 
 

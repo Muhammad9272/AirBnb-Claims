@@ -73,6 +73,11 @@
         </ul>
     </div>
 </li>
+<li class="nav-item">
+    <a class="nav-link menu-link" href="{{ route('admin.survey.analytics') }}">
+        <i class="ri-bar-chart-box-line"></i> <span>Survey Analytics</span>
+    </a>
+</li>
 
 <li class="menu-title"><span>Settings</span></li>
 
@@ -112,3 +117,4 @@
         <i class="ri-refresh-fill"></i> <span>Clear Cache</span>
     </a>
 </li>
+

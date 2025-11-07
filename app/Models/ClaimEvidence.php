@@ -19,7 +19,10 @@ class ClaimEvidence extends Model
         'file_type',
         'description',
         'type',
-        'uploaded_by'
+        'uploaded_by',
+        'is_video',
+        'video_duration',
+        'chunk_status'
     ];
 
     /**
@@ -47,6 +50,16 @@ class ClaimEvidence extends Model
         $extension = pathinfo($this->file_name, PATHINFO_EXTENSION);
         return in_array(strtolower($extension), $imageExtensions);
     }
+
+    /**
+     * Check if the file is a video.
+     */
+    public function isVideo()
+    {
+        $videoExtensions = ['mp4', 'mov', 'avi', 'wmv'];
+        $extension = pathinfo($this->file_name, PATHINFO_EXTENSION);
+        return in_array(strtolower($extension), $videoExtensions);
+    }
     
     /**
      * Get the appropriate icon class for file type.
@@ -61,6 +74,7 @@ class ClaimEvidence extends Model
             'xls', 'xlsx' => 'ri-file-excel-line',
             'ppt', 'pptx' => 'ri-file-ppt-line',
             'jpg', 'jpeg', 'png', 'gif', 'webp' => 'ri-image-line',
+            'mp4', 'mov', 'avi', 'wmv' => 'ri-video-line',
             default => 'ri-file-line',
         };
     }

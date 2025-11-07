@@ -389,12 +389,21 @@ use App\CentralLogics\Helpers;
                         <h3 class="text-lg font-medium text-gray-900">Evidence Files</h3>
                         
                         @if(!in_array($claim->status, ['approved', 'rejected', 'paid']))
+                        <div class="space-x-2 flex ">
                             <button id="add-evidence-btn" class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50">
                                 <svg class="h-4 w-4 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                 </svg>
                                 Add Evidence
                             </button>
+
+                            <button id="add-video-evidence-btn" class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50">
+                                <svg class="h-4 w-4 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                </svg>
+                                Add Video Evidence
+                            </button>
+                        </div>
                         @endif
                     </div>
                     
@@ -402,50 +411,87 @@ use App\CentralLogics\Helpers;
                         @if($claim->evidence->count() > 0)
                             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                                 @foreach($claim->evidence as $evidence)
-                                    <div class="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
-                                        @php
-                                            $extension = pathinfo($evidence->file_name, PATHINFO_EXTENSION);
-                                            $isImage = in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif']);
-                                        @endphp
-                                        
-                                        @if($isImage)
-                                            <a href="{{ Helpers::image($evidence->file_path, 'claims/') }}" target="_blank" class="block h-32 bg-gray-100 overflow-hidden">
-                                                <img src="{{ Helpers::image($evidence->file_path, 'claims/') }}" alt="Evidence {{ $loop->iteration }}" class="h-full w-full object-cover hover:scale-105 transition-transform duration-200">
-                                            </a>
-                                        @else
-                                            <div class="h-32 flex items-center justify-center bg-gray-100">
-                                                <div class="text-center p-4">
-                                                    @php
-                                                        $iconClass = match(strtolower($extension)) {
-                                                            'pdf' => 'text-red-500',
-                                                            'doc', 'docx' => 'text-blue-500',
-                                                            'xls', 'xlsx' => 'text-green-500',
-                                                            'ppt', 'pptx' => 'text-orange-500',
-                                                            default => 'text-gray-500'
-                                                        };
-                                                    @endphp
-                                                    <svg class="h-8 w-8 {{ $iconClass }} mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 01-2-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                                    </svg>
-                                                    <p class="text-xs mt-2 font-medium {{ $iconClass }}">{{ strtoupper($extension) }}</p>
-                                                </div>
-                                            </div>
+                                <div class="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200 relative">
+                                    @php
+                                        $extension = pathinfo($evidence->file_name, PATHINFO_EXTENSION);
+                                        $isImage = in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif']);
+                                        $isVideo = $evidence->is_video;
+                                    @endphp
+
+                                    @if($isVideo)
+                                        {{-- Cross icon for video evidence --}}
+                                        @if(!in_array($claim->status, ['approved', 'rejected', 'paid']))
+                                        <button 
+                                            class="absolute top-2 right-2 z-10 bg-white rounded-full p-1 shadow hover:bg-red-100 transition"
+                                            title="Delete this video evidence"
+                                            onclick="deleteEvidence({{ $evidence->id }}, this)">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
                                         @endif
-                                        
-                                        <div class="p-3 bg-white">
-                                            <p class="text-xs text-gray-600 truncate font-medium" title="{{ $evidence->file_name }}">{{ $evidence->file_name }}</p>
-                                            <div class="flex justify-between items-center mt-1">
-                                                <p class="text-xs text-gray-500">{{ $evidence->created_at->format('M d, Y') }}</p>
-                                                <a href="{{ Helpers::image($evidence->file_path, 'claims/') }}" download="{{ $evidence->file_name }}" class="text-xs text-accent hover:text-accent-dark flex items-center">
+                                        <div class="h-40 bg-black flex items-center justify-center">
+                                            <video class="h-full w-full object-cover" controls>
+                                                <source src="{{ asset('assets/dynamic/claims/videos/' . $evidence->file_path) }}" type="video/{{ strtolower($extension) }}">
+                                                Your browser does not support the video tag.
+                                            </video>
+                                        </div>
+                                    @elseif($isImage && !$isVideo)
+                                        <a href="{{ Helpers::image($evidence->file_path, 'claims/') }}" target="_blank" class="block h-32 bg-gray-100 overflow-hidden">
+                                            <img src="{{ Helpers::image($evidence->file_path, 'claims/') }}" alt="Evidence {{ $loop->iteration }}" class="h-full w-full object-cover hover:scale-105 transition-transform duration-200">
+                                        </a>
+
+                                    @else
+                                        <div class="h-32 flex items-center justify-center bg-gray-100">
+                                            <div class="text-center p-4">
+                                                @php
+                                                    $iconClass = match(strtolower($extension)) {
+                                                        'pdf' => 'text-red-500',
+                                                        'doc', 'docx' => 'text-blue-500',
+                                                        'xls', 'xlsx' => 'text-green-500',
+                                                        'ppt', 'pptx' => 'text-orange-500',
+                                                        default => 'text-gray-500'
+                                                    };
+                                                @endphp
+                                                <svg class="h-8 w-8 {{ $iconClass }} mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 01-2-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                                </svg>
+                                                <p class="text-xs mt-2 font-medium {{ $iconClass }}">{{ strtoupper($extension) }}</p>
+                                            </div>
+                                        </div>
+                                    @endif
+
+                                    <div class="p-3 bg-white">
+                                        <p class="text-xs text-gray-600 truncate font-medium" title="{{ $evidence->file_name }}">{{ $evidence->file_name }}</p>
+                                        <div class="flex justify-between items-center mt-1">
+                                            <p class="text-xs text-gray-500">{{ $evidence->created_at->format('M d, Y') }}</p>
+
+                                            @if($isVideo)
+                                                {{-- Video download link --}}
+                                                <a href="{{ asset('assets/dynamic/claims/videos/' . $evidence->file_path) }}" 
+                                                download="{{ $evidence->file_name }}" 
+                                                class="text-xs text-accent hover:text-accent-dark flex items-center">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                                                     </svg>
                                                     Download
                                                 </a>
-                                            </div>
+                                            @else
+                                                {{-- Other files download --}}
+                                                <a href="{{ Helpers::image($evidence->file_path, 'claims/') }}" 
+                                                download="{{ $evidence->file_name }}" 
+                                                class="text-xs text-accent hover:text-accent-dark flex items-center">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                                    </svg>
+                                                    Download
+                                                </a>
+                                            @endif
                                         </div>
                                     </div>
-                                @endforeach
+                                </div>
+                            @endforeach
+
                             </div>
                         @else
                             <div class="text-center py-12 border-2 border-dashed border-gray-200 rounded-lg">
@@ -507,6 +553,46 @@ use App\CentralLogics\Helpers;
                                 </div>
                             </form>
                         </div>
+
+                        <div id="video-upload-section" class="hidden mt-6 pt-4 border-t border-gray-200">
+                            <h4 class="text-sm font-medium text-gray-900 mb-3">Upload Video Evidence</h4>
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="video-description" class="block text-sm font-medium text-gray-700">Description (Optional)</label>
+                                    <textarea id="video-description" name="border video_description" rows="2" class="border mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent sm:text-sm"></textarea>
+                                </div>
+                                <div>
+                                    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl">
+                                        <div class="space-y-1 text-center">
+                                            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                            </svg>
+                                            <div class="flex text-sm text-gray-600 justify-center">
+                                                <label class="relative cursor-pointer bg-white rounded-md font-medium text-accent hover:text-accent-dark">
+                                                    <span>Upload video</span>
+                                                    <input type="file" id="video-upload" accept="video/mp4,video/mov,video/avi,video/wmv" class="sr-only" data-claim-id="new">
+                                                </label>
+                                                <p class="pl-1">or drag and drop</p>
+                                            </div>
+                                            <p class="text-xs text-gray-500">
+                                                Max video file size: 30MB. Accepted formats: MP4, MOV, AVI, WMV
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex justify-end space-x-3">
+                                    <button type="button" id="cancel-video-evidence" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                        Cancel
+                                    </button>
+                                </div>
+                                <div class="mt-2 hidden" id="upload-progress">
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+                                    </div>
+                                    <p class="text-sm text-gray-500 mt-1">Uploading: <span id="progress-text">0%</span></p>
+                               </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
@@ -539,7 +625,7 @@ use App\CentralLogics\Helpers;
                                             'pending' => '⏳',
                                             'under_review' => '🔍',
                                             'approved' => '✅',
-                                            'rejected' => '❌',
+                                             'rejected' => '❌',
                                             default => '⚪'
                                         };
                                     @endphp
@@ -673,6 +759,12 @@ use App\CentralLogics\Helpers;
         document.getElementById('evidence-form').classList.remove('hidden');
         this.classList.add('hidden');
     });
+
+    document.getElementById('add-video-evidence-btn')?.addEventListener('click', function() {
+        document.getElementById('video-upload-section').classList.remove('hidden');
+        this.classList.add('hidden');
+        document.getElementById('add-evidence-btn')?.classList.add('hidden');
+    });
     
     document.getElementById('empty-add-evidence-btn')?.addEventListener('click', function() {
         document.getElementById('evidence-form').classList.remove('hidden');
@@ -688,6 +780,16 @@ use App\CentralLogics\Helpers;
         if (emptyAddBtn) emptyAddBtn.classList.remove('hidden');
     });
     
+    document.getElementById('cancel-video-evidence')?.addEventListener('click', function() {
+        document.getElementById('video-upload-section').classList.add('hidden');
+        document.getElementById('add-video-evidence-btn')?.classList.remove('hidden');
+        document.getElementById('add-evidence-btn')?.classList.remove('hidden');
+        document.getElementById('video-upload').value = '';
+        document.getElementById('video-description').value = '';
+        document.getElementById('upload-progress').classList.add('hidden');
+        updateProgressBar(0);
+    });
+
     // Auto-scroll chat to bottom
     document.addEventListener('DOMContentLoaded', function() {
         const chatContainer = document.querySelector('.chat-container');
@@ -701,6 +803,179 @@ use App\CentralLogics\Helpers;
         this.style.height = 'auto';
         this.style.height = (this.scrollHeight) + 'px';
     });
+</script>
+<script>
+    // Video evidence form show/hide logic
+    document.getElementById('add-video-evidence-btn')?.addEventListener('click', function() {
+        document.getElementById('video-upload-section').classList.remove('hidden');
+        this.classList.add('hidden');
+        document.getElementById('add-evidence-btn')?.classList.add('hidden');
+    });
+
+    document.getElementById('cancel-video-evidence')?.addEventListener('click', function() {
+        document.getElementById('video-upload-section').classList.add('hidden');
+        document.getElementById('add-video-evidence-btn')?.classList.remove('hidden');
+        document.getElementById('add-evidence-btn')?.classList.remove('hidden');
+        document.getElementById('video-upload').value = '';
+        document.getElementById('video-description').value = '';
+        document.getElementById('upload-progress').classList.add('hidden');
+        updateProgressBar(0);
+    });
+
+    // Prevent multiple uploads at once
+    let videoUploading = false;
+
+    function updateProgressBar(progress) {
+        const progressBar = document.querySelector('#upload-progress div > div');
+        const progressText = document.getElementById('progress-text');
+        if (progressBar && progressText) {
+            progressBar.style.width = progress + '%';
+            progressText.textContent = progress + '%';
+        }
+    }
+
+    function showUploadComplete() {
+        updateProgressBar(100);
+        const progressText = document.getElementById('progress-text');
+        if (progressText) {
+            progressText.textContent = 'Upload complete!';
+        }
+        setTimeout(() => {
+            document.getElementById('upload-progress').classList.add('hidden');
+            document.getElementById('video-upload').value = '';
+            document.getElementById('video-description').value = '';
+            videoUploading = false;
+            console.log('Video evidence uploaded successfully!');
+            document.getElementById('video-upload-section').classList.add('hidden');
+            document.getElementById('add-video-evidence-btn')?.classList.remove('hidden');
+            document.getElementById('add-evidence-btn')?.classList.remove('hidden');
+            location.reload();
+        }, 1200);
+
+    }
+
+    function showUploadError(msg) {
+        const progressText = document.getElementById('progress-text');
+        if (progressText) {
+            alert(msg || 'Upload failed. Please try again.');
+            return;
+        }
+        setTimeout(() => {
+            document.getElementById('upload-progress').classList.add('hidden');
+            videoUploading = false;
+        }, 2000);
+    }
+
+    function uploadVideoInChunks(file, claimId, description) {
+        const allowedTypes = ['video/mp4', 'video/mov', 'video/avi', 'video/wmv'];
+        if (!allowedTypes.includes(file.type)) {
+            showUploadError('Invalid file type.');
+            return;
+        }
+        const chunkSize = 2 * 1024 * 1024; // 2MB chunks
+        const totalChunks = Math.ceil(file.size / chunkSize);
+        let currentChunk = 0;
+        const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2); // convert bytes → MB and keep 2 decimals
+        console.log("Step 2", fileSizeMB + " MB", chunkSize, totalChunks);
+
+        if (fileSizeMB > 30) {
+            showUploadError('Video size must not exceed 30MB');
+            return;
+        }
+
+        document.getElementById('upload-progress').classList.remove('hidden');
+        updateProgressBar(0);
+        videoUploading = true;
+
+        const uploadChunk = async () => {
+            const start = currentChunk * chunkSize;
+            const end = Math.min(start + chunkSize, file.size);
+            const chunk = file.slice(start, end);
+
+            const formData = new FormData();
+            formData.append('file', chunk);
+            formData.append('chunk', currentChunk);
+            formData.append('totalChunks', totalChunks);
+            formData.append('filename', file.name);
+            formData.append('claim_id', claimId);
+            if (currentChunk === 0) {
+                formData.append('description', description);
+            }
+
+            try {
+                const response = await fetch('/upload/chunk', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    const progress = Math.round(((currentChunk + 1) / totalChunks) * 100);
+                    updateProgressBar(progress);
+
+                    currentChunk++;
+                    if (currentChunk < totalChunks) {
+                        uploadChunk();
+                    } else {
+                        showUploadComplete();
+                    }
+                } else {
+                    showUploadError(result.message || 'Upload failed. Please try again.');
+                }
+            } catch (error) {
+                console.error('Upload failed:', error);
+                showUploadError();
+            }
+        };
+
+        uploadChunk();
+    }
+
+    document.querySelector('#video-upload')?.addEventListener('change', (e) => {
+        if (videoUploading) {
+            alert('A video is already uploading. Please wait.');
+            return;
+        }
+        const file = e.target.files[0];
+        const claimId = e.target.getAttribute('data-claim-id');
+        const description = document.getElementById('video-description').value;
+        if (file && claimId) {
+            console.log("Step 1");
+            uploadVideoInChunks(file, claimId, description);
+        }
+    });
+
+    function deleteEvidence(evidenceId, btn) {
+        btn.disabled = true;
+        btn.classList.add('opacity-50');
+        fetch(`/user/claims/evidence/${evidenceId}/delete`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                // Remove the evidence card from the UI
+                btn.closest('.border.rounded-lg').remove();
+            } else {
+                alert(data.message || 'Failed to delete evidence.');
+                btn.disabled = false;
+                btn.classList.remove('opacity-50');
+            }
+        })
+        .catch(() => {
+            alert('Failed to delete evidence.');
+            btn.disabled = false;
+            btn.classList.remove('opacity-50');
+        });
+    }
 </script>
 @endpush
 @endsection

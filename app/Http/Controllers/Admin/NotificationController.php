@@ -37,14 +37,9 @@ class NotificationController extends Controller
             $notification = $adminUser->notifications()->findOrFail($id);
             $notification->is_read = true;
             $notification->save();
-            
-            // Redirect to the linked resource or back
-            if ($notification->link) {
-                return redirect($notification->link);
-            }
         }
         
-        return back()->with('success', 'Notification marked as read');
+        return response()->json(['status' => 'success']);
     }
     
     public function markAllAsRead()
@@ -95,5 +90,26 @@ class NotificationController extends Controller
         }
         
         return response()->json(['count' => $count]);
+    }
+
+    public function getNotifications()
+    {
+        $notifications = Notification::where('user_id', Auth::guard('admin')->id())
+            ->where('is_read', false)
+            ->orderBy('created_at', 'desc')
+            ->limit(10) // Get latest 10 unread notifications
+            ->get()
+            ->map(function($notification) {
+                return [
+                    'id' => $notification->id,
+                    'type' => $notification->type,
+                    'title' => $notification->title,
+                    'message' => $notification->message,
+                    'link' => $notification->link,
+                    'created_at' => \Carbon\Carbon::parse($notification->created_at)->diffForHumans(),
+                ];
+            });
+        
+        return response()->json(['notifications' => $notifications]);
     }
 }

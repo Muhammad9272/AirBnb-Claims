@@ -263,11 +263,14 @@ class StripeWebhookController extends Controller
         
         if ($subscription) {
             // Get the current period end
-            $currentPeriodEnd = Carbon::createFromTimestamp($stripeSubscription->current_period_end);
+            $currentPeriodEnd = Carbon::createFromTimestamp(
+                $stripeSubscription->items->data[0]->current_period_end
+            );
             
             // Update subscription details
             $subscription->stripe_status = $stripeSubscription->status;
             $subscription->ends_at = $currentPeriodEnd;
+            $subscription->expires_at = $currentPeriodEnd;
             
             // Update status based on Stripe status
             if ($stripeSubscription->status === 'active') {

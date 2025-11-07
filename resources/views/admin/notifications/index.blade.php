@@ -46,10 +46,17 @@
                 </div>
                 @endif
             </div>
+            @php 
+            $content_type = [
+                'new_evidence' => 'New Evidence',
+                'new_user_comment' => 'New User Comment',
+                'claim_submitted' => 'Claim Submitted',
+            ];
+            @endphp
             <div class="card-body">
                 @if($notifications->count() > 0)
                 <div class="table-responsive">
-                    <table class="table table-hover table-nowrap align-middle">
+                    <table class="">
                         <thead class="table-light">
                             <tr>
                                 <th scope="col" style="width: 70px;"></th>
@@ -69,7 +76,7 @@
                                 </td>
                                 <td>
                                     <div class="fw-medium">{{ $notification->title }}</div>
-                                    <div class="text-muted">{{ $notification->type }}</div>
+                                    <div class="text-muted">{{ $content_type[$notification->type] ?? $notification->type }}</div>
                                 </td>
                                 <td>{{ \Illuminate\Support\Str::limit($notification->message, 100) }}</td>
                                 <td>{{ $notification->created_at->diffForHumans() }}</td>

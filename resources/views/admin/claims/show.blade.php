@@ -479,44 +479,72 @@ use App\CentralLogics\Helpers;
             </div>
             <div class="card-body">
                 @if($claim->evidence->count() > 0)
-                <div class="evidence-grid">
-                    @foreach($claim->evidence as $evidence)
-                        <div class="evidence-item">
-                            <div class="evidence-preview">
-                                @if($evidence->isImage())
-                                    <a href="{{ Helpers::image($evidence->file_path, 'claims/') }}" target="_blank">
-                                        <img src="{{ Helpers::image($evidence->file_path, 'claims/') }}" alt="Evidence">
-                                    </a>
-                                @else
-                                    <div class="text-center">
-                                        <i class="ri-file-text-line fs-24 text-muted"></i>
-                                        <p class="mb-0 mt-2 fs-12">{{ strtoupper(pathinfo($evidence->file_name, PATHINFO_EXTENSION)) }}</p>
-                                    </div>
-                                @endif
+                    <div class="evidence-grid">
+                        @foreach($claim->evidence as $evidence)
+                            <div class="evidence-item">
+                                <div class="evidence-preview">
+                                    @php
+                                        $extension = strtolower(pathinfo($evidence->file_name, PATHINFO_EXTENSION));
+                                        $isImage = in_array($extension, ['jpg', 'jpeg', 'png', 'gif']);
+                                        $isVideo = $evidence->is_video ?? false;
+                                    @endphp
+
+                                    {{-- ✅ IMAGE PREVIEW --}}
+                                    @if($isImage && !$isVideo)
+                                        <a href="{{ Helpers::image($evidence->file_path, 'claims/') }}" target="_blank">
+                                            <img src="{{ Helpers::image($evidence->file_path, 'claims/') }}" alt="Evidence" class="w-100 h-100 object-cover rounded">
+                                        </a>
+
+                                    {{-- ✅ VIDEO PREVIEW --}}
+                                    @elseif($isVideo)
+                                        <video class="w-100 rounded" controls preload="metadata" style="max-height: 160px;">
+                                            <source src="{{ asset('assets/dynamic/claims/videos/' . rawurlencode($evidence->file_path)) }}" type="video/{{ $extension }}">
+                                            Your browser does not support the video tag.
+                                        </video>
+
+                                    {{-- ✅ FILE ICON (PDF, DOC, etc.) --}}
+                                    @else
+                                        <div class="text-center p-3">
+                                            <i class="ri-file-text-line fs-24 text-muted"></i>
+                                            <p class="mb-0 mt-2 fs-12">{{ strtoupper($extension) }}</p>
+                                        </div>
+                                    @endif
+                                </div>
+
+                                {{-- ✅ FILE INFO + DOWNLOAD --}}
+                                <div class="p-2">
+                                    <p class="text-truncate mb-1 fs-13" title="{{ $evidence->file_name }}">{{ $evidence->file_name }}</p>
+                                    <p class="mb-0 text-muted fs-12">
+                                        {{ $evidence->created_at->format('M d, Y') }}
+                                        <span class="text-muted"> • </span>
+
+                                        @if($isVideo)
+                                            <a href="{{ asset('assets/dynamic/claims/videos/' . rawurlencode($evidence->file_path)) }}" 
+                                            download="{{ $evidence->file_name }}" 
+                                            class="link-primary fs-11">Download</a>
+                                        @else
+                                            <a href="{{ Helpers::image($evidence->file_path, 'claims/') }}" 
+                                            download="{{ $evidence->file_name }}" 
+                                            class="link-primary fs-11">Download</a>
+                                        @endif
+                                    </p>
+                                </div>
                             </div>
-                            <div class="p-2">
-                                <p class="text-truncate mb-1 fs-13" title="{{ $evidence->file_name }}">{{ $evidence->file_name }}</p>
-                                <p class="mb-0 text-muted fs-12">
-                                    {{ $evidence->created_at->format('M d, Y') }}
-                                    <span class="text-muted"> • </span>
-                                    <a href="{{ Helpers::image($evidence->file_path, 'claims/') }}" download class="link-primary fs-11">Download</a>
-                                </p>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-                @else
-                <div class="text-center py-4">
-                    <div class="avatar-md mx-auto mb-4">
-                        <div class="avatar-title bg-light rounded-circle text-primary fs-24">
-                            <i class="ri-file-text-line"></i>
-                        </div>
+                        @endforeach
                     </div>
-                    <h5>No Evidence Files</h5>
-                    <p class="text-muted">No evidence files have been uploaded for this claim.</p>
-                </div>
+                @else
+                    <div class="text-center py-4">
+                        <div class="avatar-md mx-auto mb-4">
+                            <div class="avatar-title bg-light rounded-circle text-primary fs-24">
+                                <i class="ri-file-text-line"></i>
+                            </div>
+                        </div>
+                        <h5>No Evidence Files</h5>
+                        <p class="text-muted">No evidence files have been uploaded for this claim.</p>
+                    </div>
                 @endif
             </div>
+
         </div>
         
         <!-- Status History Card -->

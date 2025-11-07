@@ -49,6 +49,8 @@ class User extends Authenticatable
         'oauth_uid',
         'oauth_provider',
         'is_email_verified',
+        'survey_answer',
+        'survey_completed',
         // 'language',
         'tags','about','coaching_services','faqs','price'
     ];

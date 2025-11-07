@@ -160,68 +160,126 @@
                                 <!-- Claim Details Section -->
                                 <div>
                                     <h2 class="text-lg font-medium text-gray-900 mb-4">Claim Details</h2>
-                                    <div class="grid grid-cols-1 gap-6">
-                                        <!-- Description -->
-                                        <div>
-                                            <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Claim Description <span class="text-red-500">*</span></label>
-                                            <textarea name="description" id="description" rows="5" required
-                                                class="w-full px-4 py-3 rounded-xl border border-gray-300 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all duration-200"
-                                                placeholder="Please provide detailed information about your claim, including what happened, the extent of the damage or issue, and any other relevant details...">{{ old('description') }}</textarea>
-                                            @error('description')
-                                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                            @enderror
-                                        </div>
-                                        
-                                        <!-- Evidence Files - FIXED VERSION -->
-                                        <div>
-                                            <label for="evidence_files" class="block text-sm font-medium text-gray-700 mb-1">
-                                                Evidence Files 
-                                                <span id="file-count-container" class="ml-2 text-sm text-gray-500" style="display: none;">
-                                                    (<span id="file-count">0</span> files selected)
-                                                </span>
-                                            </label>
-                                            
-                                            <!-- Click trigger button -->
-                                            <button type="button" id="file-upload-trigger" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl hover:border-gray-400 transition-colors cursor-pointer w-full bg-white hover:bg-gray-50">
-                                                <div class="space-y-1 text-center">
-                                                    <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
-                                                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                                    </svg>
-                                                    <div class="flex text-sm text-gray-600 justify-center">
-                                                        <span class="font-medium text-accent hover:text-accent-dark">
-                                                            Upload files
-                                                        </span>
-                                                        <p class="pl-1">or drag and drop</p>
-                                                    </div>
-                                                    <p class="text-xs text-gray-500">
-                                                        Upload photos, documents, or other evidence
-                                                    </p>
-                                                    <p class="text-xs text-gray-400">
-                                                        JPG, PNG, GIF, PDF, DOC, DOCX up to 10MB each
-                                                    </p>
-                                                </div>
+                                    <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+                                        <h3 class="text-lg font-medium text-gray-900">Evidence Files</h3>
+                                        <div class="space-x-2 flex ">
+                                            <button id="add-evidence-btn" class="hidden inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50">
+                                                <svg class="h-4 w-4 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                                </svg>
+                                                Add Evidence
                                             </button>
-                                            
-                                            <!-- Hidden file input -->
-                                            <input type="file" name="evidence_files[]" id="evidence_files" class="hidden" multiple accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx">
-                                            
-                                            <!-- File Preview Area -->
-                                            <div id="file-preview" class="mt-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"></div>
-                                            
-                                            <!-- Instructions -->
-                                            <div class="mt-2 text-xs text-gray-500">
-                                                <p>• Click the area above to select files from your device</p>
-                                                <p>• You can also drag and drop files directly onto the upload area</p>
-                                                <p>• Multiple files can be selected - they will be added to your collection</p>
-                                                <p>• Hover over uploaded files to see the remove button (×)</p>
-                                            </div>
-                                            
-                                            @error('evidence_files.*')
-                                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                            @enderror
+
+                                            <button id="add-video-evidence-btn" class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50">
+                                                <svg class="h-4 w-4 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                                </svg>
+                                                Add Video Evidence
+                                            </button>
                                         </div>
                                     </div>
+                                    <div class="grid grid-cols-1 gap-6 p-4">
+                                        <!-- Description -->
+                                        <div class="" id="claim-details-section">
+                                            <div>
+                                                <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Claim Description <span class="text-red-500">*</span></label>
+                                                <textarea name="description" id="description" rows="5" required
+                                                    class="w-full px-4 py-3 rounded-xl border border-gray-300 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all duration-200"
+                                                    placeholder="Please provide detailed information about your claim, including what happened, the extent of the damage or issue, and any other relevant details...">{{ old('description') }}</textarea>
+                                                @error('description')
+                                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                                @enderror
+                                            </div>
+                                        
+                                            <!-- Evidence Files - FIXED VERSION -->
+                                            <div>
+                                                <label for="evidence_files" class="block text-sm font-medium text-gray-700 mb-1">
+                                                    Evidence Files 
+                                                    <span id="file-count-container" class="ml-2 text-sm text-gray-500" style="display: none;">
+                                                        (<span id="file-count">0</span> files selected)
+                                                    </span>
+                                                </label>
+                                                
+                                                <!-- Click trigger button -->
+                                                <button type="button" id="file-upload-trigger" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl hover:border-gray-400 transition-colors cursor-pointer w-full bg-white hover:bg-gray-50">
+                                                    <div class="space-y-1 text-center">
+                                                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                                                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                                        </svg>
+                                                        <div class="flex text-sm text-gray-600 justify-center">
+                                                            <span class="font-medium text-accent hover:text-accent-dark">
+                                                                Upload files
+                                                            </span>
+                                                            <p class="pl-1">or drag and drop</p>
+                                                        </div>
+                                                        <p class="text-xs text-gray-500">
+                                                            Upload photos, documents, or other evidence
+                                                        </p>
+                                                        <p class="text-xs text-gray-400">
+                                                            JPG, PNG, GIF, PDF, DOC, DOCX up to 10MB each
+                                                        </p>
+                                                    </div>
+                                                </button>
+                                                
+                                                <!-- Hidden file input -->
+                                                <input type="file" name="evidence_files[]" id="evidence_files" class="hidden" multiple accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx">
+                                                
+                                                <!-- Instructions -->
+                                                <div class="mt-2 text-xs text-gray-500">
+                                                    <p>• Click the area above to select files from your device</p>
+                                                    <p>• You can also drag and drop files directly onto the upload area</p>
+                                                    <p>• Multiple files can be selected - they will be added to your collection</p>
+                                                    <p>• Hover over uploaded files to see the remove button (×)</p>
+                                                </div>
+                                                
+                                                @error('evidence_files.*')
+                                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        
+
+                                        <!-- Video Evidence -->
+                                        <div class="hidden" id="video-evidence-section">
+                                            <h2 class="text-lg font-medium text-gray-900 mb-4">Video Evidence</h2>
+                                            <div class="space-y-4">
+                                                <div>
+                                                    <label for="video-description" class="block text-sm font-medium text-gray-700">Description (Optional)</label>
+                                                    <textarea id="video-description" name="video_description" rows="2" class="border mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent sm:text-sm"></textarea>
+                                                </div>
+                                                <div>
+                                                    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl">
+                                                        <div class="space-y-1 text-center">
+                                                            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                                                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                                            </svg>
+                                                            <div class="flex text-sm text-gray-600 justify-center">
+                                                                <label class="relative cursor-pointer bg-white rounded-md font-medium text-accent hover:text-accent-dark">
+                                                                    <span>Upload video</span>
+                                                                    <input type="file" id="video-upload" accept="video/mp4,video/mov,video/avi,video/wmv" class="sr-only" data-claim-id="new">
+                                                                </label>
+                                                                <p class="pl-1">or drag and drop</p>
+                                                            </div>
+                                                            <p class="text-xs text-gray-500">
+                                                                Max video file size: 30MB. Accepted formats: MP4, MOV, AVI, WMV
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="mt-2 hidden" id="upload-progress">
+                                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                                        <div class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+                                                    </div>
+                                                    <p class="text-sm text-gray-500 mt-1">Uploading: <span id="progress-text">0%</span></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- File Preview Area -->
+                                        <div id="file-preview" class="mt-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"></div>
+                                    </div>
                                 </div>
+
+                                
                             </div>
                             
                             <div class="mt-8 text-right">
@@ -229,6 +287,9 @@
                                     Submit Claim
                                 </button>
                             </div>
+
+                            <!-- Hidden input for video evidence -->
+                            <input type="hidden" name="uploaded_video" id="uploaded_video_input">
                         </form>
                     </div>
                 </div>
@@ -239,6 +300,23 @@
 
 @push('scripts')
 <script>
+// Toggle evidence form visibility
+document.getElementById('add-evidence-btn')?.addEventListener('click', function(event) {
+    event.preventDefault();
+    document.getElementById('claim-details-section').classList.remove('hidden');
+    document.getElementById('video-evidence-section').classList.add('hidden');
+    document.getElementById('add-video-evidence-btn').classList.remove('hidden');
+    this.classList.add('hidden');
+});
+
+document.getElementById('add-video-evidence-btn')?.addEventListener('click', function(event) {
+    event.preventDefault();
+    document.getElementById('video-evidence-section').classList.remove('hidden');
+    document.getElementById('claim-details-section').classList.add('hidden');
+    this.classList.add('hidden');
+    document.getElementById('add-evidence-btn')?.classList.remove('hidden');
+});
+
 document.addEventListener('DOMContentLoaded', function() {
     // Store accumulated files
     let accumulatedFiles = [];
@@ -362,11 +440,21 @@ document.addEventListener('DOMContentLoaded', function() {
             fileCountContainer.style.display = 'none';
         }
         
-        // Update preview
-        filePreview.innerHTML = '';
+        // Get existing video preview if any
+        const existingVideo = document.querySelector('.video-preview');
+        
+        // Clear only non-video previews
+        const nonVideoPreviews = filePreview.querySelectorAll(':scope > div:not(.video-preview)');
+        nonVideoPreviews.forEach(el => el.remove());
+        
+        // Add new file previews
         accumulatedFiles.forEach((file, index) => {
             const fileDiv = createFilePreview(file, index);
-            filePreview.appendChild(fileDiv);
+            if (existingVideo) {
+                existingVideo.insertAdjacentElement('afterend', fileDiv);
+            } else {
+                filePreview.appendChild(fileDiv);
+            }
         });
     }
     
@@ -473,6 +561,208 @@ document.addEventListener('DOMContentLoaded', function() {
     
     console.log('File upload and form functionality initialized');
 });
+</script>
+
+<script>
+    // Video upload functionality
+    let videoUploading = false;
+    const submitButton = document.querySelector('button[type="submit"]');
+
+    function updateProgressBar(progress) {
+        const progressBar = document.querySelector('#upload-progress div > div');
+        const progressText = document.getElementById('progress-text');
+        if (progressBar && progressText) {
+            progressBar.style.width = progress + '%';
+            progressText.textContent = progress + '%';
+        }
+    }
+
+    function showUploadComplete(filename) {
+        updateProgressBar(100);
+        const progressText = document.getElementById('progress-text');
+        if (progressText) {
+            progressText.textContent = 'Upload complete!';
+        }
+
+        // Add video preview to evidence section
+        const previewArea = document.getElementById('file-preview');
+        const videoPreview = createVideoPreview(filename);
+        previewArea.appendChild(videoPreview);
+
+        // Store filename in hidden input
+        document.getElementById('uploaded_video_input').value = filename;
+        console.log('Video uploaded:', filename);
+        setTimeout(() => {
+            document.getElementById('upload-progress').classList.add('hidden');
+            document.getElementById('video-upload').value = '';
+            document.getElementById('video-description').value = '';
+            videoUploading = false;
+            submitButton.disabled = false;
+        }, 1200);
+    }
+
+    function createVideoPreview(filename) {
+        const div = document.createElement('div');
+        div.className = 'relative border rounded-lg p-2 bg-white hover:shadow-md transition-shadow group video-preview';
+
+        // Video preview
+        const video = document.createElement('video');
+        video.src = `/assets/dynamic/claims/videos/${filename}`;
+        video.controls = true;
+        video.className = 'w-full h-32 rounded object-cover';
+        div.appendChild(video);
+
+        // 🔴 Remove (×) button — your preferred style
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity z-10 font-bold';
+        removeBtn.innerHTML = '×';
+        removeBtn.onclick = () => deleteEvidence('delete_existing', filename);
+        div.appendChild(removeBtn);
+
+        // Filename
+        const name = document.createElement('p');
+        name.className = 'text-xs mt-2 truncate font-medium';
+        name.textContent = filename;
+        name.title = filename;
+        div.appendChild(name);
+
+        // Type label
+        const type = document.createElement('p');
+        type.className = 'text-xs text-gray-500';
+        type.textContent = 'Video';
+        div.appendChild(type);
+
+        return div;
+    }
+
+
+    function showUploadError(msg) {
+        alert(msg || 'Upload failed. Please try again.');
+        document.getElementById('upload-progress').classList.add('hidden');
+        videoUploading = false;
+        submitButton.disabled = false;
+    }
+
+    function uploadVideoInChunks(file, description) {
+        const allowedTypes = ['video/mp4', 'video/mov', 'video/avi', 'video/wmv'];
+        if (!allowedTypes.includes(file.type)) {
+            showUploadError('Invalid file type.');
+            return;
+        }
+
+        const chunkSize = 2 * 1024 * 1024; // 2MB chunks
+        const totalChunks = Math.ceil(file.size / chunkSize);
+        let currentChunk = 0;
+        const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+
+        if (fileSizeMB > 30) {
+            showUploadError('Video size must not exceed 30MB');
+            return;
+        }
+
+        document.getElementById('upload-progress').classList.remove('hidden');
+        updateProgressBar(0);
+        videoUploading = true;
+        submitButton.disabled = true;
+
+        const uploadChunk = async () => {
+            const start = currentChunk * chunkSize;
+            const end = Math.min(start + chunkSize, file.size);
+            const chunk = file.slice(start, end);
+
+            const formData = new FormData();
+            formData.append('file', chunk);
+            formData.append('chunk', currentChunk);
+            formData.append('totalChunks', totalChunks);
+            formData.append('filename', file.name);
+            formData.append('claim_id', 'new');
+            if (currentChunk === 0) {
+                formData.append('description', description);
+            }
+
+            const sessionVideo = document.getElementById('uploaded_video_input').value;
+            
+            if(sessionVideo && currentChunk === 0) {
+                deleteEvidence('delete_existing', sessionVideo);
+            }
+
+            try {
+                const response = await fetch('/upload/chunk', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    const progress = Math.round(((currentChunk + 1) / totalChunks) * 100);
+                    updateProgressBar(progress);
+
+                    currentChunk++;
+                    if (currentChunk < totalChunks) {
+                        uploadChunk();
+                    } else {
+                        showUploadComplete(result.filename);
+                    }
+                } else {
+                    showUploadError(result.message || 'Upload failed. Please try again.');
+                }
+            } catch (error) {
+                console.error('Upload failed:', error);
+                showUploadError();
+            }
+        };
+
+        uploadChunk();
+    }
+
+    // File input change handler
+    document.querySelector('#video-upload')?.addEventListener('change', (e) => {
+        if (videoUploading) {
+            alert('A video is already uploading. Please wait.');
+            return;
+        }
+        const file = e.target.files[0];
+        const description = document.getElementById('video-description').value;
+        if (file) {
+            uploadVideoInChunks(file, description);
+        }
+    });
+
+    function deleteEvidence(evidenceId, name) {
+        fetch(`/user/claims/evidence/${evidenceId}/delete`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                file_name: name
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                const sessionVideo = document.getElementById('uploaded_video_input').value;
+                if(sessionVideo === name) {
+                    document.getElementById('uploaded_video_input').value = '';
+                }
+                document.querySelectorAll('.video-preview').forEach(el => el.remove());
+            } else {
+                alert('Failed to delete existing evidence');
+                return;
+            }
+        })
+        .catch(() => {
+            alert('Failed to delete evidence.');
+            return;
+        });
+    }
 </script>
 @endpush
 @endsection

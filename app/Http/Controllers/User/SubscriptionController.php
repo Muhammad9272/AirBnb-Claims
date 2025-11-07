@@ -119,6 +119,17 @@ class SubscriptionController extends Controller
             return $this->createFreeSubscription($plan, $user, $pricing);
         }
         
+        // Do not remove this code - Its needed to check for recurring Payments.
+        // $stripe = new \Stripe\StripeClient(config('services.stripe.secret'));
+        
+        // $testClock = $stripe->testHelpers->testClocks->create([
+        //     'frozen_time' => time(),
+        // ]);
+
+        // $stripeCustomer = $stripe->customers->create([
+        //     'email' => $user->email,
+        //     'test_clock' => $testClock->id,
+        // ]);
         Stripe::setApiKey(config('services.stripe.secret'));
         
         try {

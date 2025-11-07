@@ -16,6 +16,9 @@
 @section('body')
     @include('layouts.body')
 @show
+
+
+
 <!-- Begin page -->
 <div id="layout-wrapper">
     @include('layouts.topbar')

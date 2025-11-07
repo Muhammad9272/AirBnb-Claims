@@ -63,7 +63,7 @@
 
                         <div class="tab-content" id="notificationItemsTabContent">
                             <div class="tab-pane fade show active py-2 ps-2" id="all-noti-tab" role="tabpanel">
-                                <div data-simplebar style="max-height: 300px;" class="pe-2" id="notification-list">
+                                <div data-simplebar style="max-height: 200px; overflow-y: auto;" class="pe-2" id="notification-list">
                                     <!-- Notifications will be loaded via AJAX -->
                                     <div class="text-center" id="no-notifications">
                                         <div class="avatar-md mx-auto my-3">
@@ -78,7 +78,7 @@
                         </div>
 
                         <div class="dropdown-divider"></div>
-                        <div class="text-center">
+                        <div class="text-center p-2">
                             <a href="{{ route('admin.notifications.index') }}" class="btn btn-soft-info btn-sm">
                                 View All Notifications <i class="ri-arrow-right-s-line align-middle"></i>
                             </a>
@@ -146,7 +146,85 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Function to fetch unread notification count
+        function getNotificationStyle(type) {
+            const styles = {
+                'new_user_comment': {
+                    icon: 'ri-chat-3-line',
+                    bg: 'bg-soft-primary text-primary'
+                },
+                'new_evidence': {
+                    icon: 'ri-file-add-line',
+                    bg: 'bg-soft-info text-info'
+                },
+                'claim_submitted': {
+                    icon: 'ri-file-list-3-line',
+                    bg: 'bg-soft-success text-success'
+                },
+                'claim_approved': {
+                    icon: 'ri-checkbox-circle-line',
+                    bg: 'bg-soft-success text-success'
+                },
+                'claim_rejected': {
+                    icon: 'ri-close-circle-line',
+                    bg: 'bg-soft-danger text-danger'
+                },
+                'default': {
+                    icon: 'ri-notification-3-line',
+                    bg: 'bg-soft-info text-info'
+                }
+            };
+            
+            return styles[type] || styles['default'];
+        }
+        
+        function renderNotification(notification) {
+            const style = getNotificationStyle(notification.type);
+            
+            return `
+                <div class="text-reset notification-item d-block dropdown-item position-relative" data-notification-id="${notification.id}">
+                    <div class="d-flex">
+                        <div class="avatar-xs me-3">
+                            <span class="avatar-title ${style.bg} rounded-circle fs-16">
+                                <i class="${style.icon}"></i>
+                            </span>
+                        </div>
+                        <div class="flex-1 notification-list-content">
+                            <a onclick="openClaim('${notification.link}', ${notification.id})" class="stretched-link">
+                                <h6 class="mt-0 mb-1 lh-base">${notification.title}</h6>
+                            </a>
+                            <p class="mb-1 fs-13 text-muted">${notification.message}</p>
+                            <p class="mb-0 fs-11 fw-medium text-uppercase text-muted">
+                                <span><i class="mdi mdi-clock-outline"></i> ${notification.created_at}</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function fetchNotifications() {
+            fetch('{{ route("admin.notifications.list") }}')
+                .then(response => response.json())
+                .then(data => {
+                    const notificationList = document.getElementById('notification-list');
+                    const noNotifications = document.getElementById('no-notifications');
+                    
+                    if (data.notifications && data.notifications.length > 0) {
+                        noNotifications.style.display = 'none';
+                        
+                        const notificationsHtml = data.notifications.map(renderNotification).join('');
+                        notificationList.innerHTML = notificationsHtml;
+                    } else {
+                        noNotifications.style.display = 'block';
+                        const existingNotifications = notificationList.querySelectorAll('.notification-item');
+                        existingNotifications.forEach(item => item.remove());
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching notifications:', error);
+                });
+        }
+        
         function fetchNotificationCount() {
             fetch('{{ route("admin.notifications.unread-count") }}')
                 .then(response => response.json())
@@ -161,13 +239,61 @@
                     } else {
                         document.getElementById('notification-badge').style.display = 'block';
                     }
+                })
+                .catch(error => {
+                    console.error('Error fetching notification count:', error);
                 });
         }
         
-        // Initial fetch
+        const notificationDropdown = document.getElementById('page-header-notifications-dropdown');
+        notificationDropdown.addEventListener('click', function() {
+            fetchNotifications();
+        });
+        
         fetchNotificationCount();
         
-        // Fetch every 30 seconds
-        setInterval(fetchNotificationCount, 30000);
+        setInterval(fetchNotificationCount, 15000);
     });
+
+    function openClaim(claimLink, notificationId) {
+        
+        fetch(`/management0712/notifications/${notificationId}/read`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(() => {
+          console.log('Notification marked as read');
+          window.location.href=claimLink;
+        })
+        .catch(error => console.error('Error marking notification as read:', error));
+    }
 </script>
+
+
+
+<style>
+    #notification-list {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+#notification-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+#notification-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#notification-list::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+}
+
+#notification-list::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.3);
+}
+</style>

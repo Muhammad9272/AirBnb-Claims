@@ -19,15 +19,17 @@ class Helpers
 {
 
 
-     public static function upload(string $dir, string $format, $file = null)
+    public static function upload(string $dir, string $format, $file = null)
     {
         if($file == null){
             //return 'def.png';
             return null;
         }
+
         if (!$file->isValid()) {
             throw new \Exception('Invalid file.');
         }
+
         if (!in_array(strtolower($file->getClientOriginalExtension()), explode('|', $format))) {
             //die('Invalid file format. Allowed formats: '.$format);
             throw new \Exception('Invalid file format. Allowed formats: '.$format);
