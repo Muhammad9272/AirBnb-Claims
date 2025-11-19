@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\SubPlanController;
 use App\Http\Controllers\Admin\Blog\BlogCategoryController;
 use App\Http\Controllers\Admin\Blog\BlogController;
 use App\Http\Controllers\ChunkedUploadController;
+use App\Http\Controllers\PaymentCardDetails;
 
 use App\Http\Controllers\User\TicketController as UserTicketController;
 
@@ -526,6 +527,11 @@ Route::group(['prefix' => 'user', 'middleware' => ['auth'] ], function() {
         Route::get('/{id}', [App\Http\Controllers\User\ClaimController::class, 'show'])->name('show');
         Route::post('/{id}/comment', [App\Http\Controllers\User\ClaimController::class, 'addComment'])->name('comment');
         Route::post('/{id}/evidence', [App\Http\Controllers\User\ClaimController::class, 'addEvidence'])->name('evidence');
+    });
+
+    Route::group(['prefix' => 'payment', 'as' => 'user.card.'], function() {
+        Route::get('/billing/card-success', [PaymentCardDetails::class, 'cardSuccess'])->name('save');
+        Route::get('/save/card', [PaymentCardDetails::class, 'cardIndex'])->name('index');
     });
     
     // Claims Routes

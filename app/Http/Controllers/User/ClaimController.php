@@ -11,6 +11,7 @@ use App\Models\ClaimStatusHistory;
 use App\Models\InfluencerCommission;
 use App\Models\GeneralSetting;
 use App\Models\User;
+use Stripe\Stripe;
 use Illuminate\Support\Facades\Auth;
 use App\CentralLogics\Helpers;
 use Carbon\Carbon;
@@ -24,6 +25,11 @@ class ClaimController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+    public function __construct() {
+        Stripe::setApiKey(config('services.stripe.secret'));
+    }
+
     public function index()
     {
         $claims = Auth::user()->claims()->orderBy('created_at', 'desc')->paginate(10);
@@ -56,7 +62,45 @@ class ClaimController extends Controller
      */
     public function store(Request $request)
     {
-        // Validate request
+        $user = auth()->user();
+        if (!$user) {
+            return redirect()->route('login')->with('error', 'Please login first.');
+        }
+
+        // Check if user has payment method saved
+        if (!$user->stripe_payment_method_id) {
+            
+            // Create or get Stripe customer
+            if (!$user->stripe_customer_id) {
+                $customer = \Stripe\Customer::create([
+                    'email' => $user->email,
+                    'name' => $user->name,
+                    'metadata' => [
+                        'user_id' => $user->id
+                    ]
+                ]);
+
+                $user->update([
+                    'stripe_customer_id' => $customer->id
+                ]);
+            }
+
+            // Create setup intent for saving payment method
+            $setupIntent = \Stripe\SetupIntent::create([
+                'customer' => $user->stripe_customer_id,
+                'payment_method_types' => ['card'],
+                'metadata' => [
+                    'user_id' => $user->id,
+                    'action' => 'save_payment_method'
+                ]
+            ]);
+
+            return view('user.card-info.add-card', [
+                'clientSecret' => $setupIntent->client_secret,
+                'setupIntentId' => $setupIntent->id
+            ]);
+        }
+        
         $validated = $request->validate([
             'title' => 'required|string|max:191',
             'description' => 'required|string',

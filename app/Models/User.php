@@ -51,6 +51,8 @@ class User extends Authenticatable
         'is_email_verified',
         'survey_answer',
         'survey_completed',
+        'stripe_customer_id',
+        'stripe_payment_method_id',
         // 'language',
         'tags','about','coaching_services','faqs','price'
     ];
@@ -403,5 +405,36 @@ class User extends Authenticatable
     public function unreadNotifications()
     {
         return $this->notifications()->where('is_read', false);
+    }
+    public function createSetupIntent()
+    {
+        if (!$this->stripe_payment_method_id) {
+            
+            // Create or get Stripe customer
+            if (!$this->stripe_customer_id) {
+                $customer = \Stripe\Customer::create([
+                    'email' => $this->email,
+                    'name' => $this->name,
+                    'metadata' => [
+                        'user_id' => $this->id
+                    ]
+                ]);
+
+                $this->update([
+                    'stripe_customer_id' => $customer->id
+                ]);
+            }
+
+            // Create setup intent for saving payment method
+            $setupIntent = \Stripe\SetupIntent::create([
+                'customer' => $this->stripe_customer_id,
+                'payment_method_types' => ['card'],
+                'metadata' => [
+                    'user_id' => $this->id,
+                    'action' => 'save_payment_method'
+                ]
+            ]);
+            return $setupIntent;
+        }
     }
 }

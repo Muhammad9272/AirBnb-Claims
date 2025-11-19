@@ -150,10 +150,11 @@ class SubscriptionController extends Controller
             ]);
             
             // Create one-time payment session (not recurring subscription)
-            $checkout_session = Session::create([
+            $checkout_session = \Stripe\Checkout\Session::create([
                 'payment_method_types' => ['card'],
                 'customer_email' => $user->email,
                 'client_reference_id' => $user->id,
+                'saved_payment_method_options' => ['payment_method_save' => 'enabled'],
                 'line_items' => [
                     [
                         'price_data' => [
@@ -169,14 +170,18 @@ class SubscriptionController extends Controller
                     ],
                 ],
                 'mode' => 'subscription',
+                'subscription_data' => [
+                    'metadata' => [
+                        'plan_slug' => $plan->slug,
+                        'user_id' => $user->id,
+                        'subscription_id' => $subscription->id,
+                    ],
+                    'default_payment_method' => null, 
+                ],
                 'success_url' => route('subscription.success') . '?session_id={CHECKOUT_SESSION_ID}',
                 'cancel_url' => route('subscription.cancel'),
-                'metadata' => [
-                    'plan_slug' => $plan->slug,
-                    'user_id' => $user->id,
-                    'subscription_id' => $subscription->id,
-                ],
             ]);
+
             
             $subscription->transaction_id = $checkout_session->id;
             $subscription->save();

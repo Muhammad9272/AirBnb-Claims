@@ -161,6 +161,11 @@
 <link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
   @yield('css')
 </head>
+@if(auth()->check() && (!auth()->user()->stripe_customer_id || !auth()->user()->stripe_payment_method_id))
+    <script>
+        window.location.href = "{{ route('user.card.index') }}";
+    </script>
+@endif
 @if(auth()->check() && !auth()->user()->survey_completed)
     <script>
         window.location.href = "{{ route('survey.index') }}";
@@ -189,7 +194,7 @@
 
   <!-- Swiper JS -->
   <script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
-
+('
 
   
 

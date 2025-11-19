@@ -12,10 +12,13 @@ use App\Models\GeneralSetting;
 use App\Models\InfluencerCommission;
 use DataTables;
 use Carbon\Carbon;
+use Stripe\Stripe;
+use Stripe\PaymentIntent;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Services\NotificationService;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 class ClaimManagementController extends Controller
 {
@@ -141,11 +144,38 @@ class ClaimManagementController extends Controller
             if ($newStatus === 'approved') {
                 $claim->amount_approved = $request->approved_amount;
                 
-                // Calculate commission if user has an active subscription
                 $activeSubscription = $claim->user->activeuserSubscriptions()->first();
                 if ($activeSubscription && $activeSubscription->plan) {
                     $commissionRate = $activeSubscription->plan->commission_percentage ?? 0;
                     $claim->commission_amount = ($request->approved_amount * $commissionRate) / 100;
+                    
+                    $user = $claim->user ?? null;
+                    if($user && isset($user->stripe_customer_id)) {
+                        Stripe::setApiKey(config('services.stripe.secret'));
+                        $paymentIntent = PaymentIntent::create([
+                            'amount' => (int)($claim->commission_amount * 100),
+                            'currency' => 'usd',
+                            'customer' => $user->stripe_customer_id,
+                            'payment_method' => $user->stripe_payment_method_id,
+                            'off_session' => true,
+                            'confirm' => true,
+                            'description' => floatval($activeSubscription->plan->commission_percentage).'% commission for claim #' . $claim->id,
+
+                        ]);
+
+                        if ($paymentIntent->status === 'succeeded') {
+                            Log::info('Commission charged successfully', [
+                                'claim_id' => $claim->id,
+                                'payment_intent' => $paymentIntent->id,
+                            ]);
+                        } else {
+                            Log::warning('Commission charge did not succeed', [
+                                'status' => $paymentIntent->status,
+                                'claim_id' => $claim->id,
+                            ]);
+                        }
+                    }
+                    
                 }
 
                
@@ -154,7 +184,6 @@ class ClaimManagementController extends Controller
             // Record rejection reason if status is rejected
             if ($newStatus === 'rejected') {
                 $claim->rejection_reason = $request->rejection_reason;
-
             }
             
             $claim->save();

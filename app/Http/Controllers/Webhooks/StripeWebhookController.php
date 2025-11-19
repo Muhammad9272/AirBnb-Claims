@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Stripe\Stripe;
 use Stripe\Webhook;
+use Illuminate\Support\Facades\Auth;
 use Stripe\Exception\SignatureVerificationException;
 use UnexpectedValueException;
 use Carbon\Carbon;
@@ -29,7 +30,6 @@ class StripeWebhookController extends Controller
 
         try {
             $payload = $request->getContent();
-            
             // Log the first 500 characters of payload to verify content
             Log::info('Payload sample: ' . substr($payload, 0, 500) . (strlen($payload) > 500 ? '...' : ''));
             
@@ -73,7 +73,7 @@ class StripeWebhookController extends Controller
                 }
             }
 
-            Log::info('Stripe webhook received: ' . $eventObj->type);
+            // Log::info('Stripe webhook received: ' . $eventObj->type);
 
             // Handle the event
             switch ($eventObj->type) {
@@ -100,6 +100,9 @@ class StripeWebhookController extends Controller
                 case 'invoice.payment_failed':
                     $this->handleInvoicePaymentFailed($eventObj->data->object);
                     break;
+                case 'setup_intent.succeeded':
+                    $this->handleCardSetupIntent($eventObj->data->object);
+                    break;
                     
                 default:
                     Log::info('Unhandled Stripe event: ' . $eventObj->type);
@@ -121,23 +124,56 @@ class StripeWebhookController extends Controller
 
     private function handleCheckoutSessionCompleted($session)
     {
-        Log::info('Checkout session completed: ' . $session->id);
+        Log::info('Checkout session completed', [
+            'session_id' => $session->id,
+            'mode' => $session->mode,
+            'customer' => $session->customer ?? null,
+            'subscription' => $session->subscription ?? null,
+        ]);
 
-        // For subscription mode, we'll get a subscription ID
+        // For subscription-based sessions
         if ($session->mode === 'subscription' && isset($session->subscription)) {
-            // The subscription is now active, but we'll update details in the subscription.created event
-            Log::info('Subscription created in checkout: ' . $session->subscription);
-            
-            // Find the subscription by transaction ID
+            Log::info('Processing subscription checkout', [
+                'subscription_id' => $session->subscription
+            ]);
+
+            // Retrieve subscription details from Stripe
+            \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
+            $stripeSubscription = \Stripe\Subscription::retrieve($session->subscription);
+            $defaultPaymentMethod = $stripeSubscription->default_payment_method ?? null;
+
+            // Update local record
             $subscription = UserSubscription::where('transaction_id', $session->id)->first();
+
             if ($subscription) {
                 $subscription->stripe_id = $session->subscription;
+                $subscription->status = 'active';
                 $subscription->save();
+
+                // Also save card + customer on user for later commission charges
+                $user = $subscription->user;
+                if ($user) {
+                    $user->update([
+                        'stripe_customer_id' => $session->customer,
+                        'stripe_payment_method_id' => $defaultPaymentMethod,
+                    ]);
+                }
+
+                Log::info('Subscription linked & user updated', [
+                    'local_subscription_id' => $subscription->id,
+                    'stripe_subscription_id' => $session->subscription,
+                    'stripe_customer_id' => $session->customer,
+                    'default_payment_method' => $defaultPaymentMethod,
+                ]);
+            } else {
+                Log::warning('No local subscription found for checkout session', [
+                    'session_id' => $session->id,
+                ]);
             }
-        } 
-        // For one-time payments (if you still support them)
+        }
+
+        // For one-time payments
         else if ($session->mode === 'payment') {
-            // Find the subscription by transaction ID
             $subscription = UserSubscription::where('transaction_id', $session->id)
                 ->where('status', 'pending')
                 ->first();
@@ -145,11 +181,14 @@ class StripeWebhookController extends Controller
             if ($subscription) {
                 $subscription->status = 'active';
                 $subscription->save();
-                
-                Log::info('One-time payment subscription activated: ' . $subscription->id);
+
+                Log::info('One-time payment subscription activated', [
+                    'subscription_id' => $subscription->id,
+                ]);
             }
         }
     }
+
 
     private function handleSubscriptionCreated($stripeSubscription)
     {
@@ -233,6 +272,25 @@ class StripeWebhookController extends Controller
             // Here you could implement notification logic to alert the customer
         }
     }
+    public function handleCardSetupIntent($event)
+    {
+        Log::info('SetupIntent received:', (array) $event);
+        if(!isset($event->customer) || !isset($event->payment_method)) {
+            Log::warning('SetupIntent missing customer or payment_method:', (array) $event);
+            return;
+        }
+        $customerId = $event->customer;
+        $paymentMethod = $event->payment_method;
+        $user = User::where('stripe_customer_id', $customerId)->first();
+
+        if ($user) {
+            $user->update([
+                'stripe_payment_method_id' => $paymentMethod
+            ]);
+            Log::info("Saved card for user {$user->id}");
+        }
+    }
+
 
     /**
      * Update subscription details from Stripe subscription object
