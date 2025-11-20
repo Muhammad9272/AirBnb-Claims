@@ -69,8 +69,8 @@
                 <h1 class="text-4xl font-bold text-gray-800 mb-3">
                     Add Payment Method
                 </h1>
-                <p class="text-xl text-gray-600">
-                    Securely save your payment information
+                <p class="lg:text-lg sm:text-sm text-gray-600">
+                    Securely save your payment information to proceed!
                 </p>
             </div>
 
@@ -117,14 +117,14 @@
                     </button>
 
                     <!-- Back Link -->
-                    <p class="text-center text-sm text-gray-600">
+                    <!-- <p class="text-center text-sm text-gray-600">
                         <a 
                             href="{{ route('user.dashboard') }}" 
                             class="text-accent hover:text-accent-light font-medium transition duration-200"
                         >
                             ← Back to Dashboard
                         </a>
-                    </p>
+                    </p> -->
 
                     <!-- Security Badge -->
                     <div class="flex items-center justify-center gap-2 text-xs text-gray-600 pt-4 border-t border-gray-200">
