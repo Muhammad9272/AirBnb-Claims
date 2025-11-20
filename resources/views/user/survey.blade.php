@@ -68,9 +68,9 @@
                 <h1 class="text-4xl font-bold text-gray-800 mb-3">
                     How did you hear about us?
                 </h1>
-                <p class="text-xl text-gray-600">
+                <!-- <p class="text-xl text-gray-600">
                     We'd love to know how you discovered ClaimPilot+
-                </p>
+                </p> -->
             </div>
 
             <!-- Survey Card -->
@@ -138,14 +138,14 @@
                     </button>
 
                     <!-- Skip Link -->
-                    <p class="text-center text-sm text-gray-600">
+                    <!-- <p class="text-center text-sm text-gray-600">
                         <a 
                             href="{{ route('user.dashboard') }}" 
                             class="text-accent hover:text-accent-light font-medium transition duration-200"
                         >
                             ← Back to Dashboard
                         </a>
-                    </p>
+                    </p> -->
                 </form>
             </div>
         </div>
