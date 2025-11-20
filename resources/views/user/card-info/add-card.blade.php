@@ -15,182 +15,97 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            background: #f8fafc;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
-            position: relative;
-        }
-
-        /* Animated background particles */
-        .bg-particle {
-            position: absolute;
-            border-radius: 50%;
-            background: rgba(99, 102, 241, 0.1);
-            animation: float 20s infinite;
-        }
-
-        .bg-particle:nth-child(1) {
-            width: 300px;
-            height: 300px;
-            top: -150px;
-            left: -150px;
-            animation-delay: 0s;
-        }
-
-        .bg-particle:nth-child(2) {
-            width: 200px;
-            height: 200px;
-            bottom: -100px;
-            right: -100px;
-            animation-delay: 5s;
-        }
-
-        .bg-particle:nth-child(3) {
-            width: 250px;
-            height: 250px;
-            top: 50%;
-            right: -125px;
-            animation-delay: 10s;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            33% { transform: translate(30px, -30px) scale(1.1); }
-            66% { transform: translate(-20px, 20px) scale(0.9); }
         }
 
         .container-main {
-            max-width: 500px;
+            max-width: 450px;
             width: 100%;
-            position: relative;
-            z-index: 1;
         }
 
         .card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 24px;
+            background: white;
+            border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            animation: slideUp 0.6s ease-out;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         }
 
         .card-header {
-            background: linear-gradient(135deg, #6366f1, #8b5cf6);
-            padding: 40px 32px;
-            color: white;
+            background: white;
+            padding: 32px 28px;
+            border-bottom: 1px solid #e2e8f0;
         }
 
         .card-header h1 {
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 700;
-            margin-bottom: 8px;
+            color: #1e293b;
+            margin-bottom: 6px;
         }
 
         .card-header p {
             font-size: 14px;
-            opacity: 0.9;
+            color: #64748b;
         }
 
         .card-body {
-            padding: 40px 32px;
+            padding: 32px 28px;
         }
 
         .payment-element-wrapper {
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
 
         #payment-element {
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
 
         .error-message {
             display: none;
-            padding: 16px;
+            padding: 12px 16px;
             background: #fee2e2;
             border: 1px solid #fecaca;
-            border-radius: 12px;
+            border-radius: 8px;
             color: #dc2626;
             font-size: 14px;
-            margin-bottom: 24px;
-            animation: shake 0.3s ease;
+            margin-bottom: 20px;
         }
 
         .error-message.show {
             display: block;
         }
 
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
-        }
-
         .submit-btn {
             width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            padding: 12px 16px;
+            background: #2563eb;
             color: white;
             border: none;
-            border-radius: 12px;
-            font-size: 16px;
+            border-radius: 8px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            margin-bottom: 16px;
-        }
-
-        .submit-btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-
-        .submit-btn:hover::before {
-            width: 300px;
-            height: 300px;
+            transition: all 0.2s ease;
+            margin-bottom: 12px;
         }
 
         .submit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+            background: #1d4ed8;
         }
 
         .submit-btn:active {
-            transform: translateY(0);
+            transform: scale(0.98);
         }
 
         .submit-btn:disabled {
-            opacity: 0.7;
+            opacity: 0.6;
             cursor: not-allowed;
-        }
-
-        .submit-btn span {
-            position: relative;
-            z-index: 1;
         }
 
         .skip-link {
@@ -199,41 +114,44 @@
             color: #64748b;
             text-decoration: none;
             font-size: 14px;
-            transition: color 0.3s ease;
+            transition: color 0.2s ease;
+            margin-bottom: 16px;
         }
 
         .skip-link:hover {
-            color: #334155;
+            color: #475569;
         }
 
         .info-box {
             background: #f0f9ff;
-            border-left: 4px solid #0284c7;
-            padding: 16px;
-            border-radius: 8px;
-            margin-bottom: 24px;
-            font-size: 14px;
+            border-left: 3px solid #0284c7;
+            padding: 12px 14px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 13px;
             color: #0c4a6e;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
         }
 
         .info-box svg {
-            display: inline;
             width: 18px;
             height: 18px;
-            margin-right: 8px;
-            vertical-align: middle;
+            flex-shrink: 0;
+            margin-top: 1px;
         }
 
         .security-badge {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
             font-size: 12px;
-            color: #6b7280;
-            margin-top: 16px;
-            padding-top: 16px;
-            border-top: 1px solid #e5e7eb;
+            color: #64748b;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e2e8f0;
         }
 
         .security-badge svg {
@@ -244,29 +162,25 @@
 
         @media (max-width: 640px) {
             .card-header {
-                padding: 32px 24px;
+                padding: 24px 20px;
             }
 
             .card-body {
-                padding: 32px 24px;
+                padding: 24px 20px;
             }
 
             .card-header h1 {
-                font-size: 24px;
+                font-size: 20px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="bg-particle"></div>
-    <div class="bg-particle"></div>
-    <div class="bg-particle"></div>
-
     <div class="container-main">
         <div class="card">
             <div class="card-header">
-                <h1>💳 Save Payment Method</h1>
-                <p>Secure payment processing with Stripe</p>
+                <h1>Save Payment Method</h1>
+                <p>Securely add a payment method to your account</p>
             </div>
 
             <div class="card-body">
@@ -274,7 +188,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    We need your payment method to process claims quickly and securely.
+                    <span>Your payment method will be securely stored and used to process claims.</span>
                 </div>
 
                 <form id="payment-form">
@@ -288,7 +202,7 @@
                         id="submit-btn" 
                         type="submit" 
                         class="submit-btn">
-                        <span>Save Payment Method</span>
+                        Save Payment Method
                     </button>
 
                     <a href="{{ route('user.dashboard') }}" class="skip-link">
@@ -322,7 +236,7 @@
         form.addEventListener("submit", async (e) => {
             e.preventDefault();
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span>Processing...</span>';
+            submitBtn.textContent = "Processing...";
             errorMessage.classList.remove("show");
 
             try {
@@ -337,13 +251,13 @@
                     errorMessage.textContent = error.message;
                     errorMessage.classList.add("show");
                     submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<span>Save Payment Method</span>';
+                    submitBtn.textContent = "Save Payment Method";
                 }
             } catch (err) {
                 errorMessage.textContent = "An error occurred. Please try again.";
                 errorMessage.classList.add("show");
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '<span>Save Payment Method</span>';
+                submitBtn.textContent = "Save Payment Method";
             }
         });
     </script>

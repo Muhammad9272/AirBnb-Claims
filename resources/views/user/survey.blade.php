@@ -13,122 +13,65 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            background: #f8fafc;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
-            position: relative;
-        }
-
-        /* Animated background particles */
-        .bg-particle {
-            position: absolute;
-            border-radius: 50%;
-            background: rgba(139, 92, 246, 0.1);
-            animation: float 20s infinite;
-        }
-
-        .bg-particle:nth-child(1) {
-            width: 300px;
-            height: 300px;
-            top: -150px;
-            left: -150px;
-            animation-delay: 0s;
-        }
-
-        .bg-particle:nth-child(2) {
-            width: 200px;
-            height: 200px;
-            bottom: -100px;
-            right: -100px;
-            animation-delay: 5s;
-        }
-
-        .bg-particle:nth-child(3) {
-            width: 250px;
-            height: 250px;
-            top: 50%;
-            right: -125px;
-            animation-delay: 10s;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            33% { transform: translate(30px, -30px) scale(1.1); }
-            66% { transform: translate(-20px, 20px) scale(0.9); }
+            padding: 16px;
         }
 
         .container {
-            max-width: 600px;
+            max-width: 500px;
             width: 100%;
-            position: relative;
-            z-index: 1;
         }
 
         .card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 24px;
-            padding: 48px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            animation: slideUp 0.6s ease-out;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         }
 
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .logo {
-            text-align: center;
-            margin-bottom: 32px;
+        .card-header {
+            background: white;
+            padding: 28px 24px;
+            border-bottom: 1px solid #e2e8f0;
         }
 
         .logo-text {
-            color: #6366f1;
-            font-size: 24px;
+            color: #2563eb;
+            font-size: 12px;
             font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .logo-icon {
-            width: 32px;
-            height: 32px;
-            background: linear-gradient(135deg, #6366f1, #8b5cf6);
-            border-radius: 8px;
-            display: inline-block;
-        }
-
-        h2 {
-            font-size: 28px;
-            font-weight: 700;
-            text-align: center;
-            color: #1e293b;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
             margin-bottom: 12px;
         }
 
+        h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 6px;
+            line-height: 1.3;
+        }
+
         .subtitle {
-            text-align: center;
             color: #64748b;
-            font-size: 16px;
-            margin-bottom: 32px;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .card-body {
+            padding: 28px 24px;
         }
 
         .options-container {
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            margin-bottom: 32px;
+            gap: 8px;
+            margin-bottom: 24px;
         }
 
         .option-wrapper {
@@ -137,36 +80,20 @@
 
         .option-label {
             display: flex;
-            align-items: center;
-            padding: 18px 20px;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
+            align-items: flex-start;
+            padding: 14px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             background: white;
             position: relative;
-            overflow: hidden;
-        }
-
-        .option-label::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 0;
-            height: 100%;
-            background: linear-gradient(90deg, rgba(99, 102, 241, 0.05), rgba(139, 92, 246, 0.05));
-            transition: width 0.3s ease;
-            z-index: 0;
-        }
-
-        .option-label:hover::before {
-            width: 100%;
+            gap: 12px;
         }
 
         .option-label:hover {
-            border-color: #a5b4fc;
-            transform: translateX(4px);
+            border-color: #cbd5e1;
+            background: #f8fafc;
         }
 
         .option-input {
@@ -174,14 +101,13 @@
         }
 
         .option-input:checked + .option-label {
-            border-color: #6366f1;
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+            border-color: #2563eb;
+            background: #eff6ff;
         }
 
         .option-input:checked + .option-label .radio-custom {
-            border-color: #6366f1;
-            background: #6366f1;
+            border-color: #2563eb;
+            background: #2563eb;
         }
 
         .option-input:checked + .option-label .radio-custom::after {
@@ -190,126 +116,107 @@
         }
 
         .radio-custom {
-            width: 24px;
-            height: 24px;
+            width: 20px;
+            height: 20px;
             border: 2px solid #cbd5e1;
             border-radius: 50%;
-            margin-right: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             flex-shrink: 0;
             position: relative;
-            z-index: 1;
+            margin-top: 2px;
         }
 
         .radio-custom::after {
             content: '';
-            width: 10px;
-            height: 10px;
+            width: 8px;
+            height: 8px;
             background: white;
             border-radius: 50%;
             opacity: 0;
             transform: scale(0);
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
         }
 
         .option-text {
             color: #334155;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 500;
-            position: relative;
-            z-index: 1;
+            flex: 1;
+            line-height: 1.4;
+            word-break: break-word;
         }
 
         .other-input-wrapper {
-            margin-top: 12px;
-            padding-left: 40px;
+            margin-top: 8px;
+            padding-left: 44px;
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.3s ease;
+            transition: max-height 0.2s ease;
         }
 
         .other-input-wrapper.show {
-            max-height: 100px;
+            max-height: 120px;
         }
 
         .other-input {
             width: 100%;
-            padding: 12px 16px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 15px;
-            transition: all 0.3s ease;
+            padding: 10px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 13px;
+            transition: all 0.2s ease;
             font-family: inherit;
+        }
+
+        .other-input::placeholder {
+            color: #94a3b8;
         }
 
         .other-input:focus {
             outline: none;
-            border-color: #6366f1;
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            border-color: #2563eb;
+            background: #eff6ff;
         }
 
         .error-message {
-            color: #ef4444;
-            font-size: 14px;
-            margin-top: 8px;
+            color: #dc2626;
+            font-size: 12px;
+            margin-bottom: 20px;
+            padding: 10px 12px;
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+            border-radius: 6px;
             display: none;
-            animation: shake 0.3s ease;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
         }
 
         .submit-btn {
             width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            padding: 12px 16px;
+            background: #2563eb;
             color: white;
             border: none;
-            border-radius: 12px;
-            font-size: 18px;
+            border-radius: 8px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .submit-btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-
-        .submit-btn:hover::before {
-            width: 300px;
-            height: 300px;
+            transition: all 0.2s ease;
+            margin-bottom: 12px;
         }
 
         .submit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+            background: #1d4ed8;
         }
 
         .submit-btn:active {
-            transform: translateY(0);
+            transform: scale(0.98);
         }
 
-        .submit-btn span {
-            position: relative;
-            z-index: 1;
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
         .success-message {
@@ -318,13 +225,15 @@
             left: 50%;
             transform: translate(-50%, -50%) scale(0);
             background: white;
-            padding: 48px;
-            border-radius: 24px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 36px 28px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
             text-align: center;
             z-index: 1000;
             opacity: 0;
-            transition: all 0.4s ease;
+            transition: all 0.3s ease;
+            max-width: 90%;
         }
 
         .success-message.show {
@@ -333,100 +242,194 @@
         }
 
         .success-icon {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            width: 56px;
+            height: 56px;
+            background: #dbeafe;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 24px;
-            animation: successBounce 0.6s ease;
-        }
-
-        @keyframes successBounce {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+            margin: 0 auto 16px;
         }
 
         .success-icon::after {
             content: '✓';
-            color: white;
-            font-size: 48px;
+            color: #2563eb;
+            font-size: 28px;
             font-weight: bold;
         }
 
         .success-message h3 {
             color: #1e293b;
-            font-size: 24px;
-            margin-bottom: 12px;
+            font-size: 18px;
+            margin-bottom: 6px;
         }
 
         .success-message p {
             color: #64748b;
-            font-size: 16px;
+            font-size: 13px;
         }
 
-        @media (max-width: 640px) {
-            .card {
-                padding: 32px 24px;
+        @media (max-width: 480px) {
+            body {
+                padding: 12px;
+            }
+
+            .card-header {
+                padding: 24px 20px;
+            }
+
+            .card-body {
+                padding: 24px 20px;
+            }
+
+            .logo-text {
+                font-size: 11px;
+                margin-bottom: 10px;
             }
 
             h2 {
-                font-size: 24px;
+                font-size: 18px;
+                margin-bottom: 4px;
+            }
+
+            .subtitle {
+                font-size: 12px;
+            }
+
+            .options-container {
+                gap: 6px;
+                margin-bottom: 20px;
             }
 
             .option-label {
-                padding: 14px 16px;
+                padding: 12px 14px;
+                gap: 10px;
+            }
+
+            .radio-custom {
+                width: 18px;
+                height: 18px;
+                min-width: 18px;
+            }
+
+            .option-text {
+                font-size: 13px;
+            }
+
+            .other-input-wrapper {
+                padding-left: 40px;
+            }
+
+            .submit-btn {
+                font-size: 13px;
+                padding: 11px 14px;
+            }
+
+            .error-message {
+                font-size: 11px;
+                padding: 8px 10px;
+            }
+
+            .success-message {
+                padding: 28px 20px;
+                border-radius: 10px;
+            }
+
+            .success-icon {
+                width: 48px;
+                height: 48px;
+                margin: 0 auto 12px;
+            }
+
+            .success-icon::after {
+                font-size: 24px;
+            }
+
+            .success-message h3 {
+                font-size: 16px;
+            }
+
+            .success-message p {
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .container {
+                width: 100%;
+            }
+
+            .card-header {
+                padding: 20px 16px;
+            }
+
+            .card-body {
+                padding: 20px 16px;
+            }
+
+            h2 {
+                font-size: 16px;
+            }
+
+            .option-label {
+                padding: 11px 12px;
+            }
+
+            .radio-custom {
+                width: 18px;
+                height: 18px;
+            }
+
+            .option-text {
+                font-size: 12px;
+            }
+
+            .other-input {
+                font-size: 12px;
+                padding: 8px 10px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="bg-particle"></div>
-    <div class="bg-particle"></div>
-    <div class="bg-particle"></div>
-
     <div class="container">
         <div class="card">
-            <div class="logo">
-                <div class="logo-text">
-                    <span class="logo-icon"></span>
-                    CLAIM PILOT+
-                </div>
+            <div class="card-header">
+                <div class="logo-text">ClaimPilot+</div>
+                <h2>How did you hear about us?</h2>
+                <p class="subtitle">We'd love to know how you discovered ClaimPilot+</p>
             </div>
 
-            <h2>How did you hear about us?</h2>
-            <p class="subtitle">We'd love to know how you discovered ClaimPilot+</p>
-
-            <form id="surveyForm" method="POST" action="{{ route('survey.submit') }}">
-                @csrf
-                <div class="options-container">
-                    <!-- Dynamic options will be rendered here from backend -->
-                    @foreach($options as $option)
-                    <div class="option-wrapper">
-                        <input type="radio" name="survey_option" value="{{ $option->id }}" id="option{{ $option->id }}" class="option-input" data-text="{{ strtolower($option->option_text) }}" required>
-                        <label for="option{{ $option->id }}" class="option-label">
-                            <span class="radio-custom"></span>
-                            <span class="option-text">{{ $option->option_text }}</span>
-                        </label>
-                        @if(strtolower($option->option_text) === 'other')
-                        <div class="other-input-wrapper" id="otherInputWrapper{{ $option->id }}">
-                            <input type="text" class="other-input" id="otherInput{{ $option->id }}" name="other_text" placeholder="Please specify...">
+            <div class="card-body">
+                <form id="surveyForm" method="POST" action="{{ route('survey.submit') }}">
+                    @csrf
+                    <div class="options-container">
+                        @foreach($options as $option)
+                        <div class="option-wrapper">
+                            <input type="radio" name="survey_option" value="{{ $option->id }}" id="option{{ $option->id }}" class="option-input" data-text="{{ strtolower($option->option_text) }}" required>
+                            <label for="option{{ $option->id }}" class="option-label">
+                                <span class="radio-custom"></span>
+                                <span class="option-text">{{ $option->option_text }}</span>
+                            </label>
+                            @if(strtolower($option->option_text) === 'other')
+                            <div class="other-input-wrapper" id="otherInputWrapper{{ $option->id }}">
+                                <input type="text" class="other-input" id="otherInput{{ $option->id }}" name="other_text" placeholder="Please specify...">
+                            </div>
+                            @endif
                         </div>
-                        @endif
+                        @endforeach
                     </div>
-                    @endforeach
-                </div>
 
-                <div class="error-message" id="errorMessage" style="display:none;">
-                    Please select an option before submitting
-                </div>
+                    <div class="error-message" id="errorMessage">
+                        Please select an option before submitting
+                    </div>
 
-                <button type="submit" class="submit-btn">
-                    <span>Submit Response</span>
-                </button>
-            </form>
+                    <button type="submit" class="submit-btn">
+                        Submit Response
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -477,7 +480,7 @@
                 const otherInput = document.getElementById('otherInput' + optionId);
                 if (otherInput && !otherInput.value.trim()) {
                     otherInput.focus();
-                    otherInput.style.borderColor = '#ef4444';
+                    otherInput.style.borderColor = '#dc2626';
                     setTimeout(() => {
                         otherInput.style.borderColor = '#e2e8f0';
                     }, 2000);
