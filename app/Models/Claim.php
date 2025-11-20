@@ -18,6 +18,8 @@ class Claim extends Model
         'amount_requested',
         'amount_approved',
         'commission_amount',
+        'is_commission_paid',
+        'payment_id',
         'check_in_date',
         'check_out_date',
         'status',
@@ -37,6 +39,7 @@ class Claim extends Model
         'amount_requested' => 'decimal:2',
         'amount_approved' => 'decimal:2',
         'commission_amount' => 'decimal:2',
+        'is_commission_paid' => 'boolean',
     ];
 
     /**

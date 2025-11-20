@@ -137,10 +137,7 @@ class ClaimManagementController extends Controller
         DB::beginTransaction();
         
         try {
-            // Update claim status
             $claim->status = $newStatus;
-            
-            // Update approved amount if status is approved
             if ($newStatus === 'approved') {
                 $claim->amount_approved = $request->approved_amount;
                 
@@ -149,51 +146,70 @@ class ClaimManagementController extends Controller
                     $commissionRate = $activeSubscription->plan->commission_percentage ?? 0;
                     $claim->commission_amount = ($request->approved_amount * $commissionRate) / 100;
                     
-                    $user = $claim->user ?? null;
-                    if($user && isset($user->stripe_customer_id)) {
-                        Stripe::setApiKey(config('services.stripe.secret'));
-                        $paymentIntent = PaymentIntent::create([
-                            'amount' => (int)($claim->commission_amount * 100),
-                            'currency' => 'usd',
-                            'customer' => $user->stripe_customer_id,
-                            'payment_method' => $user->stripe_payment_method_id,
-                            'off_session' => true,
-                            'confirm' => true,
-                            'description' => floatval($activeSubscription->plan->commission_percentage).'% commission for claim #' . $claim->id,
-
-                        ]);
-
-                        if ($paymentIntent->status === 'succeeded') {
-                            Log::info('Commission charged successfully', [
-                                'claim_id' => $claim->id,
-                                'payment_intent' => $paymentIntent->id,
-                            ]);
-                        } else {
-                            Log::warning('Commission charge did not succeed', [
-                                'status' => $paymentIntent->status,
-                                'claim_id' => $claim->id,
-                            ]);
-                        }
-                    }
+                    $isCommissionAlreadyPaid = $claim->is_commission_paid && $claim->payment_id;
                     
-                }
+                    if (!$isCommissionAlreadyPaid) {
+                        $user = User::find($claim->user_id);
+                        if($user && isset($user->stripe_customer_id)) {
+                            Stripe::setApiKey(config('services.stripe.secret'));
+                           
+                            try {
+                                $paymentIntent = PaymentIntent::create([
+                                    'amount' => (int)($claim->commission_amount * 100),
+                                    'currency' => 'usd',
+                                    'customer' => $user->stripe_customer_id,
+                                    'payment_method' => $user->stripe_payment_method_id,
+                                    'off_session' => true,
+                                    'confirm' => true,
+                                    'description' => floatval($activeSubscription->plan->commission_percentage).'% commission for claim #' . $claim->id,
+                                ]);
 
-               
+                                if ($paymentIntent->status === 'succeeded') {
+                                    $claim->is_commission_paid = true;
+                                    $claim->payment_id = $paymentIntent->id;
+                                    
+                                    Log::info('Commission charged successfully', [
+                                        'claim_id' => $claim->id,
+                                        'payment_intent' => $paymentIntent->id,
+                                        'amount' => $claim->commission_amount,
+                                    ]);
+                                }
+                            } catch (\Exception $paymentException) {
+                                $errorMessage = $paymentException->getMessage();
+                                Log::error('Commission payment failed', [
+                                    'claim_id' => $claim->id,
+                                    'error' => $errorMessage,
+                                    'user_id' => $user->id,
+                                ]);
+                                $user->update([
+                                    'stripe_payment_method_id' => null
+                                ]);
+                                DB::commit();
+                                return redirect()->back()->with('error', 'User Payment card is invalid or has been declined.');
+                            }
+                        }
+                    } else {
+                        Log::info('Commission already paid - skipping charge', [
+                            'claim_id' => $claim->id,
+                            'payment_id' => $claim->payment_id,
+                            'amount' => $claim->commission_amount,
+                        ]);
+                    }
+                }
             }
-            
-            // Record rejection reason if status is rejected
+
             if ($newStatus === 'rejected') {
                 $claim->rejection_reason = $request->rejection_reason;
+                $claim->is_commission_paid = false;
+                $claim->payment_id = null;
             }
             
             $claim->save();
-            if($newStatus === 'approved' || $newStatus === 'rejected' ){
+            
+            if($newStatus === 'approved' || $newStatus === 'rejected'){
                 // Update influencer commission based on new status
                 $this->updateInfluencerCommission($claim, $newStatus);
             }
-            
-
-            
             
             // Add status history
             ClaimStatusHistory::create([
@@ -224,6 +240,11 @@ class ClaimManagementController extends Controller
             return redirect()->back()->with('success', 'Claim status updated successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error('Failed to update claim status', [
+                'claim_id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return redirect()->back()->with('error', 'Failed to update claim status. ' . $e->getMessage());
         }
     }
@@ -445,7 +466,6 @@ class ClaimManagementController extends Controller
                     return;
                 }
 
-                // RE-VALIDATE: Check if claim approval is within commission duration from CLAIM CREATION DATE
                 if ($gs->influencer_commission_duration_days) {
                     $claimCreationDate = $claim->created_at;
                     $commissionEndDate = $claimCreationDate->copy()->addDays($gs->influencer_commission_duration_days);
