@@ -51,7 +51,7 @@
                         <p class="text-gray-700">You can now start using our service to manage your Airbnb claims.</p>
                         
                         <div class="flex flex-col md:flex-row gap-4 justify-center">
-                            <a href="{{ route('user.claims.create') }}" class="inline-flex items-center justify-center px-5 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-accent hover:bg-accent-dark">
+                            <a onclick="openEvidenceModal()" class="inline-flex items-center justify-center px-5 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-accent hover:bg-accent-dark cursor-pointer">
                                 <i class="fas fa-file-invoice mr-2"></i> Create Your First Claim
                             </a>
                             
@@ -65,4 +65,5 @@
         </div>
     </div>
 </div>
+@include('user.partials.evidence-requirements-modal')
 @endsection

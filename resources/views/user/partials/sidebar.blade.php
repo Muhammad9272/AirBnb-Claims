@@ -60,7 +60,11 @@
             </a>
 
             <!-- Create New Claim -->
-            <a href="{{ route('user.claims.create') }}" class="flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 hover:bg-green-50 hover:text-green-600 {{ request()->routeIs('user.claims.create') ? 'bg-green-50 text-green-600 border-r-4 border-green-600' : 'text-gray-600 hover:text-green-600' }}">
+            <a href="{{ Route::is('user.claims.create') ? route('user.claims.create') : 'javascript:void(0)' }}"
+            @if (!Route::is('user.claims.create'))
+                onclick="openEvidenceModal()"
+            @endif 
+            class="flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 hover:bg-green-50 hover:text-green-600 {{ request()->routeIs('user.claims.create') ? 'bg-green-50 text-green-600 border-r-4 border-green-600' : 'text-gray-600 hover:text-green-600' }} cursor-pointer">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
@@ -252,4 +256,5 @@
     </div>
     @endif
 </div>
+@include('user.partials.evidence-requirements-modal')
 

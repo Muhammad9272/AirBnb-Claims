@@ -4,44 +4,82 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>How Did You Hear About Us? - ClaimPilot+</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        accent: '#4F46E5',
-                        'accent-light': '#6366F1',
-                    },
-                    fontFamily: {
-                        'sans': ['Inter', 'system-ui', 'sans-serif'],
-                    },
-                    animation: {
-                        'float': 'float 6s ease-in-out infinite',
-                    },
-                    boxShadow: {
-                        'accent': '0 4px 20px -2px rgba(79, 70, 229, 0.3)',
-                    }
-                }
-            }
-        }
-    </script>
     <style>
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        .decorative-blob {
-            animation: float 6s ease-in-out infinite;
-            opacity: 0.15;
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* Animated background particles */
+        .bg-particle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(139, 92, 246, 0.1);
+            animation: float 20s infinite;
+        }
+
+        .bg-particle:nth-child(1) {
+            width: 300px;
+            height: 300px;
+            top: -150px;
+            left: -150px;
+            animation-delay: 0s;
+        }
+
+        .bg-particle:nth-child(2) {
+            width: 200px;
+            height: 200px;
+            bottom: -100px;
+            right: -100px;
+            animation-delay: 5s;
+        }
+
+        .bg-particle:nth-child(3) {
+            width: 250px;
+            height: 250px;
+            top: 50%;
+            right: -125px;
+            animation-delay: 10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 48px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.6s ease-out;
         }
 
         @keyframes slideUp {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(30px);
             }
             to {
                 opacity: 1;
@@ -49,132 +87,353 @@
             }
         }
 
-        .slide-up {
-            animation: slideUp 0.6s ease-out;
+        .logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .logo-text {
+            color: #6366f1;
+            font-size: 24px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 8px;
+            display: inline-block;
+        }
+
+        h2 {
+            font-size: 28px;
+            font-weight: 700;
+            text-align: center;
+            color: #1e293b;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #64748b;
+            font-size: 16px;
+            margin-bottom: 32px;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+
+        .option-wrapper {
+            position: relative;
+        }
+
+        .option-label {
+            display: flex;
+            align-items: center;
+            padding: 18px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option-label::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(99, 102, 241, 0.05), rgba(139, 92, 246, 0.05));
+            transition: width 0.3s ease;
+            z-index: 0;
+        }
+
+        .option-label:hover::before {
+            width: 100%;
+        }
+
+        .option-label:hover {
+            border-color: #a5b4fc;
+            transform: translateX(4px);
+        }
+
+        .option-input {
+            display: none;
+        }
+
+        .option-input:checked + .option-label {
+            border-color: #6366f1;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        }
+
+        .option-input:checked + .option-label .radio-custom {
+            border-color: #6366f1;
+            background: #6366f1;
+        }
+
+        .option-input:checked + .option-label .radio-custom::after {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .radio-custom {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #cbd5e1;
+            border-radius: 50%;
+            margin-right: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .radio-custom::after {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.3s ease;
+        }
+
+        .option-text {
+            color: #334155;
+            font-size: 16px;
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
+        }
+
+        .other-input-wrapper {
+            margin-top: 12px;
+            padding-left: 40px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .other-input-wrapper.show {
+            max-height: 100px;
+        }
+
+        .other-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .other-input:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 14px;
+            margin-top: 8px;
+            display: none;
+            animation: shake 0.3s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .submit-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .submit-btn span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .success-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: white;
+            padding: 48px;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.4s ease;
+        }
+
+        .success-message.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            animation: successBounce 0.6s ease;
+        }
+
+        @keyframes successBounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .success-icon::after {
+            content: '✓';
+            color: white;
+            font-size: 48px;
+            font-weight: bold;
+        }
+
+        .success-message h3 {
+            color: #1e293b;
+            font-size: 24px;
+            margin-bottom: 12px;
+        }
+
+        .success-message p {
+            color: #64748b;
+            font-size: 16px;
+        }
+
+        @media (max-width: 640px) {
+            .card {
+                padding: 32px 24px;
+            }
+
+            h2 {
+                font-size: 24px;
+            }
+
+            .option-label {
+                padding: 14px 16px;
+            }
         }
     </style>
 </head>
-<body class="font-sans bg-gray-50">
-    <!-- Decorative background elements -->
-    <div class="fixed inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute top-20 left-10 w-72 h-72 bg-accent rounded-full blur-3xl decorative-blob"></div>
-        <div class="absolute bottom-20 right-10 w-96 h-96 bg-accent-light rounded-full blur-3xl decorative-blob" style="animation-delay: -3s;"></div>
-    </div>
+<body>
+    <div class="bg-particle"></div>
+    <div class="bg-particle"></div>
+    <div class="bg-particle"></div>
 
-    <div class="relative z-10 min-h-screen py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
-        <div class="max-width w-full max-w-md">
-            <!-- Header Section -->
-            <div class="text-center mb-2">
-                <h1 class="text-4xl font-bold text-gray-800 mb-3">
-                    How did you hear about us?
-                </h1>
-                <!-- <p class="text-xl text-gray-600">
-                    We'd love to know how you discovered ClaimPilot+
-                </p> -->
+    <div class="container">
+        <div class="card">
+            <div class="logo">
+                <div class="logo-text">
+                    <span class="logo-icon"></span>
+                    CLAIM PILOT+
+                </div>
             </div>
 
-            <!-- Survey Card -->
-            <div class="auth-card p-8 slide-up">
-                <form id="surveyForm" method="POST" action="{{ route('survey.submit') }}">
-                    @csrf
-                    <!-- Options Container -->
-                    <div class="space-y-3 mb-8">
-                        @foreach($options as $option)
-                        <div class="option-wrapper">
-                            <input 
-                                type="radio" 
-                                name="survey_option" 
-                                value="{{ $option->id }}" 
-                                id="option{{ $option->id }}" 
-                                class="option-input peer hidden" 
-                                data-text="{{ strtolower($option->option_text) }}" 
-                                required
-                            >
-                            <label 
-                                for="option{{ $option->id }}" 
-                                class="peer-checked:border-accent peer-checked:bg-gradient-to-r peer-checked:from-accent/5 peer-checked:to-accent-light/5 peer-checked:shadow-accent flex items-center gap-3 p-4 border-2 border-gray-300 rounded-xl cursor-pointer transition-all duration-200 hover:border-accent hover:bg-gray-50"
-                            >
-                                <!-- Radio Button -->
-                                <!-- Label Text -->
-                                <span class="text-base font-medium text-gray-700 flex-1">{{ $option->option_text }}</span>
-                            </label>
+            <h2>How did you hear about us?</h2>
+            <p class="subtitle">We'd love to know how you discovered ClaimPilot+</p>
 
-                            <!-- Other Input -->
-                            @if(strtolower($option->option_text) === 'other')
-                            <div 
-                                id="otherInputWrapper{{ $option->id }}" 
-                                class="other-input-wrapper max-h-0 overflow-hidden transition-all duration-200 mt-3 pl-12"
-                            >
-                                <input 
-                                    type="text" 
-                                    class="other-input w-full px-4 py-3 rounded-xl border-2 border-gray-300 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all duration-200" 
-                                    id="otherInput{{ $option->id }}" 
-                                    name="other_text" 
-                                    placeholder="Please tell us..."
-                                >
-                            </div>
-                            @endif
+            <form id="surveyForm" method="POST" action="{{ route('survey.submit') }}">
+                @csrf
+                <div class="options-container">
+                    <!-- Dynamic options will be rendered here from backend -->
+                    @foreach($options as $option)
+                    <div class="option-wrapper">
+                        <input type="radio" name="survey_option" value="{{ $option->id }}" id="option{{ $option->id }}" class="option-input" data-text="{{ strtolower($option->option_text) }}" required>
+                        <label for="option{{ $option->id }}" class="option-label">
+                            <span class="radio-custom"></span>
+                            <span class="option-text">{{ $option->option_text }}</span>
+                        </label>
+                        @if(strtolower($option->option_text) === 'other')
+                        <div class="other-input-wrapper" id="otherInputWrapper{{ $option->id }}">
+                            <input type="text" class="other-input" id="otherInput{{ $option->id }}" name="other_text" placeholder="Please specify...">
                         </div>
-                        @endforeach
+                        @endif
                     </div>
+                    @endforeach
+                </div>
 
-                    <!-- Error Message -->
-                    <div 
-                        id="errorMessage" 
-                        class="hidden mb-6 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm font-medium"
-                    >
-                        Please select an option before submitting
-                    </div>
+                <div class="error-message" id="errorMessage" style="display:none;">
+                    Please select an option before submitting
+                </div>
 
-                    <!-- Submit Button -->
-                    <button 
-                        type="submit" 
-                        class="w-full bg-gradient-to-r from-accent to-accent-light hover:from-accent-light hover:to-accent text-white px-4 py-3 rounded-xl font-semibold text-lg transition-all transform hover:scale-105 shadow-accent hover:shadow-2xl flex items-center justify-center mb-4"
-                    >
-                        <span>Submit Response</span>
-                        <svg class="h-5 w-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
-                        </svg>
-                    </button>
-
-                    <!-- Skip Link -->
-                    <!-- <p class="text-center text-sm text-gray-600">
-                        <a 
-                            href="{{ route('user.dashboard') }}" 
-                            class="text-accent hover:text-accent-light font-medium transition duration-200"
-                        >
-                            ← Back to Dashboard
-                        </a>
-                    </p> -->
-                </form>
-            </div>
+                <button type="submit" class="submit-btn">
+                    <span>Submit Response</span>
+                </button>
+            </form>
         </div>
     </div>
 
-    <!-- Success Modal -->
-    <div 
-        id="successMessage" 
-        class="fixed inset-0 hidden items-center justify-center z-50"
-    >
-        <!-- Backdrop -->
-        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
-
-        <!-- Modal -->
-        <div class="relative bg-white rounded-2xl shadow-2xl p-8 max-w-sm mx-4 text-center transform transition-all duration-300 scale-0 origin-center" id="successModal">
-            <!-- Success Icon -->
-            <div class="flex items-center justify-center h-16 w-16 rounded-full bg-gradient-to-r from-accent to-accent-light mx-auto mb-6">
-                <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
-                </svg>
-            </div>
-
-            <h3 class="text-2xl font-bold text-gray-800 mb-2">Thank You!</h3>
-            <p class="text-gray-600 mb-6">Your response has been successfully submitted</p>
-
-            <p class="text-sm text-gray-500">
-                Redirecting to dashboard...
-            </p>
-        </div>
+    <div class="success-message" id="successMessage">
+        <div class="success-icon"></div>
+        <h3>Thank You!</h3>
+        <p>Your response has been successfully submitted</p>
     </div>
 
     <script>
@@ -182,8 +441,7 @@
         document.querySelectorAll('.option-input').forEach(input => {
             input.addEventListener('change', function() {
                 document.querySelectorAll('.other-input-wrapper').forEach(wrapper => {
-                    wrapper.classList.remove('max-h-96');
-                    wrapper.classList.add('max-h-0');
+                    wrapper.classList.remove('show');
                     const otherInput = wrapper.querySelector('.other-input');
                     if (otherInput) otherInput.value = '';
                 });
@@ -194,65 +452,40 @@
                     const otherWrapper = document.getElementById('otherInputWrapper' + optionId);
                     const otherInput = document.getElementById('otherInput' + optionId);
                     if (otherWrapper && otherInput) {
-                        otherWrapper.classList.remove('max-h-0');
-                        otherWrapper.classList.add('max-h-96');
+                        otherWrapper.classList.add('show');
                         otherInput.required = true;
                         otherInput.focus();
                     }
                 } else {
                     document.querySelectorAll('.other-input').forEach(i => i.required = false);
                 }
-                document.getElementById('errorMessage').classList.add('hidden');
+                document.getElementById('errorMessage').style.display = 'none';
             });
         });
 
-        // Form submission
+        // Validate "Other" before submit
         document.getElementById('surveyForm').addEventListener('submit', function(e) {
             const selectedOption = document.querySelector('input[name="survey_option"]:checked');
-            
             if (!selectedOption) {
-                document.getElementById('errorMessage').classList.remove('hidden');
+                document.getElementById('errorMessage').style.display = 'block';
                 e.preventDefault();
                 return;
             }
-
             const optionText = selectedOption.getAttribute('data-text') || '';
             if (optionText.toLowerCase().includes('other')) {
                 const optionId = selectedOption.id.replace('option', '');
                 const otherInput = document.getElementById('otherInput' + optionId);
-                
                 if (otherInput && !otherInput.value.trim()) {
                     otherInput.focus();
-                    otherInput.classList.add('border-red-500');
+                    otherInput.style.borderColor = '#ef4444';
                     setTimeout(() => {
-                        otherInput.classList.remove('border-red-500');
+                        otherInput.style.borderColor = '#e2e8f0';
                     }, 2000);
                     e.preventDefault();
                     return;
                 }
             }
-
-            // Show success message and submit
-            e.preventDefault();
-            showSuccessMessage();
-            
-            setTimeout(() => {
-                this.submit();
-            }, 1500);
         });
-
-        function showSuccessMessage() {
-            const successMessage = document.getElementById('successMessage');
-            const successModal = document.getElementById('successModal');
-            
-            successMessage.classList.remove('hidden');
-            successMessage.classList.add('flex');
-            
-            setTimeout(() => {
-                successModal.classList.remove('scale-0');
-                successModal.classList.add('scale-100');
-            }, 100);
-        }
     </script>
 </body>
 </html>

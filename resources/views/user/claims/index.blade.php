@@ -15,12 +15,16 @@
                 <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
                     <div class="p-6 bg-white border-b border-gray-200 flex justify-between items-center">
                         <h1 class="text-2xl font-bold text-gray-800">My Claims</h1>
-                        <a href="{{ route('user.claims.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-accent hover:bg-accent-dark">
+                        {{-- Updated button to trigger modal instead of direct navigation --}}
+                        <button 
+                            onclick="openEvidenceModal()" 
+                            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-accent hover:bg-accent-dark"
+                        >
                             <svg xmlns="http://www.w3.org/2000/svg" class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                             </svg>
                             New Claim
-                        </a>
+                        </button>
                     </div>
 
                     @include('includes.alerts')
@@ -61,9 +65,6 @@
                                                     <div class="text-sm font-medium text-gray-900">
                                                         {{ \Illuminate\Support\Str::limit($claim->title, 30) }}
                                                     </div>
-                                                    {{-- <div class="text-xs text-gray-500">
-                                                        Booking Ref: {{ $claim->booking_reference }}
-                                                    </div> --}}
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                     ${{ number_format($claim->amount_requested, 2) }}
@@ -117,12 +118,16 @@
                                     Get started by creating a new claim for your Airbnb property.
                                 </p>
                                 <div class="mt-6">
-                                    <a href="{{ route('user.claims.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-accent hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent">
+                                    {{-- Updated button to trigger modal instead of direct navigation --}}
+                                    <button 
+                                        onclick="openEvidenceModal()" 
+                                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-accent hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent"
+                                    >
                                         <svg xmlns="http://www.w3.org/2000/svg" class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                                         </svg>
                                         Create your first claim
-                                    </a>
+                                    </button>
                                 </div>
                             </div>
                         @endif
@@ -159,4 +164,6 @@
         </div>
     </div>
 </div>
+@include('user.partials.evidence-requirements-modal')
+
 @endsection

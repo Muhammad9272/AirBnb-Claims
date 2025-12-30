@@ -518,7 +518,10 @@ Route::group(['prefix' => 'user', 'middleware' => ['auth'] ], function() {
     //Favorite Controller
     Route::post('/favorite/{type}/{id}', [App\Http\Controllers\User\FavoriteController::class, 'favorite']) ->withoutMiddleware(['UserAuthenticated']);;
     Route::post('/unfavorite/{type}/{id}', [App\Http\Controllers\User\FavoriteController::class, 'unfavorite'])->withoutMiddleware(['UserAuthenticated']);
-
+    
+    Route::get('/evidence-guidelines', function () {
+        return view('user.evidence-guidelines');
+    })->name('user.claims.evidence.guidelines');
     // Claims Routes
     Route::group(['prefix' => 'claims', 'as' => 'user.claims.'], function() {
         Route::get('/', [App\Http\Controllers\User\ClaimController::class, 'index'])->name('index');
@@ -527,6 +530,7 @@ Route::group(['prefix' => 'user', 'middleware' => ['auth'] ], function() {
         Route::get('/{id}', [App\Http\Controllers\User\ClaimController::class, 'show'])->name('show');
         Route::post('/{id}/comment', [App\Http\Controllers\User\ClaimController::class, 'addComment'])->name('comment');
         Route::post('/{id}/evidence', [App\Http\Controllers\User\ClaimController::class, 'addEvidence'])->name('evidence');
+        
     });
 
     Route::group(['prefix' => 'payment', 'as' => 'user.card.'], function() {

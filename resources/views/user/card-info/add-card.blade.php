@@ -6,43 +6,82 @@
     <title>Save Payment Method - ClaimPilot+</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        accent: '#4F46E5',
-                        'accent-light': '#6366F1',
-                    },
-                    fontFamily: {
-                        'sans': ['Inter', 'system-ui', 'sans-serif'],
-                    },
-                    animation: {
-                        'float': 'float 6s ease-in-out infinite',
-                    },
-                    boxShadow: {
-                        'accent': '0 4px 20px -2px rgba(79, 70, 229, 0.3)',
-                    }
-                }
-            }
-        }
-    </script>
     <style>
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        .decorative-blob {
-            animation: float 6s ease-in-out infinite;
-            opacity: 0.15;
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* Animated background particles */
+        .bg-particle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(99, 102, 241, 0.1);
+            animation: float 20s infinite;
+        }
+
+        .bg-particle:nth-child(1) {
+            width: 300px;
+            height: 300px;
+            top: -150px;
+            left: -150px;
+            animation-delay: 0s;
+        }
+
+        .bg-particle:nth-child(2) {
+            width: 200px;
+            height: 200px;
+            bottom: -100px;
+            right: -100px;
+            animation-delay: 5s;
+        }
+
+        .bg-particle:nth-child(3) {
+            width: 250px;
+            height: 250px;
+            top: 50%;
+            right: -125px;
+            animation-delay: 10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+        }
+
+        .container-main {
+            max-width: 500px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.6s ease-out;
         }
 
         @keyframes slideUp {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(30px);
             }
             to {
                 opacity: 1;
@@ -50,88 +89,217 @@
             }
         }
 
-        .slide-up {
-            animation: slideUp 0.6s ease-out;
+        .card-header {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            padding: 40px 32px;
+            color: white;
+        }
+
+        .card-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .card-header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .card-body {
+            padding: 40px 32px;
+        }
+
+        .payment-element-wrapper {
+            margin-bottom: 24px;
+        }
+
+        #payment-element {
+            margin-bottom: 16px;
+        }
+
+        .error-message {
+            display: none;
+            padding: 16px;
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+            border-radius: 12px;
+            color: #dc2626;
+            font-size: 14px;
+            margin-bottom: 24px;
+            animation: shake 0.3s ease;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .submit-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .submit-btn span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .skip-link {
+            display: block;
+            text-align: center;
+            color: #64748b;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+
+        .skip-link:hover {
+            color: #334155;
+        }
+
+        .info-box {
+            background: #f0f9ff;
+            border-left: 4px solid #0284c7;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            font-size: 14px;
+            color: #0c4a6e;
+        }
+
+        .info-box svg {
+            display: inline;
+            width: 18px;
+            height: 18px;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        .security-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .security-badge svg {
+            width: 16px;
+            height: 16px;
+            color: #10b981;
+        }
+
+        @media (max-width: 640px) {
+            .card-header {
+                padding: 32px 24px;
+            }
+
+            .card-body {
+                padding: 32px 24px;
+            }
+
+            .card-header h1 {
+                font-size: 24px;
+            }
         }
     </style>
 </head>
-<body class="font-sans bg-gradient-to-br from-gray-50 to-gray-100">
-    <!-- Decorative background elements -->
-    <div class="fixed inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute top-20 left-10 w-72 h-72 bg-accent rounded-full blur-3xl decorative-blob"></div>
-        <div class="absolute bottom-20 right-10 w-96 h-96 bg-accent-light rounded-full blur-3xl decorative-blob" style="animation-delay: -3s;"></div>
-    </div>
+<body>
+    <div class="bg-particle"></div>
+    <div class="bg-particle"></div>
+    <div class="bg-particle"></div>
 
-    <div class="relative z-10 min-h-screen py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
-        <div class="w-full max-w-md">
-            <!-- Header Section -->
-            <div class="text-center mb-8">
-                <h1 class="text-4xl font-bold text-gray-800 mb-3">
-                    Add Payment Method
-                </h1>
-                <p class="lg:text-lg sm:text-sm text-gray-600">
-                    Securely save your payment information to proceed!
-                </p>
+    <div class="container-main">
+        <div class="card">
+            <div class="card-header">
+                <h1>💳 Save Payment Method</h1>
+                <p>Secure payment processing with Stripe</p>
             </div>
 
-            <!-- Payment Card -->
-            <div class="auth-card p-8 slide-up">
-                <!-- Card Header -->
-                <div class="bg-gradient-to-r from-accent to-accent-light rounded-xl p-6 mb-8 text-white">
-                    <h2 class="text-2xl font-bold mb-2">💳 Save Payment Method</h2>
-                    <p class="text-white text-sm">Secure payment processing with Stripe</p>
-                </div>
-
-                <!-- Info Box -->
-                <div class="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-4 mb-8 flex items-start gap-3">
-                    <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="card-body">
+                <div class="info-box">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <span class="text-sm text-blue-700">We need your payment method to process claims quickly and securely.</span>
+                    We need your payment method to process claims quickly and securely.
                 </div>
 
-                <!-- Payment Form -->
-                <form id="payment-form" class="space-y-6">
-                    <!-- Payment Element Container -->
+                <form id="payment-form">
                     <div class="payment-element-wrapper">
-                        <div id="payment-element" class="stripe-payment-element"></div>
+                        <div id="payment-element"></div>
                     </div>
                     
-                    <!-- Error Message -->
-                    <div 
-                        id="error-message" 
-                        class="hidden px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm font-medium"
-                    >
-                    </div>
+                    <div id="error-message" class="error-message"></div>
 
-                    <!-- Submit Button -->
                     <button 
                         id="submit-btn" 
                         type="submit" 
-                        class="w-full bg-gradient-to-r from-accent to-accent-light hover:from-accent-light hover:to-accent text-white px-4 py-3 rounded-xl font-semibold text-lg transition-all transform hover:scale-105 shadow-accent hover:shadow-2xl flex items-center justify-center"
-                    >
+                        class="submit-btn">
                         <span>Save Payment Method</span>
-                        <svg class="h-5 w-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
-                        </svg>
                     </button>
 
-                    <!-- Back Link -->
-                    <!-- <p class="text-center text-sm text-gray-600">
-                        <a 
-                            href="{{ route('user.dashboard') }}" 
-                            class="text-accent hover:text-accent-light font-medium transition duration-200"
-                        >
-                            ← Back to Dashboard
-                        </a>
-                    </p> -->
+                    <a href="{{ route('user.dashboard') }}" class="skip-link">
+                        ← Back to Dashboard
+                    </a>
 
-                    <!-- Security Badge -->
-                    <div class="flex items-center justify-center gap-2 text-xs text-gray-600 pt-4 border-t border-gray-200">
-                        <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+                    <div class="security-badge">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                             <path fill-rule="evenodd" d="M12.516 2.17a.75.75 0 00-1.032 0l-5.25 5.25a.75.75 0 101.06 1.06L11 3.622v17.128a.75.75 0 001.5 0V3.622l4.178 4.178a.75.75 0 101.06-1.06l-5.25-5.25z" clip-rule="evenodd" />
                         </svg>
-                        <span class="font-medium">SSL Secured by Stripe</span>
+                        SSL Secured by Stripe
                     </div>
                 </form>
             </div>
@@ -154,8 +322,8 @@
         form.addEventListener("submit", async (e) => {
             e.preventDefault();
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span>Processing...</span><svg class="h-5 w-5 ml-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
-            errorMessage.classList.add("hidden");
+            submitBtn.innerHTML = '<span>Processing...</span>';
+            errorMessage.classList.remove("show");
 
             try {
                 const { setupIntent, error } = await stripe.confirmSetup({
@@ -167,15 +335,15 @@
 
                 if (error) {
                     errorMessage.textContent = error.message;
-                    errorMessage.classList.remove("hidden");
+                    errorMessage.classList.add("show");
                     submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<span>Save Payment Method</span><svg class="h-5 w-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>';
+                    submitBtn.innerHTML = '<span>Save Payment Method</span>';
                 }
             } catch (err) {
                 errorMessage.textContent = "An error occurred. Please try again.";
-                errorMessage.classList.remove("hidden");
+                errorMessage.classList.add("show");
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '<span>Save Payment Method</span><svg class="h-5 w-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>';
+                submitBtn.innerHTML = '<span>Save Payment Method</span>';
             }
         });
     </script>
