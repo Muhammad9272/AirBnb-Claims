@@ -75,6 +75,14 @@ class Claim extends Model
     }
 
     /**
+     * Get the internal notes for the claim.
+     */
+    public function notes()
+    {
+        return $this->hasMany(ClaimNote::class);
+    }
+
+    /**
      * Format check-in date for display safely
      */
     public function getCheckInDateFormatted()
@@ -99,13 +107,33 @@ class Claim extends Model
     }
 
     /**
+     * Map status names to readable labels.
+     *
+     * @return array
+     */
+    public static function getStatusLabels()
+    {
+        return [
+            'pending' => 'Pending',
+            'under_review' => 'In Review',
+            'additional_info_requested' => 'Additional Info Requested',
+            'challenge_1' => 'Challenge 1',
+            'challenge_2' => 'Challenge 2',
+            'approved' => 'Accepted',
+            'partial_payout' => 'Partial Payout',
+            'rejected' => 'Denied',
+        ];
+    }
+
+    /**
      * Get readable status label.
      *
      * @return string
      */
     public function getStatusLabelAttribute()
     {
-        return ucfirst(str_replace('_', ' ', $this->status));
+        $labels = self::getStatusLabels();
+        return $labels[$this->status] ?? ucfirst(str_replace('_', ' ', $this->status));
     }
     
     /**
@@ -115,7 +143,7 @@ class Claim extends Model
      */
     public function isFinal()
     {
-        return in_array($this->status, ['approved', 'rejected', 'paid']);
+        return in_array($this->status, ['approved', 'partial_payout', 'rejected']);
     }
     
     /**

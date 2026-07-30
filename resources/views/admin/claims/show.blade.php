@@ -206,7 +206,11 @@
 
     .status-badge.pending { background: #e6f3ff; color: #0969da; }
     .status-badge.under_review { background: #f0e6ff; color: #8b5cf6; }
+    .status-badge.additional_info_requested { background: #fff3cd; color: #856404; }
+    .status-badge.challenge_1 { background: #f8d7da; color: #721c24; }
+    .status-badge.challenge_2 { background: #f8d7da; color: #721c24; }
     .status-badge.approved { background: #e6ffe6; color: #16a34a; }
+    .status-badge.partial_payout { background: #e6f2ff; color: #0c5394; }
     .status-badge.rejected { background: #ffe6e6; color: #dc2626; }
 
     /* Status History Timeline Styles */
@@ -681,6 +685,74 @@ use App\CentralLogics\Helpers;
                 </div>
             </div>
         </div>
+        
+        <!-- Internal Notes Card (Admin Only) -->
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="card-title mb-0">
+                    <i class="ri-sticky-note-line me-2 text-warning"></i>Internal Notes
+                </h5>
+            </div>
+            <div class="card-body">
+                @if($claim->notes->count() > 0)
+                    <div class="notes-container" style="max-height: 400px; overflow-y: auto;">
+                        @foreach($claim->notes->sortBy('created_at') as $note)
+                            <div class="card mb-3 border-left border-warning" id="note-{{ $note->id }}">
+                                <div class="card-body p-3">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div>
+                                            <strong class="text-dark">{{ $note->user->name ?? 'Unknown' }}</strong>
+                                            <small class="text-muted ms-2">
+                                                {{ $note->getFormattedTimestamp() }}
+                                                @if($note->wasEdited())
+                                                    <em>(edited {{ $note->getFormattedEditedTimestamp() }} by {{ $note->editedByUser->name ?? 'Unknown' }})</em>
+                                                @endif
+                                            </small>
+                                        </div>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editNoteModal" onclick="populateEditModal({{ $note->id }}, '{{ str_replace("'", "\\'", $note->note_content) }}')">
+                                                <i class="ri-edit-line"></i> Edit
+                                            </button>
+                                            <button type="button" class="btn btn-outline-danger" onclick="deleteNote({{ $claim->id }}, {{ $note->id }})">
+                                                <i class="ri-delete-bin-line"></i> Delete
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <p class="mb-0 text-muted" style="word-wrap: break-word;">{{ $note->note_content }}</p>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="text-center py-4">
+                        <div class="avatar-md mx-auto mb-4">
+                            <div class="avatar-title bg-light rounded-circle text-muted fs-24">
+                                <i class="ri-sticky-note-line"></i>
+                            </div>
+                        </div>
+                        <h6 class="text-muted">No Internal Notes</h6>
+                        <small class="text-muted">Add internal notes to track admin discussions about this claim.</small>
+                    </div>
+                @endif
+                
+                <!-- Add Internal Note Form -->
+                <div class="mt-4 pt-3 border-top">
+                    <h6 class="mb-3">Add Internal Note</h6>
+                    <form action="{{ route('admin.claims.note.add', $claim->id) }}" method="POST">
+                        @csrf
+                        <div class="mb-3">
+                            <textarea class="form-control form-control-sm" name="note_content" rows="3" placeholder="Type an internal note here..." required></textarea>
+                            <small class="text-muted d-block mt-1">Internal notes are visible to admin/staff only.</small>
+                        </div>
+                        <div>
+                            <button type="submit" class="btn btn-warning btn-sm">
+                                <i class="ri-add-line me-1"></i>Add Note
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
     
     <div class="col-xl-4">
@@ -785,21 +857,33 @@ use App\CentralLogics\Helpers;
                         <label for="status" class="form-label fw-semibold">Change Status</label>
                         <select class="form-select" id="claim_status" name="status">
                             <option value="pending" {{ $claim->status === 'pending' ? 'selected' : '' }}>
-                                📋 Pending
+                                <i class="fas fa-clipboard-list"></i> Pending
                             </option>
                             <option value="under_review" {{ $claim->status === 'under_review' ? 'selected' : '' }}>
-                                🔍 Under Review
+                                <i class="fas fa-magnifying-glass"></i> In Review
+                            </option>
+                            <option value="additional_info_requested" {{ $claim->status === 'additional_info_requested' ? 'selected' : '' }}>
+                                <i class="fas fa-sticky-note"></i> Additional Info Requested
+                            </option>
+                            <option value="challenge_1" {{ $claim->status === 'challenge_1' ? 'selected' : '' }}>
+                                <i class="fas fa-triangle-exclamation"></i> Challenge 1
+                            </option>
+                            <option value="challenge_2" {{ $claim->status === 'challenge_2' ? 'selected' : '' }}>
+                                <i class="fas fa-triangle-exclamation"></i> Challenge 2
                             </option>
                             <option value="approved" {{ $claim->status === 'approved' ? 'selected' : '' }}>
-                                ✅ Approved
+                                <i class="fas fa-check-circle"></i> Accepted
+                            </option>
+                            <option value="partial_payout" {{ $claim->status === 'partial_payout' ? 'selected' : '' }}>
+                                <i class="fas fa-money-bill-wave"></i> Partial Payout
                             </option>
                             <option value="rejected" {{ $claim->status === 'rejected' ? 'selected' : '' }}>
-                                ❌ Rejected
+                                <i class="fas fa-xmark"></i> Denied
                             </option>
                         </select>
                     </div>
                     
-                    <div id="approved-fields" class="mb-4 {{ $claim->status === 'approved' ? '' : 'd-none' }}">
+                    <div id="approved-fields" class="mb-4 {{ in_array($claim->status, ['approved', 'partial_payout']) ? '' : 'd-none' }}">
                         <label for="approved_amount" class="form-label fw-semibold">Approved Amount</label>
                         <div class="input-group">
                             <span class="input-group-text">$</span>
@@ -869,6 +953,81 @@ use App\CentralLogics\Helpers;
         </div>
     </div>
 </div>
+
+<!-- Edit Note Modal -->
+<div class="modal fade" id="editNoteModal" tabindex="-1" aria-labelledby="editNoteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editNoteModalLabel">Edit Internal Note</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editNoteForm" method="POST" action="">
+                @csrf
+                @method('PUT')
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="noteContent" class="form-label">Note Content</label>
+                        <textarea class="form-control" id="noteContent" name="note_content" rows="4" required></textarea>
+                        <small class="text-muted">Internal notes are visible to admin/staff only.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function populateEditModal(noteId, noteContent) {
+    // Set the form action to the correct route
+    const claimId = {{ $claim->id }};
+    const updateUrl = "{{ route('admin.claims.note.update', ['claimId' => 'CLAIM_ID', 'noteId' => 'NOTE_ID']) }}"
+        .replace('CLAIM_ID', claimId)
+        .replace('NOTE_ID', noteId);
+    
+    document.getElementById('editNoteForm').action = updateUrl;
+    
+    // Populate the textarea with current content
+    document.getElementById('noteContent').value = noteContent;
+}
+
+function deleteNote(claimId, noteId) {
+    if (!confirm('Are you sure you want to delete this note?')) {
+        return;
+    }
+    
+    const deleteUrl = "{{ route('admin.claims.note.delete', ['claimId' => 'CLAIM_ID', 'noteId' => 'NOTE_ID']) }}"
+        .replace('CLAIM_ID', claimId)
+        .replace('NOTE_ID', noteId);
+    
+    // Create a form and submit it
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = deleteUrl;
+    
+    const csrfToken = document.querySelector('meta[name="csrf-token"]');
+    if (csrfToken) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = '_token';
+        input.value = csrfToken.getAttribute('content');
+        form.appendChild(input);
+    }
+    
+    const methodInput = document.createElement('input');
+    methodInput.type = 'hidden';
+    methodInput.name = '_method';
+    methodInput.value = 'DELETE';
+    form.appendChild(methodInput);
+    
+    document.body.appendChild(form);
+    form.submit();
+}
+</script>
 @endsection
 
 @section('script')
@@ -878,8 +1037,8 @@ use App\CentralLogics\Helpers;
         $('#claim_status').on('change', function() {
             const status = $(this).val();
             
-            // Toggle approved fields
-            if (status === 'approved') {
+            // Toggle approved/partial_payout fields
+            if (status === 'approved' || status === 'partial_payout') {
                 $('#approved-fields').removeClass('d-none');
             } else {
                 $('#approved-fields').addClass('d-none');

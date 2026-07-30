@@ -70,7 +70,6 @@ class ClaimController extends Controller
         // Check if user has payment method saved
         if (!$user->stripe_payment_method_id) {
             
-            // Create or get Stripe customer
             if (!$user->stripe_customer_id) {
                 $customer = \Stripe\Customer::create([
                     'email' => $user->email,
@@ -85,7 +84,6 @@ class ClaimController extends Controller
                 ]);
             }
 
-            // Create setup intent for saving payment method
             $setupIntent = \Stripe\SetupIntent::create([
                 'customer' => $user->stripe_customer_id,
                 'payment_method_types' => ['card'],

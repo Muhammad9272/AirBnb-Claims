@@ -272,6 +272,243 @@ use App\CentralLogics\Helpers;
         color: #dc2626; 
         border: 1px solid #fca5a5;
     }
+
+    /* Progress Bar Styles */
+    .claim-progress-container {
+        background: white;
+        padding: 1.5rem;
+        border: 1px solid #e5e7eb;
+        margin-bottom: 1.5rem;
+    }
+
+    .progress-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .progress-status {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .progress-status-label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #374151;
+    }
+
+    .progress-status-value {
+        font-size: 1.125rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .progress-updated {
+        font-size: 0.75rem;
+        color: #6b7280;
+        background: #f3f4f6;
+        padding: 0.375rem 0.75rem;
+        border-radius: 0.375rem;
+    }
+
+    .progress-bar-wrapper {
+        margin-bottom: 1.5rem;
+    }
+
+    .progress-bar-background {
+        height: 12px;
+        background: #e5e7eb;
+        border-radius: 9999px;
+        overflow: hidden;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
+    }
+
+    .progress-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+        border-radius: 9999px;
+        transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        position: relative;
+    }
+
+    .progress-bar-fill::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+
+    .progress-stages {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 1rem;
+    }
+
+    .progress-stage {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        flex: 1;
+        text-align: center;
+        position: relative;
+    }
+
+    .progress-stage-dot {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: #e5e7eb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #6b7280;
+        border: 2px solid #d1d5db;
+        transition: all 0.3s ease;
+    }
+
+    .progress-stage.active .progress-stage-dot {
+        background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        color: white;
+        border-color: #3b82f6;
+        box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+    }
+
+    .progress-stage.completed .progress-stage-dot {
+        background: #10b981;
+        color: white;
+        border-color: #10b981;
+    }
+
+    .progress-stage.action-needed .progress-stage-dot {
+        background: #f59e0b;
+        color: white;
+        border-color: #f59e0b;
+        animation: pulse-warning 2s infinite;
+    }
+
+    @keyframes pulse-warning {
+        0%, 100% { box-shadow: 0 0 12px rgba(245, 158, 11, 0.4); }
+        50% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.6); }
+    }
+
+    .progress-stage-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #6b7280;
+        transition: color 0.3s ease;
+    }
+
+    .progress-stage.active .progress-stage-label {
+        color: #3b82f6;
+        font-weight: 700;
+    }
+
+    .progress-stage.completed .progress-stage-label {
+        color: #10b981;
+        font-weight: 700;
+    }
+
+    .progress-stage.action-needed .progress-stage-label {
+        color: #f59e0b;
+        font-weight: 700;
+    }
+
+    .progress-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        margin-top: 0.375rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .progress-badge.pending { background: #dbeafe; color: #1d4ed8; }
+    .progress-badge.action-needed { background: #fed7aa; color: #92400e; }
+    .progress-badge.in-review { background: #ede9fe; color: #7c3aed; }
+    .progress-badge.approved { background: #d1fae5; color: #059669; }
+    .progress-badge.denied { background: #fee2e2; color: #dc2626; }
+
+    .progress-final-message {
+        text-align: center;
+        padding: 1rem;
+        border-radius: 0.75rem;
+        margin-top: 1rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    .progress-final-message.approved {
+        background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+        color: #059669;
+        border: 1px solid #6ee7b7;
+    }
+
+    .progress-final-message.denied {
+        background: linear-gradient(135deg, #fee2e2, #fecaca);
+        color: #dc2626;
+        border: 1px solid #fca5a5;
+    }
+
+    .progress-final-message.partial {
+        background: linear-gradient(135deg, #bfdbfe, #93c5fd);
+        color: #1d4ed8;
+        border: 1px solid #60a5fa;
+    }
+
+    .progress-auto-refresh {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        font-size: 0.75rem;
+        color: #9ca3af;
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .progress-refresh-spinner {
+        width: 12px;
+        height: 12px;
+        border: 2px solid #e5e7eb;
+        border-top-color: #3b82f6;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .progress-auto-refresh.checking .progress-refresh-spinner {
+        animation: spin 1s linear infinite;
+    }
+
+    .progress-auto-refresh.updated {
+        color: #10b981;
+    }
 </style>
 
 <div class="bg-gray-50 py-12 min-h-screen">
@@ -318,6 +555,73 @@ use App\CentralLogics\Helpers;
                     </div>
 
                     @include('includes.alerts')
+
+                    <!-- Claim Progress Bar -->
+                    <div class="claim-progress-container" id="claim-progress-container">
+                        <div style="position: relative;">
+                            <div class="progress-header">
+                                <div class="progress-status">
+                                    <span class="progress-status-label">Current Status</span>
+                                    <span class="progress-status-value" id="progress-status-text">{{ ucfirst(str_replace('_', ' ', $claim->status)) }}</span>
+                                </div>
+                                <div class="progress-updated">
+                                    Last updated: <span id="progress-updated-time">{{ $claim->statusHistory->first()?->created_at->format('M d, Y g:i A') ?? 'Pending' }}</span>
+                                </div>
+                                <div class="progress-auto-refresh" id="progress-auto-refresh" style="display: none;">
+                                    <div class="progress-refresh-spinner"></div>
+                                    <span id="refresh-status">Auto-checking...</span>
+                                </div>
+                            </div>
+
+                            <div class="progress-bar-wrapper">
+                                <div class="progress-bar-background">
+                                    <div class="progress-bar-fill" id="progress-bar-fill" style="width: 20%;"></div>
+                                </div>
+                            </div>
+
+                            <div class="progress-stages">
+                                <div class="progress-stage active" data-stage="1">
+                                    <div class="progress-stage-dot">1</div>
+                                    <div class="progress-stage-label">Submitted</div>
+                                </div>
+                                <div class="progress-stage" data-stage="2">
+                                    <div class="progress-stage-dot">2</div>
+                                    <div class="progress-stage-label">In Review</div>
+                                </div>
+                                <div class="progress-stage" data-stage="3">
+                                    <div class="progress-stage-dot">3</div>
+                                    <div class="progress-stage-label">Info Needed</div>
+                                </div>
+                                <div class="progress-stage" data-stage="4">
+                                    <div class="progress-stage-dot">4</div>
+                                    <div class="progress-stage-label">Challenge 1</div>
+                                </div>
+                                <div class="progress-stage" data-stage="5">
+                                    <div class="progress-stage-dot">5</div>
+                                    <div class="progress-stage-label">Challenge 2</div>
+                                </div>
+                                <div class="progress-stage" data-stage="6">
+                                    <div class="progress-stage-dot"><i class="fas fa-check"></i></div>
+                                    <div class="progress-stage-label">Completed</div>
+                                </div>
+                            </div>
+
+                            @php
+                                $finalStatuses = ['approved', 'partial_payout', 'rejected', 'denied'];
+                            @endphp
+                            @if(in_array($claim->status, $finalStatuses))
+                                <div class="progress-final-message {{ $claim->status === 'denied' ? 'denied' : ($claim->status === 'partial_payout' ? 'partial' : 'approved') }}">
+                                    @if($claim->status === 'approved')
+                                        <i class="fas fa-check-circle me-2"></i> Your claim has been <strong>accepted</strong>. You will receive the approved amount shortly.
+                                    @elseif($claim->status === 'partial_payout')
+                                        <i class="fas fa-circle-info me-2"></i> Your claim has been <strong>partially approved</strong>. You will receive the partial amount shortly.
+                                    @elseif($claim->status === 'rejected' || $claim->status === 'denied')
+                                        <i class="fas fa-xmark-circle me-2"></i> Your claim has been <strong>denied</strong>. Please review the comments for more details.
+                                    @endif
+                                </div>
+                            @endif
+                        </div>
+                    </div>
 
                     <!-- Claim details with better organization -->
                     <div class="p-6">
@@ -622,15 +926,15 @@ use App\CentralLogics\Helpers;
                                         };
                                         
                                         $icon = match($status->to_status) {
-                                            'pending' => '⏳',
-                                            'under_review' => '🔍',
-                                            'approved' => '✅',
-                                             'rejected' => '❌',
-                                            default => '⚪'
+                                            'pending' => '<i class="fas fa-hourglass-end"></i>',
+                                            'under_review' => '<i class="fas fa-magnifying-glass"></i>',
+                                            'approved' => '<i class="fas fa-check-circle"></i>',
+                                             'rejected' => '<i class="fas fa-xmark-circle"></i>',
+                                            default => '<i class="fas fa-circle"></i>'
                                         };
                                     @endphp
                                     <div class="status-timeline-icon {{ $iconClass }}">
-                                        <span class="text-white">{{ $icon }}</span>
+                                        <span class="text-white">{!! $icon !!}</span>
                                     </div>
                                     <div class="status-timeline-content">
                                         <div class="status-timeline-header">
@@ -976,6 +1280,188 @@ use App\CentralLogics\Helpers;
             btn.classList.remove('opacity-50');
         });
     }
+
+    // Claim Progress Bar Logic
+    const claimProgressBar = {
+        claimId: {{ $claim->id }},
+        currentStatus: '{{ $claim->status }}',
+        autoRefreshInterval: null,
+        
+        statusMap: {
+            'pending': { stage: 1, percentage: 20, label: 'Pending', badge: 'pending' },
+            'under_review': { stage: 2, percentage: 40, label: 'In Review', badge: 'in-review' },
+            'additional_info_requested': { stage: 3, percentage: 60, label: 'Info Requested', badge: 'action-needed', actionNeeded: true },
+            'challenge_1': { stage: 4, percentage: 75, label: 'Challenge 1', badge: 'in-review' },
+            'challenge_2': { stage: 5, percentage: 85, label: 'Challenge 2', badge: 'in-review' },
+            'approved': { stage: 6, percentage: 100, label: 'Approved', badge: 'approved', final: true },
+            'partial_payout': { stage: 6, percentage: 100, label: 'Partial Payout', badge: 'approved', final: true },
+            'rejected': { stage: 6, percentage: 100, label: 'Rejected', badge: 'denied', final: true },
+            'denied': { stage: 6, percentage: 100, label: 'Denied', badge: 'denied', final: true }
+        },
+
+        init() {
+            this.updateProgressBar();
+            // Start auto-refresh every 30 seconds
+            this.startAutoRefresh();
+        },
+
+        updateProgressBar() {
+            const statusInfo = this.statusMap[this.currentStatus];
+            if (!statusInfo) return;
+
+            // Update progress bar fill
+            const progressBar = document.getElementById('progress-bar-fill');
+            if (progressBar) {
+                progressBar.style.width = statusInfo.percentage + '%';
+            }
+
+            // Update status text
+            const statusText = document.getElementById('progress-status-text');
+            if (statusText) {
+                statusText.textContent = statusInfo.label;
+            }
+
+            // Update stage indicators
+            const stages = document.querySelectorAll('.progress-stage');
+            stages.forEach((stage, index) => {
+                const stageNum = index + 1;
+                stage.classList.remove('active', 'completed', 'action-needed');
+                
+                if (stageNum < statusInfo.stage) {
+                    stage.classList.add('completed');
+                } else if (stageNum === statusInfo.stage) {
+                    stage.classList.add('active');
+                    if (statusInfo.actionNeeded) {
+                        stage.classList.add('action-needed');
+                    }
+                }
+            });
+        },
+
+        startAutoRefresh() {
+            // Check for status updates every 30 seconds
+            this.autoRefreshInterval = setInterval(() => {
+                this.checkForStatusUpdate();
+            }, 30000);
+        },
+
+        stopAutoRefresh() {
+            if (this.autoRefreshInterval) {
+                clearInterval(this.autoRefreshInterval);
+                this.autoRefreshInterval = null;
+            }
+        },
+
+        async checkForStatusUpdate() {
+            try {
+                const refreshIndicator = document.getElementById('progress-auto-refresh');
+                if (refreshIndicator) {
+                    refreshIndicator.style.display = 'flex';
+                }
+
+                const response = await fetch(`/user/claims/${this.claimId}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    // Try fetching just the status via API endpoint
+                    return this.fetchStatusViaAPI();
+                }
+
+                const html = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                // Extract status from the parsed HTML
+                const statusElement = doc.querySelector('#progress-status-text');
+                if (statusElement) {
+                    const newStatusLabel = statusElement.textContent.trim().toLowerCase();
+                    const newStatus = Object.keys(this.statusMap).find(
+                        key => this.statusMap[key].label === newStatusLabel.replace(/\s+/g, ' ')
+                    );
+                    
+                    if (newStatus && newStatus !== this.currentStatus) {
+                        this.currentStatus = newStatus;
+                        this.updateProgressBar();
+                        this.updateLastUpdatedTime();
+                        this.showUpdateNotification();
+                    }
+                }
+
+                // Update last checked indicator
+                this.updateRefreshIndicator();
+            } catch (error) {
+                console.error('Error checking for status update:', error);
+            }
+        },
+
+        async fetchStatusViaAPI() {
+            try {
+                // Fallback: If HTML fetch fails, try to get status via a simple endpoint
+                // You would need to add an API endpoint: GET /api/claims/{id}/status
+                // For now, just update the refresh indicator
+                this.updateRefreshIndicator();
+            } catch (error) {
+                console.error('Error fetching status:', error);
+            }
+        },
+
+        updateRefreshIndicator() {
+            const refreshIndicator = document.getElementById('progress-auto-refresh');
+            const refreshStatus = document.getElementById('refresh-status');
+            
+            if (refreshIndicator && refreshStatus) {
+                refreshIndicator.classList.remove('checking');
+                refreshIndicator.classList.add('updated');
+                refreshStatus.textContent = 'Updated ' + new Date().toLocaleTimeString();
+                
+                setTimeout(() => {
+                    refreshIndicator.style.display = 'none';
+                    refreshIndicator.classList.remove('updated');
+                }, 3000);
+            }
+        },
+
+        updateLastUpdatedTime() {
+            const updatedTimeElement = document.getElementById('progress-updated-time');
+            if (updatedTimeElement) {
+                const now = new Date();
+                updatedTimeElement.textContent = now.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                });
+            }
+        },
+
+        showUpdateNotification() {
+            // Optional: Show a toast or notification that claim was updated
+            const statusValue = document.getElementById('progress-status-text');
+            if (statusValue) {
+                statusValue.style.animation = 'pulse-warning 0.6s ease-in-out';
+                setTimeout(() => {
+                    statusValue.style.animation = '';
+                }, 600);
+            }
+        }
+    };
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        claimProgressBar.init();
+    });
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+        claimProgressBar.stopAutoRefresh();
+    });
+
 </script>
 @endpush
 @endsection

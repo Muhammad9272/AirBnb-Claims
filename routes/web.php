@@ -327,6 +327,9 @@ Route::prefix('management0712')->group(function() {
       Route::get('/{id}', [App\Http\Controllers\Admin\ClaimManagementController::class, 'show'])->name('show');
       Route::post('/{id}/status', [App\Http\Controllers\Admin\ClaimManagementController::class, 'updateStatus'])->name('update-status');
       Route::post('/{id}/comment', [App\Http\Controllers\Admin\ClaimManagementController::class, 'addComment'])->name('comment');
+      Route::post('/{id}/note', [App\Http\Controllers\Admin\ClaimManagementController::class, 'addNote'])->name('note.add');
+      Route::put('/{claimId}/note/{noteId}', [App\Http\Controllers\Admin\ClaimManagementController::class, 'updateNote'])->name('note.update');
+      Route::delete('/{claimId}/note/{noteId}', [App\Http\Controllers\Admin\ClaimManagementController::class, 'deleteNote'])->name('note.delete');
       Route::get('/user/{userId}', [App\Http\Controllers\Admin\ClaimManagementController::class, 'userClaims'])->name('user-claims');
       Route::get('/export', [App\Http\Controllers\Admin\ClaimManagementController::class, 'exportClaims'])->name('export');
       Route::get('/reports', [App\Http\Controllers\Admin\ClaimManagementController::class, 'reports'])->name('reports');
@@ -453,6 +456,10 @@ Route::middleware(['auth'])->group(function () {
     // Subscription transactions history
     Route::get('/subscription/transactions', [App\Http\Controllers\User\SubscriptionController::class, 'transactions'])
          ->name('subscription.transactions');
+
+    // Cancel subscription
+    Route::delete('/subscription/cancel/{subscription_id}', [App\Http\Controllers\User\SubscriptionController::class, 'cancelSubscription'])
+      ->name('subscription.cancel.subscription');
 });
 
 // Referral & Wallet Routes

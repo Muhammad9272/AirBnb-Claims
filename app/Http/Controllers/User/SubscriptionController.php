@@ -574,6 +574,63 @@ class SubscriptionController extends Controller
     }
 
     /**
+     * Cancel a user's subscription and stop Stripe recurring charges
+     */
+    public function cancelSubscription($subscription_id)
+    {
+        $user = auth()->user();
+        $subscription = UserSubscription::where('id', $subscription_id)
+            ->where('user_id', $user->id)
+            ->firstOrFail();
+
+        DB::beginTransaction();
+        try {
+            // Cancel Stripe subscription if it exists
+            if ($subscription->stripe_id) {
+                Stripe::setApiKey(config('services.stripe.secret'));
+                
+                try {
+                    // Stop Stripe from charging by cancelling the subscription immediately
+                    \Stripe\Subscription::update($subscription->stripe_id, [
+                        'cancel_at_period_end' => true,  // This prevents further charges
+                    ]);
+                    
+                    Log::info("Stripe subscription cancelled", [
+                        'subscription_id' => $subscription->id,
+                        'stripe_id' => $subscription->stripe_id,
+                        'user_id' => $user->id,
+                    ]);
+                } catch (ApiErrorException $e) {
+                    Log::error("Error cancelling Stripe subscription: " . $e->getMessage(), [
+                        'subscription_id' => $subscription->id,
+                        'stripe_id' => $subscription->stripe_id,
+                    ]);
+                    throw $e;
+                }
+            }
+
+            // Update subscription status
+            $subscription->update([
+                'status' => 'cancelled',
+                'stripe_status' => 'canceled',
+                'canceled_at' => now(),
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('user.subscription.plans')
+                ->with('success', 'Subscription cancelled successfully. You will keep access until the end of the current billing period.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Subscription cancellation error: ' . $e->getMessage());
+            
+            return redirect()->back()
+                ->with('error', 'Failed to cancel subscription. Please try again.');
+        }
+    }
+
+    /**
      * Get or create a Stripe product for the subscription plan
      */
     private function getOrCreateStripeProduct(SubPlan $plan)

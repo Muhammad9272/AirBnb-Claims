@@ -216,25 +216,47 @@ class User extends Authenticatable
 
     /**
      * Get active user subscriptions only
+     * Includes cancelled subscriptions that haven't expired yet
      */
     public function activeuserSubscriptions()
     {
         return $this->hasMany(UserSubscription::class)
-            ->where('status', 'active')
-            ->orderBy('id','desc' )
             ->where(function($query) {
-                $query->whereNull('expires_at')
-                      ->orWhere('expires_at', '>', now());
-            });
+                // Active subscriptions that haven't expired
+                $query->where('status', 'active')
+                      ->where(function($q) {
+                          $q->whereNull('expires_at')
+                            ->orWhere('expires_at', '>', now());
+                      })
+                      // OR cancelled subscriptions that haven't expired yet
+                      ->orWhere(function($q) {
+                          $q->where('status', 'cancelled')
+                            ->where('expires_at', '>', now());
+                      });
+            })
+            ->orderBy('id', 'desc');
     }
 
     /**
      * Get current active subscription (fixing timezone issues with ends_at comparison)
+     * Includes cancelled subscriptions that haven't expired yet
      */
     public function getActiveSubscriptionAttribute()
     {
         return $this->userSubscriptions()
-            ->where('status', 'active')
+            ->where(function($query) {
+                // Active subscriptions that haven't expired
+                $query->where('status', 'active')
+                      ->where(function($q) {
+                          $q->whereNull('expires_at')
+                            ->orWhere('expires_at', '>', now());
+                      })
+                      // OR cancelled subscriptions that haven't expired yet
+                      ->orWhere(function($q) {
+                          $q->where('status', 'cancelled')
+                            ->where('expires_at', '>', now());
+                      });
+            })
             ->latest()
             ->first();
     }

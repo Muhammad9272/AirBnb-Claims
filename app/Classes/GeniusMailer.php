@@ -292,6 +292,117 @@ class GeniusMailer
     }
 
 
+    public function sendClaimStatusUpdateEmail($claim, $newStatus, $comment = null)
+    {
+        try {
+            $setup = GeneralSetting::find(1);
+            $recipient = $claim->user;
+
+            // Map status to readable format
+            $statusLabels = [
+                'pending' => 'Pending',
+                'under_review' => 'In Review',
+                'additional_info_requested' => 'Additional Info Requested',
+                'challenge_1' => 'Challenge 1',
+                'challenge_2' => 'Challenge 2',
+                'approved' => 'Accepted',
+                'partial_payout' => 'Partial Payout',
+                'rejected' => 'Denied',
+            ];
+
+            $statusReadable = $statusLabels[$newStatus] ?? ucfirst(str_replace('_', ' ', $newStatus));
+            $claimNumber = $claim->claim_number ?? '#' . $claim->id;
+            $claimUrl = url('user/claims/' . $claim->id);
+
+            // Build summary message based on status
+            $summaryMessage = '';
+            switch ($newStatus) {
+                case 'approved':
+                    $summaryMessage = "Great news! Your claim has been accepted. The approved amount is <strong>\$" . number_format($claim->amount_approved, 2) . "</strong>.";
+                    break;
+                case 'partial_payout':
+                    $summaryMessage = "Your claim has been partially approved. The partial payout amount is <strong>\$" . number_format($claim->amount_approved, 2) . "</strong>.";
+                    break;
+                case 'rejected':
+                    $summaryMessage = "Unfortunately, your claim has been denied.";
+                    if ($claim->rejection_reason) {
+                        $summaryMessage .= " Reason: <strong>" . e($claim->rejection_reason) . "</strong>";
+                    }
+                    break;
+                case 'under_review':
+                    $summaryMessage = "Your claim is now under review by our team. We'll notify you as soon as we have an update.";
+                    break;
+                case 'additional_info_requested':
+                    $summaryMessage = "We need additional information to process your claim. Please check the admin message below and provide the requested documents.";
+                    break;
+                case 'challenge_1':
+                case 'challenge_2':
+                    $summaryMessage = "Your claim status has been updated to <strong>" . $statusReadable . "</strong>. Please review the admin message for details.";
+                    break;
+                default:
+                    $summaryMessage = "Your claim status has been updated to <strong>" . $statusReadable . "</strong>.";
+                    break;
+            }
+
+            // Build email body
+            $subject = "Claim Status Updated: " . $statusReadable . " - Claim " . $claimNumber;
+            $body = "<p>Hi " . e($recipient->name ?? 'User') . ",</p>";
+            $body .= "<p>Your claim <strong>" . e($claimNumber) . "</strong> status has been updated to <strong>" . $statusReadable . "</strong>:</p>";
+            $body .= "<p>" . $summaryMessage . "</p>";
+
+            // Add claim details table
+            $body .= "<p><strong>Claim Details:</strong></p>";
+            $body .= "<table style='border-collapse:collapse; width:100%;'>";
+            $body .= "<tr><td style='padding:8px; border-bottom:1px solid #ddd;'><strong>Claim ID:</strong></td><td style='padding:8px; border-bottom:1px solid #ddd;'>" . e($claimNumber) . "</td></tr>";
+            $body .= "<tr><td style='padding:8px; border-bottom:1px solid #ddd;'><strong>Amount Requested:</strong></td><td style='padding:8px; border-bottom:1px solid #ddd;'>\$" . number_format($claim->amount_requested, 2) . "</td></tr>";
+            if ($claim->amount_approved) {
+                $body .= "<tr><td style='padding:8px; border-bottom:1px solid #ddd;'><strong>Amount Approved:</strong></td><td style='padding:8px; border-bottom:1px solid #ddd;'>\$" . number_format($claim->amount_approved, 2) . "</td></tr>";
+            }
+            $body .= "<tr><td style='padding:8px; border-bottom:1px solid #ddd;'><strong>Title:</strong></td><td style='padding:8px; border-bottom:1px solid #ddd;'>" . e($claim->title ?? 'N/A') . "</td></tr>";
+            $body .= "</table>";
+
+            // Add admin comment if provided
+            if ($comment) {
+                $body .= "<p><strong>Admin Message:</strong></p>";
+                $body .= "<blockquote style=\"border-left:4px solid #ccc;padding-left:8px;\"> " . nl2br(e($comment)) . " </blockquote>";
+            }
+
+            // Add view claim link
+            $body .= "<p>You can view the claim here: <a href=\"" . $claimUrl . "\">View Claim</a></p>";
+            $body .= "<p>Regards,<br/>" . e($setup->name ?? 'ClaimPilot+') . "</p>";
+
+            // Send email
+            // Mail::send([], [], function ($message) use ($recipient, $subject, $body) {
+            //     $message->to($recipient->email, $recipient->name ?? null)
+            //         ->subject($subject)
+            //         ->html($body);
+            // })
+            
+            $mailData = [
+                'to' => $recipient->email,
+                'subject' => $subject,
+                'body' => $body
+            ];
+
+        return $this->sendCustomMail($mailData);
+
+            Log::info('Claim status update email sent successfully', [
+                'claim_id' => $claim->id,
+                'user_id' => $claim->user_id,
+                'status' => $newStatus
+            ]);
+
+            return true;
+        } catch (\Exception $e) {
+            Log::error('Failed to send claim status update email: ' . $e->getMessage(), [
+                'claim_id' => $claim->id,
+                'user_id' => $claim->user_id,
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
+    }
+
     public function sendCustomMail(array $mailData)
     {   
         $setup = GeneralSetting::find(1);

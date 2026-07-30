@@ -25,10 +25,9 @@ document.addEventListener('DOMContentLoaded', function() {
         continueBtn.addEventListener('click', closeModalAndRedirect);
     }
     if (modal) {
-        modal.addEventListener('click', function (e) {
+        modal.addEventListener('click', function(e) {
             if (e.target === modal) {
-                modal.classList.add('hidden');
-                document.body.style.overflow = 'auto';
+                e.preventDefault();
             }
         });
     }

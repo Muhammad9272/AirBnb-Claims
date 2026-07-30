@@ -141,12 +141,16 @@
             <div class="card-body">
                 <div class="row mb-3">
                     <div class="col-12">
-                        <div class="btn-group " role="group">
+                        <div class="btn-group flex-wrap" role="group">
                             <a href="{{ route('admin.claims.index', ['status' => 'all']) }}" class="btn {{ $status == 'all' ? 'btn-primary' : 'btn-outline-primary' }} btn-sm">All</a>
                             <a href="{{ route('admin.claims.index', ['status' => 'pending']) }}" class="btn {{ $status == 'pending' ? 'btn-primary' : 'btn-outline-primary' }} btn-sm">Pending</a>
-                            <a href="{{ route('admin.claims.index', ['status' => 'under_review']) }}" class="btn {{ $status == 'under_review' ? 'btn-primary' : 'btn-outline-primary' }} btn-sm">Under Review</a>
-                            <a href="{{ route('admin.claims.index', ['status' => 'approved']) }}" class="btn {{ $status == 'approved' ? 'btn-primary' : 'btn-outline-primary' }} btn-sm">Approved</a>
-                            <a href="{{ route('admin.claims.index', ['status' => 'rejected']) }}" class="btn {{ $status == 'rejected' ? 'btn-primary' : 'btn-outline-primary' }} btn-sm">Rejected</a>
+                            <a href="{{ route('admin.claims.index', ['status' => 'under_review']) }}" class="btn {{ $status == 'under_review' ? 'btn-primary' : 'btn-outline-primary' }} btn-sm">In Review</a>
+                            <a href="{{ route('admin.claims.index', ['status' => 'additional_info_requested']) }}" class="btn {{ $status == 'additional_info_requested' ? 'btn-primary' : 'btn-outline-primary' }} btn-sm">Info Requested</a>
+                            <a href="{{ route('admin.claims.index', ['status' => 'challenge_1']) }}" class="btn {{ $status == 'challenge_1' ? 'btn-primary' : 'btn-outline-primary' }} btn-sm">Challenge 1</a>
+                            <a href="{{ route('admin.claims.index', ['status' => 'challenge_2']) }}" class="btn {{ $status == 'challenge_2' ? 'btn-primary' : 'btn-outline-primary' }} btn-sm">Challenge 2</a>
+                            <a href="{{ route('admin.claims.index', ['status' => 'approved']) }}" class="btn {{ $status == 'approved' ? 'btn-primary' : 'btn-outline-primary' }} btn-sm">Accepted</a>
+                            <a href="{{ route('admin.claims.index', ['status' => 'partial_payout']) }}" class="btn {{ $status == 'partial_payout' ? 'btn-primary' : 'btn-outline-primary' }} btn-sm">Partial Payout</a>
+                            <a href="{{ route('admin.claims.index', ['status' => 'rejected']) }}" class="btn {{ $status == 'rejected' ? 'btn-primary' : 'btn-outline-primary' }} btn-sm">Denied</a>
                         </div>
                     </div>
                 </div>

@@ -6,10 +6,12 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Claim;
 use App\Models\ClaimComment;
+use App\Models\ClaimNote;
 use App\Models\ClaimStatusHistory;
 use App\Models\User;
 use App\Models\GeneralSetting;
 use App\Models\InfluencerCommission;
+use App\Classes\GeniusMailer;
 use DataTables;
 use Carbon\Carbon;
 use Stripe\Stripe;
@@ -107,7 +109,7 @@ class ClaimManagementController extends Controller
      */
     public function show($id)
     {
-        $claim = Claim::with(['user', 'user.activeuserSubscriptions.plan', 'comments.user', 'evidence', 'statusHistory.user'])
+        $claim = Claim::with(['user', 'user.activeuserSubscriptions.plan', 'comments.user', 'evidence', 'statusHistory.user', 'notes.user', 'notes.editedByUser'])
             ->findOrFail($id);
         
         return view('admin.claims.show', compact('claim'));
@@ -123,8 +125,8 @@ class ClaimManagementController extends Controller
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
-            'status' => 'required|in:pending,under_review,approved,rejected',
-            'approved_amount' => 'required_if:status,approved|nullable|numeric|min:0',
+            'status' => 'required|in:pending,under_review,additional_info_requested,challenge_1,challenge_2,approved,partial_payout,rejected',
+            'approved_amount' => 'required_if:status,approved,partial_payout|nullable|numeric|min:0',
             'rejection_reason' => 'required_if:status,rejected|nullable|string',
             'comment' => 'nullable|string',
         ]);
@@ -138,7 +140,8 @@ class ClaimManagementController extends Controller
         
         try {
             $claim->status = $newStatus;
-            if ($newStatus === 'approved') {
+            // Handle approved and partial_payout statuses - both require amount and may trigger commission
+            if (in_array($newStatus, ['approved', 'partial_payout'])) {
                 $claim->amount_approved = $request->approved_amount;
                 
                 $activeSubscription = $claim->user->activeuserSubscriptions()->first();
@@ -206,7 +209,7 @@ class ClaimManagementController extends Controller
             
             $claim->save();
             
-            if($newStatus === 'approved' || $newStatus === 'rejected'){
+            if(in_array($newStatus, ['approved', 'partial_payout', 'rejected'])){
                 // Update influencer commission based on new status
                 $this->updateInfluencerCommission($claim, $newStatus);
             }
@@ -233,6 +236,19 @@ class ClaimManagementController extends Controller
             // Send notification to user about status change
             if ($oldStatus !== $newStatus) {
                 NotificationService::claimStatusChanged($claim, $oldStatus, $newStatus, $request->comment);
+                
+                // Send email notification
+                try {
+                    $mailer = new GeniusMailer();
+                    $mailer->sendClaimStatusUpdateEmail($claim, $newStatus, $request->comment);
+                } catch (\Exception $e) {
+                    Log::error('Failed to send claim status update email', [
+                        'claim_id' => $id,
+                        'user_id' => $claim->user_id,
+                        'error' => $e->getMessage()
+                    ]);
+                    // Don't fail the entire operation if email fails
+                }
             }
             
             DB::commit();
@@ -297,6 +313,100 @@ class ClaimManagementController extends Controller
         }
         
         return redirect()->back()->with('success', 'Comment added successfully');
+    }
+
+    /**
+     * Add an internal note to a claim (admin only).
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function addNote(Request $request, $id)
+    {
+        $request->validate([
+            'note_content' => 'required|string|min:3'
+        ]);
+        
+        $claim = Claim::findOrFail($id);
+        
+        ClaimNote::create([
+            'claim_id' => $claim->id,
+            'admin_user_id' => Auth::id(),
+            'note_content' => $request->note_content
+        ]);
+        
+        Log::info('Internal note added to claim', [
+            'claim_id' => $id,
+            'admin_id' => Auth::id()
+        ]);
+        
+        return redirect()->back()->with('success', 'Internal note added successfully');
+    }
+
+    /**
+     * Update an internal note (admin only).
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $claimId
+     * @param  int  $noteId
+     * @return \Illuminate\Http\Response
+     */
+    public function updateNote(Request $request, $claimId, $noteId)
+    {
+        $request->validate([
+            'note_content' => 'required|string|min:3'
+        ]);
+        
+        $claim = Claim::findOrFail($claimId);
+        $note = ClaimNote::where('claim_id', $claimId)->findOrFail($noteId);
+        
+        // Only allow the original creator or admins to edit
+        if ($note->admin_user_id !== Auth::id() && Auth::user()->role_type !== 'admin') {
+            return redirect()->back()->with('error', 'You can only edit your own notes');
+        }
+        
+        $note->update([
+            'note_content' => $request->note_content,
+            'edited_by' => Auth::id(),
+            'edited_at' => now()
+        ]);
+        
+        Log::info('Internal note updated', [
+            'claim_id' => $claimId,
+            'note_id' => $noteId,
+            'edited_by' => Auth::id()
+        ]);
+        
+        return redirect()->back()->with('success', 'Internal note updated successfully');
+    }
+
+    /**
+     * Delete an internal note (admin only).
+     *
+     * @param  int  $claimId
+     * @param  int  $noteId
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteNote($claimId, $noteId)
+    {
+        $claim = Claim::findOrFail($claimId);
+        $note = ClaimNote::where('claim_id', $claimId)->findOrFail($noteId);
+        
+        // Only allow the original creator or admins to delete
+        if ($note->admin_user_id !== Auth::id() && Auth::user()->role_type !== 'admin') {
+            return redirect()->back()->with('error', 'You can only delete your own notes');
+        }
+        
+        $note->delete();
+        
+        Log::info('Internal note deleted', [
+            'claim_id' => $claimId,
+            'note_id' => $noteId,
+            'deleted_by' => Auth::id()
+        ]);
+        
+        return redirect()->back()->with('success', 'Internal note deleted successfully');
     }
 
     /**
@@ -437,7 +547,7 @@ class ClaimManagementController extends Controller
                 return; // No commission record exists
             }
 
-            if ($newStatus === 'approved') {
+            if ($newStatus === 'approved' || $newStatus === 'partial_payout') {
                 // Get general settings for commission validation
                 $gs = GeneralSetting::first();
                 

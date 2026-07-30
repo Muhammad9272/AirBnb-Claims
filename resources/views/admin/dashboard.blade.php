@@ -304,7 +304,7 @@
                                                 #{{ $key+1}}
                                             </a>
                                         </td>
-                                        <td>{{ $claim->user->name }}</td>
+                                        <td>{{ $claim->user->name ?? '' }}</td>
                                         <td>${{ number_format($claim->amount_requested, 2) }}</td>
                                         <td>
                                             <span class="badge 
