@@ -204,7 +204,9 @@ class ClaimController extends Controller
         $message = "A new claim #{$claim->claim_number} has been submitted by {$claim->user->name}";
         $link = route('admin.claims.show', $claim->id);
         NotificationService::notifyAdmin('claim_submitted', $title, $message, $link);
-        
+
+        \App\Jobs\PushClaimToNotion::dispatch($claim->id);
+
         return redirect()->route('user.claims.show', $claim->id)
             ->with('success', 'Claim submitted successfully! Your claim number is ' . $claimNumber);
     }

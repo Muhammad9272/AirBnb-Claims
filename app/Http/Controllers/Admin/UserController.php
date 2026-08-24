@@ -75,12 +75,11 @@ class UserController extends Controller
                             ->addColumn('member_ship', function(User $data) {
                                 $activeSubscription = $data->subscriptionsActive();
                                 $planName = $activeSubscription && $activeSubscription->subplan ? $activeSubscription->subplan->name :null;
-                                $membershipStatus =  $activeSubscription ? 'Active' : ($planName?'Expired':'');
 
                                 return '<div>
-                                    <strong>Membership Level:</strong> '.$planName.'<br>
-                                    <strong>Membership Status:</strong> '.$membershipStatus.'
-                                </div>'; 
+                                    <strong>Membership Level:</strong> '.($planName ?: '-').'<br>
+                                    <strong>Status:</strong> '.$data->subscriber_status.'
+                                </div>';
                             })
                             
                             ->addColumn('referral_info', function(User $data) {
@@ -134,6 +133,7 @@ class UserController extends Controller
                                 // Check if the logged-in admin is a super admin
                                 if(Auth::guard('admin')->user()->IsSuper()) {
                                     $actions .= '<a href="' . route('admin.user.secret', $data->id) . '" class="btn btn-sm fs-13 btn-danger waves-effect waves-light"><i class="ri-eye-fill align-middle fs-16 "></i> Secret Login</a>';
+                                    $actions .= '<a data-href="' . route('admin.users.destroy', $data->id) . '" data-bs-toggle="modal" data-bs-target="#confirm-delete" class="btn btn-sm fs-13 btn-danger waves-effect waves-light" title="Delete User"><i class="ri-delete-bin-fill align-middle fs-16"></i></a>';
                                 }
 
                                 $actions .= '</div>';
@@ -607,32 +607,67 @@ class UserController extends Controller
     }
      public function destroy($id)
     {
-        $user=User::findOrfail($id);
-         
-         $checkSubscription=$user->userSubscriptions()->where('cancelled',0)->orderBy('id','desc')->first(); 
-         if($checkSubscription && $checkSubscription->stripe_id){     
-           $stripe = new \Stripe\StripeClient($this->settings->stripe_secret);
-           try {
-             $response = $stripe->subscriptions->cancel($checkSubscription->stripe_id, []);
-           } catch (\Exception $e) {             
-             // $e->getMessage();
-           }           
+        if (!Auth::guard('admin')->user()->IsSuper()) {
+            return 'You do not have permission to delete users.';
         }
-        if($user->userSubscriptions->count() > 0)
-        {
+
+        $user = User::findOrfail($id);
+
+        // Preserve the claims audit trail - block deletion rather than
+        // silently orphaning or purging claim/payout records.
+        $claimCount = \App\Models\Claim::where('user_id', $user->id)->count();
+        if ($claimCount > 0) {
+            return "Cannot delete this user: they have {$claimCount} claim(s) on record. Resolve or reassign those claims before deleting.";
+        }
+
+        \Illuminate\Support\Facades\DB::beginTransaction();
+
+        try {
+            // NOTE: was `where('cancelled', 0)` - that column doesn't exist on
+            // user_subscriptions (found while testing this fix); the real
+            // "not yet cancelled" convention used elsewhere is canceled_at IS NULL
+            // (see UserSubscription::isCancelled(), SubscriptionController.php:614-616).
+            $checkSubscription = $user->userSubscriptions()->whereNull('canceled_at')->orderBy('id', 'desc')->first();
+            if ($checkSubscription && $checkSubscription->stripe_id) {
+                $stripe = new \Stripe\StripeClient($this->settings->stripe_secret);
+                try {
+                    $stripe->subscriptions->cancel($checkSubscription->stripe_id, []);
+                } catch (\Exception $e) {
+                    Log::error('Failed to cancel Stripe subscription during user deletion', [
+                        'user_id' => $user->id,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+            }
+
             foreach ($user->userSubscriptions as $userSubscription) {
-               $userSubscription->delete();
+                $userSubscription->delete();
             }
+
+            // NOTE: transactions has no user_id column (found while testing this
+            // fix) - it's only reachable via orders.user_id -> transactions.order_id.
+            // The pre-existing `Transaction::where('user_id', ...)` call here always
+            // threw a SQL error, meaning this delete path had never actually worked.
+            $orderIds = $user->orders()->pluck('id');
+            Transaction::whereIn('order_id', $orderIds)->delete();
+            $user->orders()->delete();
+            \App\Models\WalletTransaction::where('user_id', $user->id)->delete();
+            \App\Models\ReferralTransaction::where('referrer_user_id', $user->id)
+                ->orWhere('referee_user_id', $user->id)
+                ->delete();
+            \App\Models\Ticket::where('user_id', $user->id)->delete();
+            \App\Models\TemporaryOrder::where('user_id', $user->id)->delete();
+
+            $user->delete();
+
+            \Illuminate\Support\Facades\DB::commit();
+
+            return null;
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\DB::rollBack();
+            Log::error('Failed to delete user', ['user_id' => $id, 'error' => $e->getMessage()]);
+            return 'Failed to delete user: ' . $e->getMessage();
         }
-        $transactions=Transaction::where('user_id',$user->id)->get();
-        if($transactions->count() > 0)
-        {
-            foreach ($transactions as $transaction) {
-               $transaction->delete();
-            }
-        }
-        $user->delete();
-        
     }
 
     public function updateMembership(Request $request,$id)

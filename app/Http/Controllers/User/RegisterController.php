@@ -137,6 +137,7 @@ $request->validate([
            // Handle affiliate & referral tracking (single function call)
           User::handleReferralTracking($user);
 
+          \App\Jobs\PushClientToNotion::dispatch($user->id);
 
           if($gs->email_verification==1){
             $response=Helpers::send_verification_otp($user->email);

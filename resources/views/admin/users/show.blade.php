@@ -58,6 +58,10 @@
                                     </span>
                                 </td>
                             </tr>
+                            <tr>
+                                <th class="ps-0">Subscriber Status:</th>
+                                <td class="text-muted">{{ $data->subscriber_status }}</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>

@@ -283,6 +283,19 @@ class User extends Authenticatable
         // return '';
     }
 
+    /**
+     * Active Subscriber / Former Subscriber / Registered - Never Subscribed,
+     * derived from existing subscription data (no stored column).
+     */
+    public function getSubscriberStatusAttribute()
+    {
+        if ($this->subscriptionsActive()) {
+            return 'Active Subscriber';
+        }
+
+        return $this->userSubscriptions()->exists() ? 'Former Subscriber' : 'Registered - Never Subscribed';
+    }
+
     public function freetrial($value='')
     {
         if(auth()->user()->userSubscriptions()->exists()){

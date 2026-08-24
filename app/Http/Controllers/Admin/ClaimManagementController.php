@@ -130,139 +130,22 @@ class ClaimManagementController extends Controller
             'rejection_reason' => 'required_if:status,rejected|nullable|string',
             'comment' => 'nullable|string',
         ]);
-        
+
         $claim = Claim::findOrFail($id);
-        $oldStatus = $claim->status;
-        $newStatus = $request->status;
-        
-        // Start database transaction
-        DB::beginTransaction();
-        
-        try {
-            $claim->status = $newStatus;
-            // Handle approved and partial_payout statuses - both require amount and may trigger commission
-            if (in_array($newStatus, ['approved', 'partial_payout'])) {
-                $claim->amount_approved = $request->approved_amount;
-                
-                $activeSubscription = $claim->user->activeuserSubscriptions()->first();
-                if ($activeSubscription && $activeSubscription->plan) {
-                    $commissionRate = $activeSubscription->plan->commission_percentage ?? 0;
-                    $claim->commission_amount = ($request->approved_amount * $commissionRate) / 100;
-                    
-                    $isCommissionAlreadyPaid = $claim->is_commission_paid && $claim->payment_id;
-                    
-                    if (!$isCommissionAlreadyPaid) {
-                        $user = User::find($claim->user_id);
-                        if($user && isset($user->stripe_customer_id)) {
-                            Stripe::setApiKey(config('services.stripe.secret'));
-                           
-                            try {
-                                $paymentIntent = PaymentIntent::create([
-                                    'amount' => (int)($claim->commission_amount * 100),
-                                    'currency' => 'usd',
-                                    'customer' => $user->stripe_customer_id,
-                                    'payment_method' => $user->stripe_payment_method_id,
-                                    'off_session' => true,
-                                    'confirm' => true,
-                                    'description' => floatval($activeSubscription->plan->commission_percentage).'% commission for claim #' . $claim->id,
-                                ]);
 
-                                if ($paymentIntent->status === 'succeeded') {
-                                    $claim->is_commission_paid = true;
-                                    $claim->payment_id = $paymentIntent->id;
-                                    
-                                    Log::info('Commission charged successfully', [
-                                        'claim_id' => $claim->id,
-                                        'payment_intent' => $paymentIntent->id,
-                                        'amount' => $claim->commission_amount,
-                                    ]);
-                                }
-                            } catch (\Exception $paymentException) {
-                                $errorMessage = $paymentException->getMessage();
-                                Log::error('Commission payment failed', [
-                                    'claim_id' => $claim->id,
-                                    'error' => $errorMessage,
-                                    'user_id' => $user->id,
-                                ]);
-                                $user->update([
-                                    'stripe_payment_method_id' => null
-                                ]);
-                                DB::commit();
-                                return redirect()->back()->with('error', 'User Payment card is invalid or has been declined.');
-                            }
-                        }
-                    } else {
-                        Log::info('Commission already paid - skipping charge', [
-                            'claim_id' => $claim->id,
-                            'payment_id' => $claim->payment_id,
-                            'amount' => $claim->commission_amount,
-                        ]);
-                    }
-                }
-            }
+        $result = (new \App\Services\ClaimStatusService())->applyStatusChange($claim, $request->status, [
+            'approved_amount' => $request->approved_amount,
+            'rejection_reason' => $request->rejection_reason,
+            'comment' => $request->comment,
+            'changed_by_id' => Auth::id(),
+            'changed_by_label' => Auth::user()->name . ' (ID: ' . Auth::id() . ')',
+        ]);
 
-            if ($newStatus === 'rejected') {
-                $claim->rejection_reason = $request->rejection_reason;
-                $claim->is_commission_paid = false;
-                $claim->payment_id = null;
-            }
-            
-            $claim->save();
-            
-            if(in_array($newStatus, ['approved', 'partial_payout', 'rejected'])){
-                // Update influencer commission based on new status
-                $this->updateInfluencerCommission($claim, $newStatus);
-            }
-            
-            // Add status history
-            ClaimStatusHistory::create([
-                'claim_id' => $claim->id,
-                'user_id' => Auth::id(),
-                'from_status' => $oldStatus,
-                'to_status' => $newStatus,
-                'notes' => $request->comment
-            ]);
-            
-            // Add comment if provided
-            if ($request->filled('comment')) {
-                ClaimComment::create([
-                    'claim_id' => $claim->id,
-                    'user_id' => Auth::id(),
-                    'comment' => $request->comment,
-                    'is_admin' => true
-                ]);
-            }
-            
-            // Send notification to user about status change
-            if ($oldStatus !== $newStatus) {
-                NotificationService::claimStatusChanged($claim, $oldStatus, $newStatus, $request->comment);
-                
-                // Send email notification
-                try {
-                    $mailer = new GeniusMailer();
-                    $mailer->sendClaimStatusUpdateEmail($claim, $newStatus, $request->comment);
-                } catch (\Exception $e) {
-                    Log::error('Failed to send claim status update email', [
-                        'claim_id' => $id,
-                        'user_id' => $claim->user_id,
-                        'error' => $e->getMessage()
-                    ]);
-                    // Don't fail the entire operation if email fails
-                }
-            }
-            
-            DB::commit();
-            
-            return redirect()->back()->with('success', 'Claim status updated successfully.');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Failed to update claim status', [
-                'claim_id' => $id,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            return redirect()->back()->with('error', 'Failed to update claim status. ' . $e->getMessage());
+        if (!$result['success']) {
+            return redirect()->back()->with('error', $result['error']);
         }
+
+        return redirect()->back()->with('success', 'Claim status updated successfully.');
     }
 
     /**
@@ -530,124 +413,4 @@ class ClaimManagementController extends Controller
         return view('admin.claims.reports', compact('reportData', 'startDate', 'endDate', 'period', 'status'));
     }
 
-    /**
-     * Update influencer commission when claim status changes
-     *
-     * @param  Claim  $claim
-     * @param  string  $newStatus
-     * @return void
-     */
-    private function updateInfluencerCommission($claim, $newStatus)
-    {
-        try {
-            // Find existing commission record for this claim
-            $commission = InfluencerCommission::where('claim_id', $claim->id)->first();
-            
-            if (!$commission) {
-                return; // No commission record exists
-            }
-
-            if ($newStatus === 'approved' || $newStatus === 'partial_payout') {
-                // Get general settings for commission validation
-                $gs = GeneralSetting::first();
-                
-                if (!$gs || !$gs->influencer_commission_percentage) {
-                    $commission->update([
-                        'status' => 'rejected',
-                        'notes' => ($commission->notes ?? '') . "\n[" . now()->format('Y-m-d H:i:s') . "] Commission rejected: Influencer commission is disabled in settings."
-                    ]);
-                    return;
-                }
-
-                // Verify referrer is still an influencer
-                $referrer = User::find($commission->influencer_user_id);
-                if (!$referrer || $referrer->role_type !== 'influencer') {
-                    $commission->update([
-                        'status' => 'rejected',
-                        'commission_amount' => 0,
-                        'notes' => ($commission->notes ?? '') . "\n[" . now()->format('Y-m-d H:i:s') . "] Commission rejected: Referrer is no longer an influencer or account not found."
-                    ]);
-                    
-                    \Log::info('Commission rejected - referrer not an influencer', [
-                        'commission_id' => $commission->id,
-                        'claim_id' => $claim->id,
-                        'referrer_id' => $commission->influencer_user_id
-                    ]);
-                    return;
-                }
-
-                if ($gs->influencer_commission_duration_days) {
-                    $claimCreationDate = $claim->created_at;
-                    $commissionEndDate = $claimCreationDate->copy()->addDays($gs->influencer_commission_duration_days);
-                    $now = now();
-                    
-                    if ($now->greaterThan($commissionEndDate)) {
-                        // Commission period expired - reject the commission
-                        $commission->update([
-                            'status' => 'rejected',
-                            'commission_amount' => 0,
-                            'notes' => ($commission->notes ?? '') . "\n[" . now()->format('Y-m-d H:i:s') . "] Commission rejected: Claim approved after commission period expired. Claim created on {$claimCreationDate->format('Y-m-d')}, commission period ({$gs->influencer_commission_duration_days} days) ended on {$commissionEndDate->format('Y-m-d')}."
-                        ]);
-
-                        \Log::info('Influencer commission rejected - period expired at approval', [
-                            'commission_id' => $commission->id,
-                            'claim_id' => $claim->id,
-                            'claim_created' => $claimCreationDate,
-                            'claim_approved' => $now,
-                            'commission_end_date' => $commissionEndDate
-                        ]);
-                        return;
-                    }
-                }
-
-                // Recalculate commission based on APPROVED amount (not requested)
-                $finalCommission = ($claim->amount_approved * $gs->influencer_commission_percentage) / 100;
-                $finalCommission = round($finalCommission, 2);
-
-                // Prepare approval notes
-                $approvalNotes = ($commission->notes ?? '') . "\n[" . now()->format('Y-m-d H:i:s') . "] Commission approved. ";
-                $approvalNotes .= "Final commission calculated based on approved amount: $" . number_format($claim->amount_approved, 2) . ". ";
-                $approvalNotes .= "Commission rate: {$gs->influencer_commission_percentage}%. ";
-                $approvalNotes .= "Final commission amount: $" . number_format($finalCommission, 2) . ". ";
-                $approvalNotes .= "Approved by: " . auth()->user()->name . " (ID: " . auth()->id() . ").";
-
-                // Update commission record
-                $commission->update([
-                    'commission_amount' => $finalCommission,
-                    'status' => 'approved', // Changed from pending to approved
-                    'commission_date' => now(),
-                    'notes' => $approvalNotes,
-                ]);
-
-                \Log::info('Influencer commission approved', [
-                    'commission_id' => $commission->id,
-                    'claim_id' => $claim->id,
-                    'estimated_commission' => $commission->estimated_commission,
-                    'final_commission' => $finalCommission
-                ]);
-
-            } elseif ($newStatus === 'rejected') {
-                // If claim is rejected, reject the commission
-                $rejectionNotes = ($commission->notes ?? '') . "\n[" . now()->format('Y-m-d H:i:s') . "] Commission rejected: Claim was rejected by admin. ";
-                $rejectionNotes .= "Rejected by: " . auth()->user()->name . " (ID: " . auth()->id() . ").";
-                
-                $commission->update([
-                    'status' => 'rejected',
-                    'commission_amount' => 0, // Set to 0 since claim was rejected
-                    'notes' => $rejectionNotes,
-                ]);
-
-                \Log::info('Influencer commission rejected due to claim rejection', [
-                    'commission_id' => $commission->id,
-                    'claim_id' => $claim->id
-                ]);
-            }
-
-        } catch (\Exception $e) {
-            \Log::error('Failed to update influencer commission: ' . $e->getMessage(), [
-                'claim_id' => $claim->id,
-                'trace' => $e->getTraceAsString()
-            ]);
-        }
-    }
 }

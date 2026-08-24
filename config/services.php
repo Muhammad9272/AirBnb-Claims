@@ -71,6 +71,11 @@ return [
         'client_secret' => env('PAYPAL_SANDBOX_CLIENT_SECRET'),
         'mode' => env('PAYPAL_MODE', 'sandbox')
     ],
-   
+
+    'notion' => [
+        'secret_key' => env('NOTION_SECRET_KEY'),
+        'claims_database_id' => env('NOTION_CLAIMS_DATABASE_ID'),
+        'clients_database_id' => env('NOTION_CLIENTS_DATABASE_ID'),
+    ],
 
 ];

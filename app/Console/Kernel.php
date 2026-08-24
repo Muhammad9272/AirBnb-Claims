@@ -16,6 +16,11 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
+
+        // Pulls claim status / amount / requested-info changes made in Notion
+        // back into the website. Requires a server cron entry running
+        // `php artisan schedule:run` every minute - see deployment notes.
+        $schedule->job(new \App\Jobs\PullClaimUpdatesFromNotion())->everyTwoMinutes()->withoutOverlapping();
     }
 
     /**
