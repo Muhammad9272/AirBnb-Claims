@@ -65,6 +65,14 @@ class AdminUserDeletionTest extends TestCase
             'role_type' => 'user',
             'referred_by' => $user->id,
         ]);
+        User::create([
+            'name' => 'Legacy Unreferred User',
+            'email' => 'legacy-unreferred@example.test',
+            'password' => Hash::make('Testing123'),
+            'role_type' => 'user',
+            // The production database contains this legacy representation.
+            'referred_by' => '',
+        ]);
 
         DB::table('wallet_transactions')->insert([
             'user_id' => $user->id,

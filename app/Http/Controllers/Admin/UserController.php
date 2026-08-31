@@ -676,7 +676,10 @@ class UserController extends Controller
                 \Illuminate\Support\Facades\DB::table('error_reports')->where('user_id', $userId)->update(['user_id' => null]);
                 \Illuminate\Support\Facades\DB::table('withdraws')->where('user_id', $userId)->update(['user_id' => null]);
                 \Illuminate\Support\Facades\DB::table('leads')->where('registered_user_id', $userId)->update(['registered_user_id' => null]);
-                User::where('referred_by', $userId)->update(['referred_by' => null]);
+                // Production stores legacy blank strings in this VARCHAR
+                // column. Bind the id as text so MySQL does not coerce every
+                // blank value to DECIMAL in strict mode while comparing it.
+                User::where('referred_by', (string) $userId)->update(['referred_by' => null]);
 
                 $user->delete();
             });
