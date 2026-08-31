@@ -50,7 +50,11 @@ class LoginController extends Controller
             }else{ return redirect()->back()->with('error',$response['error']);}
           }else{
              // Auth::guard('web')->login($user);
-              if (Auth::guard('web')->attempt(['email' => $request->email, 'password' => $request->password], $request->remember)) {
+              if (Auth::guard('web')->attempt([
+                  'email' => $request->email,
+                  'password' => $request->password,
+                  'role_type' => 'user',
+              ], $request->remember)) {
                     // if successful, then redirect to their intended location
                    return redirect()->intended(route('front.index'));
                }

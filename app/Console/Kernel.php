@@ -20,7 +20,12 @@ class Kernel extends ConsoleKernel
         // Pulls claim status / amount / requested-info changes made in Notion
         // back into the website. Requires a server cron entry running
         // `php artisan schedule:run` every minute - see deployment notes.
-        $schedule->job(new \App\Jobs\PullClaimUpdatesFromNotion())->everyTwoMinutes()->withoutOverlapping();
+        if (config('services.notion.enabled')) {
+            $schedule->job(new \App\Jobs\PullClaimUpdatesFromNotion())
+                ->name('notion-claims-pull')
+                ->everyTwoMinutes()
+                ->withoutOverlapping(10);
+        }
     }
 
     /**

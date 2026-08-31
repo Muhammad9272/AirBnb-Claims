@@ -2,7 +2,7 @@
 
 // namespace Chatify\Http\Controllers;
 
-namespace App\Http\Controllers\vendor\Chatify;
+namespace App\Http\Controllers\Vendor\Chatify;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

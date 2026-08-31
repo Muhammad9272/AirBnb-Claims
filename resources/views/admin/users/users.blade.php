@@ -55,7 +55,7 @@
 
 
 <!-- Delete modal -->
-<div class="modal fade" id="confirm-delete" aria-hidden="true" aria-labelledby="..." tabindex="-1">
+<div class="modal fade" id="confirm-user-delete" aria-hidden="true" aria-labelledby="confirm-user-delete-title" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-body text-center p-3">
@@ -63,15 +63,15 @@
                     colors="primary:#f7b84b,secondary:#405189" style="width:130px;height:130px">
                 </lord-icon>
                 <div class="{{-- mt-4 pt-4 --}}">
-                    <h4>Uh oh, You are about to delete this Data Along with its <b>Subscriptions</b> & related <b> Transactions </b>!</h4>
+                    <h4 id="confirm-user-delete-title">Delete this user and their related subscription data?</h4>
                     <p class="text-muted"> Do you want to proceed?</p>
                     <!-- Toogle to second dialog -->
                     <div class="col-lg-12">
                         <div class="hstack gap-2 justify-content-end">
                             <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                             <a href="" class="btn btn-danger btn-ok" >
+                             <button type="button" class="btn btn-danger btn-ok">
                                 Delete
-                            </a>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -115,6 +115,35 @@
 
                 }
             });
+
+        $('#confirm-user-delete').on('show.bs.modal', function (event) {
+            $(this).find('.btn-ok').data('delete-url', $(event.relatedTarget).data('delete-url'));
+        });
+
+        $('#confirm-user-delete .btn-ok').on('click', function () {
+            const button = $(this);
+            button.prop('disabled', true);
+
+            $.ajax({
+                type: 'DELETE',
+                url: button.data('delete-url'),
+                data: { _token: '{{ csrf_token() }}' },
+                success: function (response) {
+                    $('#confirm-user-delete').modal('hide');
+                    table.ajax.reload(null, false);
+                    toastr.success(response.message || 'User deleted successfully.');
+                },
+                error: function (xhr) {
+                    const message = xhr.responseJSON && xhr.responseJSON.message
+                        ? xhr.responseJSON.message
+                        : 'The user could not be deleted.';
+                    toastr.error(message);
+                },
+                complete: function () {
+                    button.prop('disabled', false);
+                }
+            });
+        });
 
 
 {{-- DATA TABLE ENDS--}}

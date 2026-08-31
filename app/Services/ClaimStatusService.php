@@ -37,6 +37,7 @@ class ClaimStatusService
     public function applyStatusChange(Claim $claim, string $newStatus, array $options = []): array
     {
         $oldStatus = $claim->status;
+        $oldApprovedAmount = $claim->amount_approved;
         $changedById = $options['changed_by_id'] ?? null;
         $changedByLabel = $options['changed_by_label'] ?? ($changedById ? optional(User::find($changedById))->name : 'System');
         $comment = $options['comment'] ?? null;
@@ -115,20 +116,26 @@ class ClaimStatusService
 
             $claim->save();
 
-            if (in_array($newStatus, ['approved', 'partial_payout', 'rejected'])) {
+            $statusChanged = $oldStatus !== $newStatus;
+            $amountChanged = round((float) $oldApprovedAmount, 2) !== round((float) $claim->amount_approved, 2);
+
+            if (($statusChanged || $amountChanged) && in_array($newStatus, ['approved', 'partial_payout', 'rejected'])) {
                 $this->updateInfluencerCommission($claim, $newStatus, $changedByLabel);
             }
 
-            ClaimStatusHistory::create([
-                'claim_id' => $claim->id,
-                'user_id' => $changedById,
-                'from_status' => $oldStatus,
-                'to_status' => $newStatus,
-                'notes' => $comment,
-            ]);
+            if ($statusChanged) {
+                ClaimStatusHistory::create([
+                    'claim_id' => $claim->id,
+                    'user_id' => $changedById,
+                    'from_status' => $oldStatus,
+                    'to_status' => $newStatus,
+                    'notes' => $comment,
+                ]);
+            }
 
+            $createdComment = null;
             if (!empty($comment)) {
-                ClaimComment::create([
+                $createdComment = ClaimComment::create([
                     'claim_id' => $claim->id,
                     // claim_comments.user_id is NOT NULL with no real FK; attribute
                     // system/Notion-originated comments to the primary admin (id 1,
@@ -140,7 +147,7 @@ class ClaimStatusService
                 ]);
             }
 
-            if ($oldStatus !== $newStatus) {
+            if ($statusChanged) {
                 NotificationService::claimStatusChanged($claim, $oldStatus, $newStatus, $comment);
 
                 try {
@@ -152,11 +159,13 @@ class ClaimStatusService
                         'error' => $e->getMessage(),
                     ]);
                 }
+            } elseif ($createdComment) {
+                NotificationService::newComment($createdComment);
             }
 
             DB::commit();
 
-            if ($origin === 'website' && $claim->notion_page_id) {
+            if ($origin === 'website' && ($statusChanged || $amountChanged || !empty($comment))) {
                 \App\Jobs\PushClaimUpdateToNotion::dispatch($claim->id, [
                     'status' => $newStatus,
                     'amount_approved' => $claim->amount_approved,

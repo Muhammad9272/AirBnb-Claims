@@ -6,6 +6,7 @@ use App\Models\Claim;
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use RuntimeException;
 
 /**
  * Thin wrapper around the Notion API, following the same Http:: facade +
@@ -45,6 +46,11 @@ class NotionService
         return config('services.notion.claims_database_id');
     }
 
+    public function isEnabled(): bool
+    {
+        return (bool) config('services.notion.enabled', true);
+    }
+
     public function clientsDatabaseId(): ?string
     {
         return config('services.notion.clients_database_id');
@@ -57,10 +63,21 @@ class NotionService
      */
     public function createClaimPage(Claim $claim): ?string
     {
+        if (!$this->isEnabled()) {
+            return null;
+        }
+
         $databaseId = $this->claimsDatabaseId();
         if (!$databaseId) {
             Log::warning('Notion claims database id not configured, skipping push', ['claim_id' => $claim->id]);
             return null;
+        }
+
+        // A queue retry must not create a second Notion page if the first API
+        // request succeeded but the local database update did not.
+        $existingPageId = $this->findClaimPageId($claim->claim_number);
+        if ($existingPageId) {
+            return $existingPageId;
         }
 
         $response = $this->request('POST', '/pages', [
@@ -120,10 +137,19 @@ class NotionService
      */
     public function createClientPage(User $user): ?string
     {
+        if (!$this->isEnabled()) {
+            return null;
+        }
+
         $databaseId = $this->clientsDatabaseId();
         if (!$databaseId) {
             Log::warning('Notion clients database id not configured, skipping push', ['user_id' => $user->id]);
             return null;
+        }
+
+        $existingPageId = $this->findClientPageId((string) $user->id);
+        if ($existingPageId) {
+            return $existingPageId;
         }
 
         $response = $this->request('POST', '/pages', [
@@ -145,19 +171,75 @@ class NotionService
      */
     public function queryUpdatedClaimPages(string $sinceIso): array
     {
-        $databaseId = $this->claimsDatabaseId();
-        if (!$databaseId) {
+        if (!$this->isEnabled()) {
             return [];
         }
 
+        $databaseId = $this->claimsDatabaseId();
+        if (!$databaseId) {
+            throw new RuntimeException('Notion claims database id is not configured.');
+        }
+
+        $results = [];
+        $cursor = null;
+
+        do {
+            $payload = [
+                'page_size' => 100,
+                'filter' => [
+                    'timestamp' => 'last_edited_time',
+                    'last_edited_time' => ['after' => $sinceIso],
+                ],
+            ];
+
+            if ($cursor) {
+                $payload['start_cursor'] = $cursor;
+            }
+
+            $response = $this->request('POST', "/databases/{$databaseId}/query", $payload);
+            if ($response === null) {
+                throw new RuntimeException('Unable to query updated Notion claim pages.');
+            }
+
+            $results = array_merge($results, $response['results'] ?? []);
+            $cursor = !empty($response['has_more']) ? ($response['next_cursor'] ?? null) : null;
+        } while ($cursor);
+
+        return $results;
+    }
+
+    private function findClaimPageId(string $claimNumber): ?string
+    {
+        return $this->findPageId($this->claimsDatabaseId(), [
+            'property' => 'claim Number ',
+            'rich_text' => ['equals' => $claimNumber],
+        ]);
+    }
+
+    private function findClientPageId(string $portalClientId): ?string
+    {
+        return $this->findPageId($this->clientsDatabaseId(), [
+            'property' => 'Portal Client ID',
+            'rich_text' => ['equals' => $portalClientId],
+        ]);
+    }
+
+    private function findPageId(?string $databaseId, array $filter): ?string
+    {
+        if (!$databaseId) {
+            return null;
+        }
+
         $response = $this->request('POST', "/databases/{$databaseId}/query", [
-            'filter' => [
-                'timestamp' => 'last_edited_time',
-                'last_edited_time' => ['after' => $sinceIso],
-            ],
+            'page_size' => 1,
+            'filter' => $filter,
         ]);
 
-        return $response['results'] ?? [];
+        if ($response === null) {
+            throw new RuntimeException('Unable to check for an existing Notion page.');
+        }
+
+        return $response['results'][0]['id'] ?? null;
     }
 
     /**
@@ -187,7 +269,7 @@ class NotionService
         // need a non-empty title, so fall back to the claim number if the
         // Airbnb code hasn't been entered yet.
         $properties = [
-            'Airbnb Res Code' => $this->title($claim->airbnb_reservation_code ?: $claim->claim_number),
+            'Airbnb Res Code' => $this->title($this->pagePrefix() . ($claim->airbnb_reservation_code ?: $claim->claim_number)),
             'claim Number ' => $this->richText($claim->claim_number),
             'Name' => $this->richText($claim->title),
             'Description' => $this->richText($claim->description),
@@ -226,7 +308,7 @@ class NotionService
     private function clientProperties(User $user): array
     {
         return [
-            'Name' => $this->title($user->name),
+            'Name' => $this->title($this->pagePrefix() . $user->name),
             'Email' => $this->email($user->email),
             'Phone' => $this->phone($user->phone),
             // Cross-reference back to the website's internal user id.
@@ -270,7 +352,23 @@ class NotionService
 
     private function richText(?string $value): array
     {
-        return ['rich_text' => [['text' => ['content' => (string) ($value ?? '')]]]];
+        $value = (string) ($value ?? '');
+        if ($value === '') {
+            return ['rich_text' => []];
+        }
+
+        $chunks = [];
+        $length = mb_strlen($value);
+        for ($offset = 0; $offset < $length; $offset += 2000) {
+            $chunks[] = ['text' => ['content' => mb_substr($value, $offset, 2000)]];
+        }
+
+        return ['rich_text' => $chunks];
+    }
+
+    private function pagePrefix(): string
+    {
+        return (string) config('services.notion.page_prefix', '');
     }
 
     private function number($value): array

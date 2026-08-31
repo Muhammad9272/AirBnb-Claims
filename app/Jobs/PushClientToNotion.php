@@ -15,6 +15,10 @@ class PushClientToNotion implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public $tries = 3;
+
+    public $backoff = [30, 120, 300];
+
     protected $userId;
 
     public function __construct($userId)
@@ -22,9 +26,13 @@ class PushClientToNotion implements ShouldQueue
         $this->userId = $userId;
     }
 
-    public function handle()
+    public function handle(NotionService $notion)
     {
         try {
+            if (!$notion->isEnabled()) {
+                return;
+            }
+
             $user = User::find($this->userId);
 
             if (!$user) {
@@ -32,16 +40,24 @@ class PushClientToNotion implements ShouldQueue
                 return;
             }
 
-            $pageId = (new NotionService())->createClientPage($user);
+            if ($user->notion_page_id) {
+                return;
+            }
+
+            $pageId = $notion->createClientPage($user);
 
             if ($pageId) {
                 $user->notion_page_id = $pageId;
                 $user->saveQuietly();
 
                 Log::info('Client pushed to Notion', ['user_id' => $user->id, 'notion_page_id' => $pageId]);
+                return;
             }
+
+            throw new \RuntimeException('Notion did not return a client page id.');
         } catch (\Exception $e) {
             Log::error('Failed to push client to Notion: ' . $e->getMessage(), ['user_id' => $this->userId]);
+            throw $e;
         }
     }
 }

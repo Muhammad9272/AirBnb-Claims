@@ -21,6 +21,10 @@ class PushClaimUpdateToNotion implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public $tries = 3;
+
+    public $backoff = [30, 120, 300];
+
     protected $claimId;
     protected $fields;
 
@@ -30,23 +34,37 @@ class PushClaimUpdateToNotion implements ShouldQueue
         $this->fields = $fields;
     }
 
-    public function handle()
+    public function handle(NotionService $notion)
     {
         try {
-            $claim = Claim::find($this->claimId);
-
-            if (!$claim || !$claim->notion_page_id) {
-                Log::info('Notion claim update push skipped - no linked Notion page', ['claim_id' => $this->claimId]);
+            if (!$notion->isEnabled()) {
                 return;
             }
 
-            $ok = (new NotionService())->updateClaimPage($claim->notion_page_id, $this->fields);
+            $claim = Claim::find($this->claimId);
+
+            if (!$claim) {
+                Log::info('Notion claim update push skipped - claim not found', ['claim_id' => $this->claimId]);
+                return;
+            }
+
+            if (!$claim->notion_page_id) {
+                PushClaimToNotion::dispatch($claim->id);
+                Log::warning('Notion claim update converted to a create push because the page link was missing', ['claim_id' => $claim->id]);
+                return;
+            }
+
+            $ok = $notion->updateClaimPage($claim->notion_page_id, $this->fields);
 
             if ($ok) {
                 Log::info('Claim update pushed to Notion', ['claim_id' => $claim->id, 'fields' => array_keys($this->fields)]);
+                return;
             }
+
+            throw new \RuntimeException('Notion claim page update failed.');
         } catch (\Exception $e) {
             Log::error('Failed to push claim update to Notion: ' . $e->getMessage(), ['claim_id' => $this->claimId]);
+            throw $e;
         }
     }
 }

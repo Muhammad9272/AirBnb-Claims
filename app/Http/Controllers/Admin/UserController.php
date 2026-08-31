@@ -133,7 +133,7 @@ class UserController extends Controller
                                 // Check if the logged-in admin is a super admin
                                 if(Auth::guard('admin')->user()->IsSuper()) {
                                     $actions .= '<a href="' . route('admin.user.secret', $data->id) . '" class="btn btn-sm fs-13 btn-danger waves-effect waves-light"><i class="ri-eye-fill align-middle fs-16 "></i> Secret Login</a>';
-                                    $actions .= '<a data-href="' . route('admin.users.destroy', $data->id) . '" data-bs-toggle="modal" data-bs-target="#confirm-delete" class="btn btn-sm fs-13 btn-danger waves-effect waves-light" title="Delete User"><i class="ri-delete-bin-fill align-middle fs-16"></i></a>';
+                                    $actions .= '<button type="button" data-delete-url="' . route('admin.users.destroy', $data->id) . '" data-bs-toggle="modal" data-bs-target="#confirm-user-delete" class="btn btn-sm fs-13 btn-danger waves-effect waves-light" title="Delete User"><i class="ri-delete-bin-fill align-middle fs-16"></i></button>';
                                 }
 
                                 $actions .= '</div>';
@@ -191,8 +191,6 @@ class UserController extends Controller
                             })
                             ->addColumn('action', function(Subscriptions $data) {
                                 return '<div class="action-list">
-                                 <a data-href="' . route('admin.users.destroy',$data->id) . '" data-bs-toggle="modal" data-bs-target="#confirm-delete" class="btn btn-sm fs-13 btn-danger waves-effect waves-light"><i class="ri-delete-bin-fill align-middle fs-16 "></i></a>
-                                
                                 <a href="'.route('admin.users.transactions.index',$data->id).'" class="btn btn-info btn-sm fs-13 waves-effect waves-light">View Transactions</a> 
 
                                 </div>';
@@ -605,68 +603,90 @@ class UserController extends Controller
         // Redirect back with success message
         return redirect()->back()->with('success', 'Email campaign sent successfully.');
     }
-     public function destroy($id)
+    public function destroy($id)
     {
         if (!Auth::guard('admin')->user()->IsSuper()) {
-            return 'You do not have permission to delete users.';
+            return response()->json(['message' => 'You do not have permission to delete users.'], 403);
         }
 
-        $user = User::findOrfail($id);
+        $user = User::user()->find($id);
+        if (!$user) {
+            return response()->json(['message' => 'User not found or cannot be deleted.'], 404);
+        }
 
         // Preserve the claims audit trail - block deletion rather than
         // silently orphaning or purging claim/payout records.
         $claimCount = \App\Models\Claim::where('user_id', $user->id)->count();
         if ($claimCount > 0) {
-            return "Cannot delete this user: they have {$claimCount} claim(s) on record. Resolve or reassign those claims before deleting.";
+            return response()->json([
+                'message' => "Cannot delete this user: they have {$claimCount} claim(s) on record. Resolve or reassign those claims before deleting.",
+            ], 422);
         }
 
-        \Illuminate\Support\Facades\DB::beginTransaction();
-
         try {
-            // NOTE: was `where('cancelled', 0)` - that column doesn't exist on
-            // user_subscriptions (found while testing this fix); the real
-            // "not yet cancelled" convention used elsewhere is canceled_at IS NULL
-            // (see UserSubscription::isCancelled(), SubscriptionController.php:614-616).
-            $checkSubscription = $user->userSubscriptions()->whereNull('canceled_at')->orderBy('id', 'desc')->first();
+            $checkSubscription = $user->activeuserSubscriptions()
+                ->whereNotNull('stripe_id')
+                ->orderBy('id', 'desc')
+                ->first();
+
             if ($checkSubscription && $checkSubscription->stripe_id) {
-                $stripe = new \Stripe\StripeClient($this->settings->stripe_secret);
-                try {
+                $stripeSecret = config('services.stripe.secret');
+                if (!$stripeSecret) {
+                    throw new \RuntimeException('Stripe is not configured, so the active subscription could not be cancelled safely.');
+                }
+
+                $stripe = new \Stripe\StripeClient($stripeSecret);
+                $remoteSubscription = $stripe->subscriptions->retrieve($checkSubscription->stripe_id, []);
+                if (!in_array($remoteSubscription->status, ['canceled', 'incomplete_expired'], true)) {
                     $stripe->subscriptions->cancel($checkSubscription->stripe_id, []);
-                } catch (\Exception $e) {
-                    Log::error('Failed to cancel Stripe subscription during user deletion', [
-                        'user_id' => $user->id,
-                        'error' => $e->getMessage(),
-                    ]);
                 }
             }
 
-            foreach ($user->userSubscriptions as $userSubscription) {
-                $userSubscription->delete();
-            }
+            \Illuminate\Support\Facades\DB::transaction(function () use ($user) {
+                $userId = $user->id;
+                $orderIds = \App\Models\Order::where('user_id', $userId)->pluck('id');
 
-            // NOTE: transactions has no user_id column (found while testing this
-            // fix) - it's only reachable via orders.user_id -> transactions.order_id.
-            // The pre-existing `Transaction::where('user_id', ...)` call here always
-            // threw a SQL error, meaning this delete path had never actually worked.
-            $orderIds = $user->orders()->pluck('id');
-            Transaction::whereIn('order_id', $orderIds)->delete();
-            $user->orders()->delete();
-            \App\Models\WalletTransaction::where('user_id', $user->id)->delete();
-            \App\Models\ReferralTransaction::where('referrer_user_id', $user->id)
-                ->orWhere('referee_user_id', $user->id)
-                ->delete();
-            \App\Models\Ticket::where('user_id', $user->id)->delete();
-            \App\Models\TemporaryOrder::where('user_id', $user->id)->delete();
+                Transaction::whereIn('order_id', $orderIds)->delete();
+                \App\Models\Order::where('user_id', $userId)->delete();
+                $user->userSubscriptions()->delete();
+                Subscriptions::where('user_id', $userId)->delete();
 
-            $user->delete();
+                \App\Models\WalletTransaction::where('user_id', $userId)->delete();
+                \App\Models\WalletTransaction::where('related_user_id', $userId)->update(['related_user_id' => null]);
+                \App\Models\ReferralTransaction::where('referrer_user_id', $userId)
+                    ->orWhere('referee_user_id', $userId)
+                    ->delete();
+                \App\Models\Ticket::where('user_id', $userId)->delete();
+                \App\Models\TemporaryOrder::where('user_id', $userId)->delete();
 
-            \Illuminate\Support\Facades\DB::commit();
+                \Illuminate\Support\Facades\DB::table('carts')->where('user_id', $userId)->delete();
+                \Illuminate\Support\Facades\DB::table('favorites')->where('user_id', $userId)->delete();
+                \Illuminate\Support\Facades\DB::table('ch_favorites')
+                    ->where('user_id', $userId)
+                    ->orWhere('favorite_id', $userId)
+                    ->delete();
+                \Illuminate\Support\Facades\DB::table('ch_messages')
+                    ->where('from_id', $userId)
+                    ->orWhere('to_id', $userId)
+                    ->delete();
+                \Illuminate\Support\Facades\DB::table('social_providers')->where('user_id', $userId)->delete();
+                \Illuminate\Support\Facades\DB::table('sessions')->where('user_id', $userId)->delete();
+                \Illuminate\Support\Facades\DB::table('notifications')->where('user_id', $userId)->delete();
+                \Illuminate\Support\Facades\DB::table('coupons')->where('user_id', $userId)->update(['user_id' => null]);
+                \Illuminate\Support\Facades\DB::table('error_reports')->where('user_id', $userId)->update(['user_id' => null]);
+                \Illuminate\Support\Facades\DB::table('withdraws')->where('user_id', $userId)->update(['user_id' => null]);
+                \Illuminate\Support\Facades\DB::table('leads')->where('registered_user_id', $userId)->update(['registered_user_id' => null]);
+                User::where('referred_by', $userId)->update(['referred_by' => null]);
 
-            return null;
+                $user->delete();
+            });
+
+            return response()->json(['message' => 'User deleted successfully.']);
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\DB::rollBack();
             Log::error('Failed to delete user', ['user_id' => $id, 'error' => $e->getMessage()]);
-            return 'Failed to delete user: ' . $e->getMessage();
+            return response()->json([
+                'message' => 'The user was not deleted. Active billing could not be cancelled safely or related data cleanup failed.',
+            ], 500);
         }
     }
 

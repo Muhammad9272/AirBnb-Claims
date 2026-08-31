@@ -3,12 +3,15 @@
 namespace App\Jobs;
 
 use App\Models\Claim;
+use App\Models\ClaimComment;
 use App\Services\ClaimStatusService;
 use App\Services\NotionService;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -27,31 +30,40 @@ class PullClaimUpdatesFromNotion implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public $tries = 3;
+
+    public $backoff = [30, 120, 300];
+
     private const CACHE_KEY = 'notion_claims_last_synced_at';
     // Overlap window so a slow/missed run never skips a page; re-applying an
     // unchanged value is a no-op (see the comparison below).
     private const LOOKBACK_MINUTES = 15;
 
-    public function handle()
+    public function middleware(): array
     {
-        $notion = new NotionService();
-        $statusService = new ClaimStatusService();
+        return [(new WithoutOverlapping('notion-claims-pull'))->releaseAfter(30)->expireAfter(300)];
+    }
 
-        $since = Cache::get(self::CACHE_KEY, now()->subMinutes(self::LOOKBACK_MINUTES)->toIso8601String());
+    public function handle(NotionService $notion, ClaimStatusService $statusService)
+    {
+        if (!$notion->isEnabled()) {
+            return;
+        }
+
+        $lastSuccessfulSync = Cache::get(self::CACHE_KEY, now()->toIso8601String());
+        $since = Carbon::parse($lastSuccessfulSync)
+            ->subMinutes(self::LOOKBACK_MINUTES)
+            ->toIso8601String();
         $runStartedAt = now()->toIso8601String();
 
         $pages = $notion->queryUpdatedClaimPages($since);
 
         foreach ($pages as $page) {
-            try {
-                $this->syncPage($page, $notion, $statusService);
-            } catch (\Exception $e) {
-                Log::error('Failed to sync claim page from Notion: ' . $e->getMessage(), [
-                    'page_id' => $page['id'] ?? null,
-                ]);
-            }
+            $this->syncPage($page, $notion, $statusService);
         }
 
+        // Only advance after every page completed. If the API or any page
+        // fails, the queued job retries from the previous successful marker.
         Cache::forever(self::CACHE_KEY, $runStartedAt);
     }
 
@@ -68,18 +80,21 @@ class PullClaimUpdatesFromNotion implements ShouldQueue
         $statusChanged = $fields['status'] !== null && $fields['status'] !== $claim->status;
         $amountChanged = $fields['amount_approved'] !== null
             && round((float) $fields['amount_approved'], 2) !== round((float) $claim->amount_approved, 2);
+        $requestedInformation = trim((string) ($fields['requested_information'] ?? ''));
+        $notionComment = $requestedInformation !== '' ? "[Synced from Notion] {$requestedInformation}" : null;
+        $requestedInformationChanged = $notionComment !== null
+            && !ClaimComment::where('claim_id', $claim->id)
+                ->where('is_admin', true)
+                ->where('comment', $notionComment)
+                ->exists();
 
-        if (!$statusChanged && !$amountChanged) {
+        if (!$statusChanged && !$amountChanged && !$requestedInformationChanged) {
             return;
         }
 
         $newStatus = $fields['status'] ?? $claim->status;
 
-        // Only carry the "requested information" note through on an actual
-        // status transition - otherwise the same lingering Notion text would
-        // create a duplicate comment (and duplicate client email) on every
-        // poll cycle.
-        $comment = $statusChanged ? $fields['requested_information'] : null;
+        $comment = $requestedInformationChanged ? $requestedInformation : null;
 
         $result = $statusService->applyStatusChange($claim, $newStatus, [
             'approved_amount' => $fields['amount_approved'] ?? $claim->amount_approved,
@@ -94,7 +109,7 @@ class PullClaimUpdatesFromNotion implements ShouldQueue
                 'claim_id' => $claim->id,
                 'error' => $result['error'],
             ]);
-            return;
+            throw new \RuntimeException($result['error']);
         }
 
         Log::info('Claim synced from Notion', [

@@ -15,16 +15,23 @@ use Log;
 
 class PaypalController extends Controller
 {
-    protected PayPalClient $provider;
+    protected ?PayPalClient $provider = null;
 
 
-    public function __construct(Request $request)
+    public function __construct()
     {
         $this->middleware('auth');
-        $this->provider = new PayPalClient();
-        // load credentials & generate access token
-        $this->provider->setApiCredentials(config('paypal'));
-        $this->provider->getAccessToken();
+    }
+
+    protected function provider(): PayPalClient
+    {
+        if ($this->provider === null) {
+            $this->provider = new PayPalClient();
+            $this->provider->setApiCredentials(config('paypal'));
+            $this->provider->getAccessToken();
+        }
+
+        return $this->provider;
     }
 
     /**
@@ -57,7 +64,7 @@ class PaypalController extends Controller
                 ],
             ];
 
-            $response = $this->provider->createOrder($payload);
+            $response = $this->provider()->createOrder($payload);
 
             if (empty($response['id']) || empty($response['links'])) {
                 throw new Exception('Invalid createOrder response');
@@ -109,7 +116,7 @@ class PaypalController extends Controller
             }
 
             // capture payment
-            $captureResponse = $this->provider->capturePaymentOrder($paypalOrderId);
+            $captureResponse = $this->provider()->capturePaymentOrder($paypalOrderId);
 
             if (($captureResponse['status'] ?? '') !== 'COMPLETED') {
                 throw new Exception('Payment not completed: '.($captureResponse['status'] ?? 'unknown'));

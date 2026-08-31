@@ -73,9 +73,13 @@ return [
     ],
 
     'notion' => [
+        // Opt in per environment. This prevents a code-only deployment from
+        // unexpectedly starting live two-way synchronization.
+        'enabled' => env('NOTION_SYNC_ENABLED', false),
         'secret_key' => env('NOTION_SECRET_KEY'),
         'claims_database_id' => env('NOTION_CLAIMS_DATABASE_ID'),
         'clients_database_id' => env('NOTION_CLIENTS_DATABASE_ID'),
+        'page_prefix' => env('NOTION_PAGE_PREFIX', ''),
     ],
 
 ];

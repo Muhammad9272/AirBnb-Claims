@@ -289,7 +289,7 @@ class User extends Authenticatable
      */
     public function getSubscriberStatusAttribute()
     {
-        if ($this->subscriptionsActive()) {
+        if ($this->activeuserSubscriptions()->exists()) {
             return 'Active Subscriber';
         }
 

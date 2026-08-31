@@ -25,7 +25,7 @@ use App\Http\Controllers\User\TicketController as UserTicketController;
 // Include Chatify routeser;
 use App\Http\Controllers\Front\CartController;
 use App\Http\Controllers\Front\CheckoutController;
-// use App\Http\Controllers\Vendor\Chatify\MessagesController;
+use App\Http\Controllers\Vendor\Chatify\MessagesController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -234,64 +234,12 @@ Route::prefix('management0712')->group(function() {
     
     // Route::get('/secret/{email}',[App\Http\Controllers\Admin\UserController::class, 'secretlogin'])->name('admin.users.secretlogin');
 
-    Route::get('/users/delete/{id}',[App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('admin.users.destroy');
+    Route::delete('/users/delete/{id}',[App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('admin.users.destroy');
 
     Route::get('/subscribed/users/datatables',[App\Http\Controllers\Admin\UserController::class, 'subscribedusersDataTables'])->name('admin.users.subscribed.datatables');
     Route::get('/subscribed/users',[App\Http\Controllers\Admin\UserController::class, 'subscribedusers'])->name('admin.users.subscribed.index');
   });
 
-
-  Route::group(['middleware' => 'permissions:nostalgia'], function () {
-    Route::prefix('nostalgia')->name('admin.nostalgia.')->group(function () {
-        // Category Routes
-        Route::get('/categories/datatables', [NostalgiaCategoryController::class, 'datatables'])->name('category.datatables');
-        Route::get('/categories', [NostalgiaCategoryController::class, 'index'])->name('category.index');
-        Route::get('/category/create', [NostalgiaCategoryController::class, 'create'])->name('category.create');
-        Route::post('/category/store', [NostalgiaCategoryController::class, 'store'])->name('category.store');
-        Route::get('/category/edit/{id}', [NostalgiaCategoryController::class, 'edit'])->name('category.edit');
-        Route::post('/category/update/{id}', [NostalgiaCategoryController::class, 'update'])->name('category.update');
-        Route::get('/category/delete/{id}', [NostalgiaCategoryController::class, 'destroy'])->name('category.delete');
-        Route::get('/category/status/{id1}/{id2}', [NostalgiaCategoryController::class, 'status'])->name('category.status');
-        Route::get('/category/parents', [NostalgiaCategoryController::class, 'getParentCategories'])->name('category.parents');
-
-        // Item Routes
-        Route::get('/items/datatables', [NostalgiaItemController::class, 'datatables'])->name('item.datatables');
-        Route::get('/items', [NostalgiaItemController::class, 'index'])->name('item.index');
-        Route::get('/item/create', [NostalgiaItemController::class, 'create'])->name('item.create');
-        Route::post('/item/store', [NostalgiaItemController::class, 'store'])->name('item.store');
-        Route::get('/item/edit/{id}', [NostalgiaItemController::class, 'edit'])->name('item.edit');
-        Route::post('/item/update/{id}', [NostalgiaItemController::class, 'update'])->name('item.update');
-        Route::get('/item/delete/{id}', [NostalgiaItemController::class, 'destroy'])->name('item.delete');
-        Route::get('/item/status/{id1}/{id2}', [NostalgiaItemController::class, 'status'])->name('item.status');
-        Route::get('/get-subcategories/{category_id}', [NostalgiaItemController::class, 'getSubcategories'])->name('item.subcategories');
-        Route::get('/get-childcategories/{subcategory_id}', [NostalgiaItemController::class, 'getChildcategories'])->name('item.childcategories');
-    });
-  });
-
-  Route::group(['middleware' => 'permissions:services'], function () {
-    // Service Category Routes
-    Route::prefix('service')->name('admin.service.')->group(function () {
-        // Category Routes
-        Route::get('/categories/datatables', [ServiceCategoryController::class, 'datatables'])->name('category.datatables');
-        Route::get('/categories', [ServiceCategoryController::class, 'index'])->name('category.index');
-        Route::get('/category/create', [ServiceCategoryController::class, 'create'])->name('category.create');
-        Route::post('/category/store', [ServiceCategoryController::class, 'store'])->name('category.store');
-        Route::get('/category/edit/{id}', [ServiceCategoryController::class, 'edit'])->name('category.edit');
-        Route::post('/category/update/{id}', [ServiceCategoryController::class, 'update'])->name('category.update');
-        Route::get('/category/delete/{id}', [ServiceCategoryController::class, 'destroy'])->name('category.delete');
-        Route::get('/category/status/{id1}/{id2}', [ServiceCategoryController::class, 'status'])->name('category.status');
-
-        // Service Item Routes
-        Route::get('/items/datatables', [ServiceItemController::class, 'datatables'])->name('item.datatables');
-        Route::get('/items', [ServiceItemController::class, 'index'])->name('item.index');
-        Route::get('/item/create', [ServiceItemController::class, 'create'])->name('item.create');
-        Route::post('/item/store', [ServiceItemController::class, 'store'])->name('item.store');
-        Route::get('/item/edit/{id}', [ServiceItemController::class, 'edit'])->name('item.edit');
-        Route::post('/item/update/{id}', [ServiceItemController::class, 'update'])->name('item.update');
-        Route::get('/item/delete/{id}', [ServiceItemController::class, 'destroy'])->name('item.delete');
-        Route::get('/item/status/{id1}/{id2}', [ServiceItemController::class, 'status'])->name('item.status');
-    });
-  });
 
   Route::group(['middleware' => 'permissions:blogs'], function () {
     Route::prefix('blog')->name('admin.blog.')->group(function () {
@@ -361,9 +309,9 @@ Route::prefix('management0712')->group(function() {
     Route::get('/role',[App\Http\Controllers\Admin\RoleController::class, 'index'])->name('admin.role.index');
     Route::get('/role/create',[App\Http\Controllers\Admin\RoleController::class, 'create'] )->name('admin.role.create');
     Route::post('/role/create',[App\Http\Controllers\Admin\RoleController::class, 'store'])->name('admin.role.store');
-    Route::get('/role/edit/{id}',[AppHttp\Controllers\Admin\RoleController::class, 'edit'])->name('admin.role.edit');
-    Route::post('/role/edit/{id}',[AppHttp\Controllers\Admin\RoleController::class, 'update'])->name('admin.role.update');
-    Route::get('/role/delete/{id}',[AppHttp\Controllers\Admin\RoleController::class, 'destroy'])->name('admin.role.delete');
+    Route::get('/role/edit/{id}',[App\Http\Controllers\Admin\RoleController::class, 'edit'])->name('admin.role.edit');
+    Route::post('/role/edit/{id}',[App\Http\Controllers\Admin\RoleController::class, 'update'])->name('admin.role.update');
+    Route::get('/role/delete/{id}',[App\Http\Controllers\Admin\RoleController::class, 'destroy'])->name('admin.role.delete');
   });
 
     //ADMIN STAFF SECTION 
@@ -599,9 +547,9 @@ Route::group(['prefix' => 'cart', 'as' => 'front.cart.'], function () {
 // Checkout Routes
 Route::group(['prefix' => 'checkout', 'as' => 'front.checkout.'], function () {
     Route::get('/', [App\Http\Controllers\Front\CheckoutController::class, 'index'])->name('index');
-    Route::post('/process', [AppHttp\Controllers\Front\CheckoutController::class, 'process'])->name('process');
+    Route::post('/process', [App\Http\Controllers\Front\CheckoutController::class, 'process'])->name('process');
     // Route::get('/success/{orderNumber}', [App\Http\Controllers\Front\CheckoutController::class, 'success'])->name('success');
-    Route::get('/cancel/{orderNumber}', [AppHttp\Controllers\Front\CheckoutController::class, 'cancel'])->name('cancel');
+    Route::get('/cancel/{orderNumber}', [App\Http\Controllers\Front\CheckoutController::class, 'cancel'])->name('cancel');
 });
 
 

@@ -15,6 +15,10 @@ class PushClaimToNotion implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public $tries = 3;
+
+    public $backoff = [30, 120, 300];
+
     protected $claimId;
 
     public function __construct($claimId)
@@ -22,9 +26,13 @@ class PushClaimToNotion implements ShouldQueue
         $this->claimId = $claimId;
     }
 
-    public function handle()
+    public function handle(NotionService $notion)
     {
         try {
+            if (!$notion->isEnabled()) {
+                return;
+            }
+
             $claim = Claim::find($this->claimId);
 
             if (!$claim) {
@@ -32,16 +40,35 @@ class PushClaimToNotion implements ShouldQueue
                 return;
             }
 
-            $pageId = (new NotionService())->createClaimPage($claim);
+            if ($claim->notion_page_id) {
+                return;
+            }
+
+            // Registration normally queues the client first, but make this
+            // job safe when workers run concurrently or the earlier job failed.
+            if ($claim->user && !$claim->user->notion_page_id) {
+                $clientPageId = $notion->createClientPage($claim->user);
+                if (!$clientPageId) {
+                    throw new \RuntimeException('Notion did not return a client page id.');
+                }
+                $claim->user->notion_page_id = $clientPageId;
+                $claim->user->saveQuietly();
+            }
+
+            $pageId = $notion->createClaimPage($claim->fresh(['user']));
 
             if ($pageId) {
                 $claim->notion_page_id = $pageId;
                 $claim->saveQuietly();
 
                 Log::info('Claim pushed to Notion', ['claim_id' => $claim->id, 'notion_page_id' => $pageId]);
+                return;
             }
+
+            throw new \RuntimeException('Notion did not return a claim page id.');
         } catch (\Exception $e) {
             Log::error('Failed to push claim to Notion: ' . $e->getMessage(), ['claim_id' => $this->claimId]);
+            throw $e;
         }
     }
 }

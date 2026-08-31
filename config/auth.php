@@ -73,16 +73,10 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
-            'query' => function ($model) {
-                return $model->where('role_type', 'user');
-            },
         ],
         'admins' => [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
-            'query' => function ($model) {
-                return $model->where('role_type', 'admin');
-            },
         ],
         'webadmins' => [
             'driver' => 'eloquent',
