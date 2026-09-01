@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Jobs\PushClientToNotion;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -38,6 +39,22 @@ class UserSubscription extends Model
         'expires_at' => 'datetime',
         'canceled_at' => 'datetime',
     ];
+
+    protected static function booted()
+    {
+        static::saved(function (UserSubscription $subscription) {
+            if ($subscription->wasRecentlyCreated || $subscription->wasChanged([
+                'subplan_id',
+                'status',
+                'stripe_status',
+                'expires_at',
+                'ends_at',
+                'canceled_at',
+            ])) {
+                PushClientToNotion::dispatch($subscription->user_id)->afterCommit();
+            }
+        });
+    }
 
     /**
      * Get the user that owns the subscription.

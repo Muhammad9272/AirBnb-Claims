@@ -33,24 +33,26 @@ class PushClientToNotion implements ShouldQueue
                 return;
             }
 
-            $user = User::find($this->userId);
+            $user = User::with('userSubscriptions.plan')->find($this->userId);
 
             if (!$user) {
                 Log::info('Notion client push skipped - user not found', ['user_id' => $this->userId]);
                 return;
             }
 
-            if ($user->notion_page_id) {
-                return;
-            }
-
-            $pageId = $notion->createClientPage($user);
+            $pageId = $user->notion_page_id ?: $notion->createClientPage($user);
 
             if ($pageId) {
-                $user->notion_page_id = $pageId;
-                $user->saveQuietly();
+                if (!$user->notion_page_id) {
+                    $user->notion_page_id = $pageId;
+                    $user->saveQuietly();
+                }
 
-                Log::info('Client pushed to Notion', ['user_id' => $user->id, 'notion_page_id' => $pageId]);
+                if (!$notion->updateClientPage($user)) {
+                    throw new \RuntimeException('Notion client page update failed.');
+                }
+
+                Log::info('Client synced to Notion', ['user_id' => $user->id, 'notion_page_id' => $pageId]);
                 return;
             }
 

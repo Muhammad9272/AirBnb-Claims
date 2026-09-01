@@ -17,6 +17,7 @@ use App\Models\SubFeature;
 use App\Models\SubPlan;
 use App\Models\Product;
 use App\Models\User;
+use App\Jobs\PushClientToNotion;
 use Auth;
 use Carbon\Carbon;
 use Hash;
@@ -133,6 +134,8 @@ class DashboardController extends Controller
                 'phone' => $request->phone,
                 'gender' => $request->gender,
             ]);
+
+            PushClientToNotion::dispatch($user->id);
 
             return redirect()->back()->with([
                 'message' => 'Profile updated successfully!',

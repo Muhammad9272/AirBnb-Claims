@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Claim;
 use App\Models\User;
+use App\Models\UserSubscription;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use RuntimeException;
@@ -166,6 +167,37 @@ class NotionService
     }
 
     /**
+     * Keep the website-owned client identity and subscription summary in
+     * sync after profile or billing changes. Operational fields such as
+     * Priority and Notes remain owned by the Notion team.
+     */
+    public function updateClientPage(User $user): bool
+    {
+        if (!$this->isEnabled()) {
+            return true;
+        }
+
+        if (!$user->notion_page_id) {
+            Log::warning('Cannot update Notion client without a page id', ['user_id' => $user->id]);
+            return false;
+        }
+
+        $response = $this->request('PATCH', "/pages/{$user->notion_page_id}", [
+            'properties' => $this->clientProperties($user),
+        ]);
+
+        if ($response === null) {
+            Log::error('Failed to update Notion client page', [
+                'user_id' => $user->id,
+                'page_id' => $user->notion_page_id,
+            ]);
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Query claim pages edited since $sinceIso (ISO-8601 string). Returns the
      * raw array of Notion page objects, or an empty array on failure.
      */
@@ -307,13 +339,68 @@ class NotionService
 
     private function clientProperties(User $user): array
     {
-        return [
+        $properties = [
             'Name' => $this->title($this->pagePrefix() . $user->name),
             'Email' => $this->email($user->email),
             'Phone' => $this->phone($user->phone),
             // Cross-reference back to the website's internal user id.
             'Portal Client ID' => $this->richText((string) $user->id),
         ];
+
+        return array_merge($properties, $this->clientSubscriptionProperties($user));
+    }
+
+    /**
+     * Map the portal's three subscriber states onto the options that already
+     * exist in the live Clients database:
+     * Active Subscriber => Active, Former Subscriber => Churned, and
+     * Registered/Never Subscribed => Lead.
+     */
+    private function clientSubscriptionProperties(User $user): array
+    {
+        $subscriptions = $user->relationLoaded('userSubscriptions')
+            ? $user->userSubscriptions
+            : $user->userSubscriptions()->with('plan')->latest('id')->get();
+
+        $subscriptions = $subscriptions->sortByDesc('id')->values();
+        $active = $subscriptions->first(function (UserSubscription $subscription) {
+            $notExpired = !$subscription->expires_at || $subscription->expires_at->isFuture();
+
+            return ($subscription->status === 'active' && $notExpired)
+                || ($subscription->status === 'cancelled'
+                    && $subscription->expires_at
+                    && $subscription->expires_at->isFuture());
+        });
+
+        $latest = $active ?: $subscriptions->first();
+        $status = $active ? 'Active' : ($latest ? 'Churned' : 'Lead');
+
+        $properties = [
+            'Status' => $this->status($status),
+            'Subscription Plan' => $this->select($this->notionPlanName($latest)),
+        ];
+
+        if ($latest && $latest->created_at) {
+            $properties['Start Date'] = $this->date($latest->created_at);
+        }
+
+        return $properties;
+    }
+
+    private function notionPlanName(?UserSubscription $subscription): ?string
+    {
+        if (!$subscription || !$subscription->plan) {
+            return null;
+        }
+
+        return match (strtolower((string) $subscription->plan->interval)) {
+            'monthly', 'month' => 'Monthly',
+            'yearly', 'annual', 'year' => 'Annual',
+            'trial', 'free_trial' => 'Free Trial',
+            default => str_contains(strtolower((string) $subscription->plan->name), 'success')
+                ? 'Success Fee'
+                : 'Custom',
+        };
     }
 
     private function request(string $method, string $path, array $payload = []): ?array
@@ -379,6 +466,11 @@ class NotionService
     private function status(?string $value): array
     {
         return $value ? ['status' => ['name' => $value]] : ['status' => null];
+    }
+
+    private function select(?string $value): array
+    {
+        return $value ? ['select' => ['name' => $value]] : ['select' => null];
     }
 
     private function relation(string $pageId): array
